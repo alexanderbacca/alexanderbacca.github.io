@@ -11,7 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-                <!-- Google tag (gtag.js) -->
+      <!-- Google tag (gtag.js) -->
             <script async src="https://www.googletagmanager.com/gtag/js?id=G-VMZJXRJ30V"></script>
             <script>
               window.dataLayer = window.dataLayer || [];
@@ -92,11 +92,11 @@
         }
         
         .score {
-            color: #ffffff;
+            /* FIX 1: Changed text color to black and removed ineffective text-shadow */
+            color: #000000;
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         .game-over {
@@ -200,9 +200,9 @@
         let imagesLoaded = 0;
         const totalImages = Object.keys(imageUrls).length;
         
-        // Control state for two-button system
-        let leftButtonState = 0; // 0 = up, 1 = left
-        let rightButtonState = 0; // 0 = down, 1 = right
+        // FIX 2: Removed control state variables that were causing the logic issue.
+        // let leftButtonState = 0; 
+        // let rightButtonState = 0;
         
         // Preload all images
         function preloadImages() {
@@ -260,47 +260,47 @@
             return newFood;
         }
         
-        // Check if direction change is valid (no reversing)
-        function isValidDirectionChange(newDirection) {
-            // Can't reverse direction
-            return !(direction.x === -newDirection.x && direction.y === -newDirection.y);
-        }
+        // FIX 2: Removed this function as the new logic doesn't require it.
+        // function isValidDirectionChange(newDirection) { ... }
         
-        // Handle left button press (cycles between up and left)
+        // FIX 2: Rewrote button handlers to depend on current direction, not internal state.
+        // This makes the controls reliable regardless of which button was pressed last.
+        
+        /**
+         * Handles the "Up-Left" button. It intelligently switches between
+         * 'up' and 'left' based on the snake's current direction, preventing illegal moves.
+         */
         function handleLeftButton() {
             if (!gameRunning || !gameStarted) return;
-            
-            if (leftButtonState === 0) { // Currently up, try to go left
-                const newDirection = {x: -1, y: 0};
-                if (isValidDirectionChange(newDirection)) {
-                    direction = newDirection;
-                    leftButtonState = 1;
-                }
-            } else { // Currently left, try to go up
-                const newDirection = {x: 0, y: -1};
-                if (isValidDirectionChange(newDirection)) {
-                    direction = newDirection;
-                    leftButtonState = 0;
-                }
+            const currentDir = direction;
+
+            if (currentDir.x === 1) { // moving right -> go up
+                direction = {x: 0, y: -1};
+            } else if (currentDir.y === 1) { // moving down -> go left
+                direction = {x: -1, y: 0};
+            } else if (currentDir.y === -1) { // moving up -> go left
+                direction = {x: -1, y: 0};
+            } else if (currentDir.x === -1) { // moving left -> go up
+                direction = {x: 0, y: -1};
             }
         }
-        
-        // Handle right button press (cycles between down and right)
+
+        /**
+         * Handles the "Down-Right" button. It intelligently switches between
+         * 'down' and 'right' based on the snake's current direction.
+         */
         function handleRightButton() {
             if (!gameRunning || !gameStarted) return;
-            
-            if (rightButtonState === 0) { // Currently down, try to go right
-                const newDirection = {x: 1, y: 0};
-                if (isValidDirectionChange(newDirection)) {
-                    direction = newDirection;
-                    rightButtonState = 1;
-                }
-            } else { // Currently right, try to go down
-                const newDirection = {x: 0, y: 1};
-                if (isValidDirectionChange(newDirection)) {
-                    direction = newDirection;
-                    rightButtonState = 0;
-                }
+            const currentDir = direction;
+
+            if (currentDir.y === -1) { // moving up -> go right
+                direction = {x: 1, y: 0};
+            } else if (currentDir.x === -1) { // moving left -> go down
+                direction = {x: 0, y: 1};
+            } else if (currentDir.y === 1) { // moving down -> go right
+                direction = {x: 1, y: 0};
+            } else if (currentDir.x === 1) { // moving right -> go down
+                direction = {x: 0, y: 1};
             }
         }
         
@@ -407,8 +407,7 @@
             score = 0;
             gameRunning = true;
             gameStarted = true;
-            leftButtonState = 0;
-            rightButtonState = 0;
+            // FIX 2: Removed state variables from reset logic
             scoreElement.textContent = score;
             gameOverElement.style.display = 'none';
         }
