@@ -6,29 +6,24 @@
     <title>Snake Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-green: #1a4b3a;
-            --secondary-green: #2d7a5f;
-            --accent-teal: #00b4a6;
-            --slate-gray: #2c3e50;
-            --light-gray: #ecf0f1;
-            --white: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-              }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-VMZJXRJ30V"></script>
-        <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-VMZJXRJ30V"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+            
+              gtag('config', 'G-VMZJXRJ30V');
+            </script>
         
-          gtag('config', 'G-VMZJXRJ30V');
-        </script>
-
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 50%, var(--accent-teal) 100%);
+            background: linear-gradient(135deg, #1a4b3a 0%, #2d7a5f 50%, #00b4a6 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -36,7 +31,6 @@
             min-height: 100vh;
             margin: 0;
             padding: 10px;
-            box-sizing: border-box;
         }
         
         .game-container {
@@ -48,14 +42,14 @@
         }
         
         canvas {
-            background-color: var(--glass-bg);
-            border: 2px solid var(--glass-border);
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 10px;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
             width: 100%;
             height: auto;
             aspect-ratio: 1;
+            display: block;
         }
         
         .controls {
@@ -67,27 +61,31 @@
         }
         
         button {
-            background: var(--glass-bg);
-            border: 2px solid var(--glass-border);
-            color: var(--white);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
             padding: 15px 25px;
             border-radius: 10px;
             font-size: 24px;
             cursor: pointer;
             width: 48%;
-            backdrop-filter: blur(10px);
             transition: all 0.2s ease;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            font-weight: bold;
         }
         
         button:active {
             transform: scale(0.95);
-            background: var(--glass-border);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
         
         .score {
-            color: var(--white);
+            color: #ffffff;
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 10px;
@@ -95,19 +93,19 @@
         }
         
         .game-over {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: var(--glass-bg);
-            border: 2px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
             padding: 30px;
             text-align: center;
-            color: var(--white);
-            backdrop-filter: blur(15px);
+            color: #ffffff;
             box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
             display: none;
+            z-index: 1000;
         }
         
         .game-over h2 {
@@ -122,9 +120,9 @@
         }
         
         .restart-btn {
-            background: var(--accent-teal);
+            background: #00b4a6;
             border: none;
-            color: var(--white);
+            color: #ffffff;
             padding: 12px 24px;
             border-radius: 8px;
             font-size: 16px;
@@ -134,7 +132,11 @@
         }
         
         .restart-btn:hover {
-            background: var(--secondary-green);
+            background: #2d7a5f;
+        }
+        
+        .restart-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -199,7 +201,15 @@
         function preloadImages() {
             Object.keys(imageUrls).forEach(key => {
                 images[key] = new Image();
+                images[key].crossOrigin = "anonymous"; // Handle CORS
                 images[key].onload = () => {
+                    imagesLoaded++;
+                    if (imagesLoaded === totalImages) {
+                        startGame();
+                    }
+                };
+                images[key].onerror = () => {
+                    console.warn(`Failed to load image: ${imageUrls[key]}`);
                     imagesLoaded++;
                     if (imagesLoaded === totalImages) {
                         startGame();
@@ -322,37 +332,47 @@
         
         // Draw everything on canvas
         function draw() {
-            // Clear canvas
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            // Clear canvas completely with solid background
+            ctx.fillStyle = 'rgba(26, 75, 58, 0.3)'; // Semi-transparent primary green
             ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
             
             // Draw snake body
             ctx.fillStyle = '#00b4a6'; // accent-teal
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1;
+            
             for (let i = 1; i < snake.length; i++) {
-                ctx.fillRect(
-                    snake[i].x * GRID_SIZE + 2,
-                    snake[i].y * GRID_SIZE + 2,
-                    GRID_SIZE - 4,
-                    GRID_SIZE - 4
-                );
+                const x = snake[i].x * GRID_SIZE + 2;
+                const y = snake[i].y * GRID_SIZE + 2;
+                const size = GRID_SIZE - 4;
+                
+                ctx.fillRect(x, y, size, size);
+                ctx.strokeRect(x, y, size, size);
             }
             
-            // Draw snake head with image
+            // Draw snake head with image (fallback to rectangle if image fails)
             if (snake.length > 0) {
                 const headImage = getCurrentHeadImage();
-                if (headImage && headImage.complete) {
-                    ctx.drawImage(
-                        headImage,
-                        snake[0].x * GRID_SIZE,
-                        snake[0].y * GRID_SIZE,
-                        GRID_SIZE,
-                        GRID_SIZE
-                    );
+                const headX = snake[0].x * GRID_SIZE;
+                const headY = snake[0].y * GRID_SIZE;
+                
+                if (headImage && headImage.complete && headImage.naturalWidth > 0) {
+                    ctx.drawImage(headImage, headX, headY, GRID_SIZE, GRID_SIZE);
+                } else {
+                    // Fallback: draw colored rectangle for head
+                    ctx.fillStyle = '#2d7a5f'; // secondary-green for head
+                    ctx.fillRect(headX + 1, headY + 1, GRID_SIZE - 2, GRID_SIZE - 2);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(headX + 1, headY + 1, GRID_SIZE - 2, GRID_SIZE - 2);
                 }
             }
             
             // Draw food
             ctx.fillStyle = '#ecf0f1'; // light-gray
+            ctx.strokeStyle = '#2c3e50'; // slate-gray
+            ctx.lineWidth = 2;
+            
             ctx.beginPath();
             ctx.arc(
                 food.x * GRID_SIZE + GRID_SIZE / 2,
@@ -362,6 +382,7 @@
                 2 * Math.PI
             );
             ctx.fill();
+            ctx.stroke();
         }
         
         // Game over
@@ -387,8 +408,11 @@
         
         // Game loop
         function gameLoop() {
-            update();
+            if (gameRunning) {
+                update();
+            }
             draw();
+            
             setTimeout(() => {
                 requestAnimationFrame(gameLoop);
             }, 150); // Game speed
@@ -403,8 +427,15 @@
         }
         
         // Event listeners
-        document.getElementById('leftBtn').addEventListener('click', handleLeftButton);
-        document.getElementById('rightBtn').addEventListener('click', handleRightButton);
+        document.getElementById('leftBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLeftButton();
+        });
+        
+        document.getElementById('rightBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            handleRightButton();
+        });
         
         // Touch events for better mobile experience
         document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
@@ -415,6 +446,11 @@
         document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             handleRightButton();
+        });
+        
+        // Prevent context menu on long press
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
         });
         
         // Initialize game
