@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Practice Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #636e72;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .score {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #00b894;
+            font-weight: bold;
+        }
+        
+        .question {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            color: #2d3436;
+        }
+        
+        .color-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 20px auto;
+            border: 4px solid #ddd;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .color-circle:hover {
+            transform: scale(1.1);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .option-btn {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            background: #74b9ff;
+            color: white;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+        }
+        
+        .option-btn.correct {
+            background: #00b894;
+            animation: pulse 0.5s ease;
+        }
+        
+        .option-btn.wrong {
+            background: #e74c3c;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .next-btn {
+            background: #00b894;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .next-btn:hover {
+            background: #00a085;
+        }
+        
+        .next-btn:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+        }
+        
+        .celebration {
+            font-size: 1.3em;
+            color: #00b894;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .reset-btn {
+            background: #6c5ce7;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .reset-btn:hover {
+            background: #5f4fcf;
+        }
+        
+        input:focus {
+            border-color: #74b9ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎨 Color Practice Game</h1>
+        <p class="subtitle">Learn English color names!</p>
+        
+        <div style="margin-bottom: 20px;">
+            <label for="playerName" style="font-size: 1.1em; color: #2d3436; margin-right: 10px;">Your Name:</label>
+            <input type="text" id="playerName" placeholder="Enter your name" style="padding: 8px 15px; font-size: 1em; border: 2px solid #ddd; border-radius: 8px; outline: none; transition: border-color 0.3s ease;">
+        </div>
+        
+        <div class="score">
+            Score: <span id="score">0</span> / <span id="total">0</span>
+        </div>
+        
+        <div class="question">What color is this?</div>
+        
+        <div class="color-circle" id="colorCircle"></div>
+        
+        <div class="options" id="options"></div>
+        
+        <div class="celebration" id="feedback"></div>
+        
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+        <button class="reset-btn" onclick="resetGame()">Reset Game</button>
+    </div>
+
+    <script>
+        const colors = [
+            { name: 'red', hex: '#e74c3c' },
+            { name: 'blue', hex: '#3498db' },
+            { name: 'yellow', hex: '#f1c40f' },
+            { name: 'green', hex: '#2ecc71' },
+            { name: 'purple', hex: '#9b59b6' },
+            { name: 'orange', hex: '#e67e22' },
+            { name: 'pink', hex: '#e91e63' },
+            { name: 'black', hex: '#2c3e50' },
+            { name: 'white', hex: '#ecf0f1' },
+            { name: 'gray', hex: '#7f8c8d' }
+        ];
+        
+        let currentColor;
+        let score = 0;
+        let total = 0;
+        let answered = false;
+        
+        function getRandomColor() {
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function getRandomOptions(correctColor) {
+            const options = [correctColor];
+            const otherColors = colors.filter(c => c.name !== correctColor.name);
+            
+            // Add 2-3 random wrong options
+            while (options.length < 4 && otherColors.length > 0) {
+                const randomIndex = Math.floor(Math.random() * otherColors.length);
+                options.push(otherColors.splice(randomIndex, 1)[0]);
+            }
+            
+            // Shuffle options
+            return options.sort(() => Math.random() - 0.5);
+        }
+        
+        function displayQuestion() {
+            answered = false;
+            currentColor = getRandomColor();
+            
+            // Set the color circle
+            const circle = document.getElementById('colorCircle');
+            circle.style.backgroundColor = currentColor.hex;
+            
+            // Special handling for white color to make it visible
+            if (currentColor.name === 'white') {
+                circle.style.border = '4px solid #bdc3c7';
+            } else {
+                circle.style.border = '4px solid #ddd';
+            }
+            
+            // Generate options
+            const options = getRandomOptions(currentColor);
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.name.toUpperCase();
+                btn.onclick = () => checkAnswer(option.name, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            // Clear feedback and disable next button
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('nextBtn').disabled = true;
+        }
+        
+        function checkAnswer(selectedColor, button) {
+            if (answered) return;
+            
+            answered = true;
+            total++;
+            
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+            
+            if (selectedColor === currentColor.name) {
+                score++;
+                button.classList.add('correct');
+                const playerName = document.getElementById('playerName').value.trim();
+                if (playerName) {
+                    document.getElementById('feedback').textContent = `🎉 Correct! Well done, ${playerName}!`;
+                } else {
+                    document.getElementById('feedback').textContent = '🎉 Correct! Well done!';
+                }
+            } else {
+                button.classList.add('wrong');
+                // Highlight the correct answer
+                allButtons.forEach(btn => {
+                    if (btn.textContent.toLowerCase() === currentColor.name) {
+                        btn.classList.add('correct');
+                    }
+                });
+                document.getElementById('feedback').textContent = `❌ Oops! It was ${currentColor.name.toUpperCase()}`;
+            }
+            
+            // Update score
+            document.getElementById('score').textContent = score;
+            document.getElementById('total').textContent = total;
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+        }
+        
+        function nextQuestion() {
+            // Reset button states
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+                btn.style.pointerEvents = 'auto';
+            });
+            
+            displayQuestion();
+        }
+        
+        function resetGame() {
+            score = 0;
+            total = 0;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('total').textContent = '0';
+            displayQuestion();
+        }
+        
+        // Start the game
+        displayQuestion();
+    </script>
+</body>
+</html>
