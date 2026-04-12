@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Quick Message - Alexander Bacca</title>
+    <meta name="description" content="Send a WhatsApp message to any Colombian number instantly. No need to save the contact.">
+    <link rel="icon" href="https://alexanderbacca.github.io/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://alexanderbacca.github.io/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="https://alexanderbacca.github.io/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-green:   #1a4b3a;
+            --secondary-green: #2d7a5f;
+            --accent-teal:     #00b4a6;
+            --light-gray:      #ecf0f1;
+            --white:           #ffffff;
+            --glass-bg:        rgba(255,255,255,0.10);
+            --glass-border:    rgba(255,255,255,0.20);
+            --wa-green:        #25D366;
+            --wa-green-dark:   #1da851;
+            --error-red:       #ff6b6b;
+        }
+
+        /* ── Background ── */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 50%, var(--accent-teal) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            color: var(--white);
+        }
+
+        .background-animation {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            z-index: -1; opacity: 0.10;
+        }
+        .particle {
+            position: absolute; background: var(--white); border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            50%      { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* ── Header ── */
+        header {
+            position: sticky; top: 0;
+            background: rgba(26,75,58,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000; padding: 1rem 0;
+        }
+        nav {
+            max-width: 1200px; margin: 0 auto;
+            padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--white); text-decoration: none; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a {
+            color: var(--white); text-decoration: none;
+            transition: color .3s ease; font-size: .95rem;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-teal); }
+
+        /* ── Main layout ── */
+        main {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center;
+            padding: 3rem 1.5rem;
+        }
+
+        /* ── Card ── */
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            width: 100%; max-width: 440px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+            text-align: center;
+            animation: fadeInUp .7s ease both;
+        }
+        @keyframes fadeInUp {
+            from { opacity:0; transform: translateY(32px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+
+        /* ── WA icon ── */
+        .wa-icon-wrap {
+            width: 72px; height: 72px;
+            background: var(--wa-green);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 4px 20px rgba(37,211,102,0.40);
+            animation: pulse-glow 2.4s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%,100% { box-shadow: 0 4px 20px rgba(37,211,102,0.40); }
+            50%      { box-shadow: 0 4px 32px rgba(37,211,102,0.75); }
+        }
+        .wa-icon-wrap svg { width:38px; height:38px; fill:var(--white); }
+
+        /* ── Titles ── */
+        .card h1 {
+            font-size: 1.65rem; font-weight: 700;
+            color: var(--white); margin-bottom: .5rem; line-height: 1.2;
+        }
+        .card .subtitle {
+            font-size: .92rem; color: rgba(255,255,255,.70);
+            margin-bottom: 2rem; line-height: 1.55;
+        }
+
+        /* ── Country badge ── */
+        .country-badge {
+            display: inline-flex; align-items: center; gap: .45rem;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            border-radius: 50px; padding: .35rem .9rem;
+            font-size: .85rem; font-weight: 500; margin-bottom: 1.4rem;
+            color: var(--light-gray);
+        }
+        .flag { font-size: 1.1rem; }
+
+        /* ── Input group ── */
+        .input-group {
+            position: relative; margin-bottom: 1.25rem;
+        }
+        .prefix {
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+            font-size: 1rem; font-weight: 600;
+            color: rgba(255,255,255,.70); pointer-events: none;
+            user-select: none;
+        }
+        input[type="tel"] {
+            width: 100%;
+            padding: .9rem 1rem .9rem 3.2rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem; font-weight: 500; letter-spacing: .05em;
+            color: var(--white);
+            background: rgba(255,255,255,0.10);
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 14px;
+            outline: none;
+            caret-color: var(--accent-teal);
+            transition: border-color .3s ease, box-shadow .3s ease, background .3s ease;
+        }
+        input[type="tel"]::placeholder { color: rgba(255,255,255,.40); }
+        input[type="tel"]:focus {
+            background: rgba(255,255,255,0.14);
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 4px rgba(0,180,166,0.20);
+        }
+        /* VALID state */
+        input[type="tel"].valid {
+            border-color: var(--wa-green);
+            box-shadow: 0 0 0 4px rgba(37,211,102,0.22);
+        }
+        /* INVALID (typed but wrong length) */
+        input[type="tel"].invalid {
+            border-color: var(--error-red);
+            box-shadow: 0 0 0 4px rgba(255,107,107,0.18);
+        }
+
+        /* ── Digit counter ── */
+        .digit-counter {
+            display: flex; justify-content: flex-end;
+            font-size: .78rem; margin-bottom: 1.4rem;
+            transition: color .3s ease;
+            color: rgba(255,255,255,.50);
+        }
+        .digit-counter.ready  { color: var(--wa-green); font-weight: 600; }
+        .digit-counter.error  { color: var(--error-red); }
+
+        /* ── Submit button ── */
+        .btn-send {
+            width: 100%; padding: .95rem;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem; font-weight: 600;
+            border: none; border-radius: 50px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: .6rem;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,.55);
+            box-shadow: none;
+            transition: background .3s ease, color .3s ease, box-shadow .3s ease, transform .2s ease;
+            pointer-events: none; /* disabled until valid */
+        }
+        .btn-send.ready {
+            background: linear-gradient(45deg, var(--wa-green), var(--wa-green-dark));
+            color: var(--white);
+            box-shadow: 0 4px 20px rgba(37,211,102,0.40);
+            pointer-events: all;
+        }
+        .btn-send.ready:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(37,211,102,0.55);
+        }
+        .btn-send.ready:active { transform: translateY(0); }
+        .btn-send svg { width:20px; height:20px; fill:currentColor; flex-shrink:0; }
+
+        /* ── Helper text ── */
+        .helper {
+            margin-top: 1.4rem;
+            font-size: .80rem; color: rgba(255,255,255,.45);
+            line-height: 1.5;
+        }
+        .helper a {
+            color: var(--accent-teal); text-decoration: none;
+        }
+        .helper a:hover { text-decoration: underline; }
+
+        /* ── Footer ── */
+        footer {
+            background: rgba(26,75,58,0.95);
+            color: var(--light-gray); text-align: center;
+            padding: 1.4rem 0;
+        }
+        footer p { font-size: .85rem; opacity: .80; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .card { padding: 2.2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="particle" style="left:8%;top:18%;width:4px;height:4px;animation-delay:0s"></div>
+        <div class="particle" style="left:22%;top:72%;width:6px;height:6px;animation-delay:1.2s"></div>
+        <div class="particle" style="left:58%;top:28%;width:8px;height:8px;animation-delay:2.1s"></div>
+        <div class="particle" style="left:80%;top:65%;width:5px;height:5px;animation-delay:3s"></div>
+        <div class="particle" style="left:91%;top:12%;width:7px;height:7px;animation-delay:4.3s"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="./index.html" class="logo">Alexander Bacca</a>
+            <ul class="nav-links">
+                <li><a href="./index.html#home">Home</a></li>
+                <li><a href="./index.html#project">Projects</a></li>
+                <li><a href="./index.html#videos">Videos</a></li>
+                <li><a href="./ai-projects.html">AI Work</a></li>
+                <li><a href="whatsapp-tool.html" class="active">WA Tool</a></li>
+                <li><a href="./index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Tool Card -->
+    <main>
+        <div class="card">
+
+            <!-- WhatsApp Icon -->
+            <div class="wa-icon-wrap" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.856L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.032-1.386l-.36-.214-3.733.975.997-3.638-.235-.374A9.815 9.815 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/>
+                </svg>
+            </div>
+
+            <h1>WhatsApp Quick Message</h1>
+            <p class="subtitle">Send a message to any Colombian number — no need to save the contact first.</p>
+
+            <!-- Country badge -->
+            <div class="country-badge">
+                <span class="flag">🇨🇴</span>
+                Colombia &nbsp;·&nbsp; +57
+            </div>
+
+            <!-- Input -->
+            <div class="input-group">
+                <span class="prefix" aria-hidden="true">+57</span>
+                <input
+                    id="phone"
+                    type="tel"
+                    inputmode="numeric"
+                    maxlength="10"
+                    autocomplete="off"
+                    placeholder="Enter 10-digit number"
+                    aria-label="Colombian phone number (10 digits)"
+                >
+            </div>
+
+            <!-- Digit counter -->
+            <div class="digit-counter" id="counter" aria-live="polite">0 / 10 digits</div>
+
+            <!-- Submit button -->
+            <button class="btn-send" id="btnSend" aria-label="Open WhatsApp" disabled>
+                <svg viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.856L0 24l6.335-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.814 9.814 0 01-5.032-1.386l-.36-.214-3.733.975.997-3.638-.235-.374A9.815 9.815 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/>
+                </svg>
+                Open in WhatsApp
+            </button>
+
+            <p class="helper">
+                Numbers must start with <strong>3</strong> (mobile).<br>
+                You will be redirected to <code>wa.me/57XXXXXXXXXX</code>.<br>
+                <a href="./index.html">&larr; Back to home</a>
+            </p>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Alexander Bacca &mdash; Crafted with code and creativity</p>
+    </footer>
+
+    <script>
+        const input   = document.getElementById('phone');
+        const btn     = document.getElementById('btnSend');
+        const counter = document.getElementById('counter');
+
+        /* Allow only numeric input */
+        input.addEventListener('input', () => {
+            input.value = input.value.replace(/\D/g, '').slice(0, 10);
+            validate();
+        });
+
+        /* Block non-numeric key presses (desktop) */
+        input.addEventListener('keydown', (e) => {
+            const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Enter'];
+            if (!allowed.includes(e.key) && !/^\d$/.test(e.key)) e.preventDefault();
+        });
+
+        function validate() {
+            const len = input.value.length;
+            const isReady = len === 10;
+
+            /* Counter label */
+            counter.textContent = `${len} / 10 digits`;
+            counter.className = 'digit-counter' + (isReady ? ' ready' : len > 0 ? ' error' : '');
+
+            /* Input border */
+            input.classList.toggle('valid',   isReady);
+            input.classList.toggle('invalid', !isReady && len > 0);
+
+            /* Button state */
+            btn.classList.toggle('ready', isReady);
+            btn.disabled = !isReady;
+        }
+
+        /* Redirect on click */
+        btn.addEventListener('click', () => {
+            if (input.value.length === 10) {
+                window.location.href = `https://wa.me/57${input.value}`;
+            }
+        });
+
+        /* Also allow Enter key to submit */
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && input.value.length === 10) {
+                window.location.href = `https://wa.me/57${input.value}`;
+            }
+        });
+
+        /* Spawn particles */
+        function spawnParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = (Math.random() * 6 + 2) + 'px';
+            p.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${size};height:${size};animation-delay:${Math.random()*6}s`;
+            document.querySelector('.background-animation').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+        setInterval(spawnParticle, 3000);
+
+        /* Sticky header opacity */
+        window.addEventListener('scroll', () => {
+            document.querySelector('header').style.background =
+                window.pageYOffset > 50 ? 'rgba(26,75,58,0.98)' : 'rgba(26,75,58,0.95)';
+        });
+    </script>
+
+</body>
+</html>
