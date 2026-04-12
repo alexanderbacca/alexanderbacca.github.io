@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Projects - Alexander Bacca</title>
+    <meta name="description" content="AI & Data Analysis projects by Alexander Bacca, Agronomy Engineer and AI Enthusiast from Colombia.">
+    <link rel="icon" href="https://alexanderbacca.github.io/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://alexanderbacca.github.io/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-green: #1a4b3a;
+            --secondary-green: #2d7a5f;
+            --accent-teal: #00b4a6;
+            --slate-gray: #2c3e50;
+            --light-gray: #ecf0f1;
+            --white: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 50%, var(--accent-teal) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .background-animation {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.1;
+        }
+        .particle {
+            position: absolute; background: var(--white); border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Header */
+        header {
+            position: sticky; top: 0;
+            background: rgba(26, 75, 58, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000; padding: 1rem 0;
+        }
+        nav {
+            max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem; font-weight: 700; color: var(--white); text-decoration: none;
+        }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a {
+            color: var(--white); text-decoration: none; transition: color 0.3s ease;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-teal); }
+
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+        /* Glass card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+
+        /* Page hero */
+        .page-hero {
+            padding: 5rem 0 3rem;
+            text-align: center;
+        }
+        .page-hero .emoji-icon {
+            font-size: 4rem; display: block; margin-bottom: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .page-hero h1 {
+            font-size: 3rem; font-weight: 700;
+            color: var(--white); margin-bottom: 1rem; line-height: 1.2;
+        }
+        .page-hero .subtitle {
+            font-size: 1.2rem; color: var(--accent-teal); margin-bottom: 1.5rem;
+        }
+        .page-hero p {
+            font-size: 1.05rem; color: var(--light-gray);
+            max-width: 640px; margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Section */
+        .section { padding: 3rem 0; }
+        .section-title {
+            font-size: 2rem; font-weight: 700;
+            color: var(--white); margin-bottom: 2rem; text-align: center;
+        }
+        .section-title span {
+            color: var(--accent-teal);
+        }
+
+        /* Projects grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .project-card {
+            display: flex; flex-direction: column;
+        }
+        .project-card .card-icon {
+            font-size: 2.5rem; margin-bottom: 1rem;
+        }
+        .project-card h3 {
+            font-size: 1.3rem; font-weight: 600;
+            color: var(--accent-teal); margin-bottom: 0.75rem;
+        }
+        .project-card p {
+            font-size: 0.95rem; color: var(--light-gray);
+            line-height: 1.7; flex-grow: 1;
+        }
+        .tag-list {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+            margin-top: 1.25rem;
+        }
+        .tag {
+            background: rgba(0,180,166,0.18);
+            border: 1px solid rgba(0,180,166,0.35);
+            color: var(--accent-teal);
+            font-size: 0.75rem; font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        /* Tools/skills section */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+        .tool-item {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 1.25rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        .tool-item:hover {
+            transform: translateY(-4px);
+            background: rgba(0,180,166,0.15);
+        }
+        .tool-item .tool-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .tool-item span {
+            font-size: 0.85rem; color: var(--light-gray); font-weight: 500;
+        }
+
+        /* CTA row */
+        .cta-row {
+            display: flex; justify-content: center; gap: 1.5rem;
+            margin-top: 3rem; flex-wrap: wrap;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--accent-teal), var(--secondary-green));
+            color: var(--white); text-decoration: none;
+            padding: 0.9rem 2rem; border-radius: 50px;
+            font-weight: 600; font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,180,166,0.3);
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,180,166,0.45);
+        }
+        .cta-button.outline {
+            background: transparent;
+            border: 2px solid var(--accent-teal);
+            color: var(--accent-teal);
+            box-shadow: none;
+        }
+        .cta-button.outline:hover {
+            background: rgba(0,180,166,0.12);
+            box-shadow: 0 4px 15px rgba(0,180,166,0.2);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(26,75,58,0.95);
+            color: var(--light-gray); text-align: center;
+            padding: 2rem 0; margin-top: 4rem;
+        }
+        .footer-note { font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem; }
+
+        /* Fade in animation */
+        .fade-in {
+            opacity: 0; transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-1 { animation-delay: 0.15s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.45s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .page-hero h1 { font-size: 2.2rem; }
+            .container { padding: 0 1rem; }
+            .cta-row { flex-direction: column; align-items: center; }
+        }
+        @media (max-width: 480px) {
+            .page-hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated Background -->
+    <div class="background-animation">
+        <div class="particle" style="left:10%;top:20%;width:4px;height:4px;animation-delay:0s"></div>
+        <div class="particle" style="left:25%;top:75%;width:6px;height:6px;animation-delay:1s"></div>
+        <div class="particle" style="left:55%;top:35%;width:8px;height:8px;animation-delay:2s"></div>
+        <div class="particle" style="left:78%;top:60%;width:5px;height:5px;animation-delay:3s"></div>
+        <div class="particle" style="left:90%;top:15%;width:7px;height:7px;animation-delay:4s"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="./index.html" class="logo">Alexander Bacca</a>
+            <ul class="nav-links">
+                <li><a href="./index.html#home">Home</a></li>
+                <li><a href="./index.html#project">Projects</a></li>
+                <li><a href="./index.html#videos">Videos</a></li>
+                <li><a href="ai-projects.html" class="active">AI Work</a></li>
+                <li><a href="./index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="container">
+            <span class="emoji-icon">🤖</span>
+            <h1 class="fade-in">AI & Data Analysis</h1>
+            <div class="subtitle fade-in delay-1">Where Agronomy Meets Artificial Intelligence</div>
+            <p class="fade-in delay-2">
+                Using AI tools to analyze agricultural data, cryptocurrency markets, and geopolitical trends.
+                From Colombia, building data-driven insights for the future.
+            </p>
+        </div>
+    </section>
+
+    <!-- AI Projects -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Featured <span>AI Projects</span></h2>
+            <div class="projects-grid">
+
+                <div class="glass-card project-card fade-in">
+                    <div class="card-icon">🌱</div>
+                    <h3>Agro-AI Analysis</h3>
+                    <p>Using AI tools and data visualization to analyze crop yields, soil conditions, and climate patterns in Colombian agriculture. Bridging precision agronomy with modern machine learning techniques.</p>
+                    <div class="tag-list">
+                        <span class="tag">Python</span>
+                        <span class="tag">Data Viz</span>
+                        <span class="tag">Agronomy</span>
+                    </div>
+                </div>
+
+                <div class="glass-card project-card fade-in delay-1">
+                    <div class="card-icon">📊</div>
+                    <h3>Crypto Market Reports</h3>
+                    <p>Building Bitcoin and altcoin market analysis reports using AI-assisted research and chart generation. Covering technical patterns, on-chain metrics, and macroeconomic context with Colombian market perspective.</p>
+                    <div class="tag-list">
+                        <span class="tag">Bitcoin</span>
+                        <span class="tag">Charts</span>
+                        <span class="tag">AI Research</span>
+                    </div>
+                </div>
+
+                <div class="glass-card project-card fade-in delay-2">
+                    <div class="card-icon">🗺️</div>
+                    <h3>GIS & Geospatial Data</h3>
+                    <p>Converting GPS field data into Shape files and maps using open-source GIS tools. Spatial analysis for agricultural planning and land-use decision making in Valle del Cauca.</p>
+                    <div class="tag-list">
+                        <span class="tag">GIS</span>
+                        <span class="tag">GPS/GPX</span>
+                        <span class="tag">QGIS</span>
+                    </div>
+                </div>
+
+                <div class="glass-card project-card fade-in">
+                    <div class="card-icon">⚡</div>
+                    <h3>Energy Market Analysis</h3>
+                    <p>Researching and visualizing Colombian energy production data, hydroelectric capacity, and commodity price correlations. Exploring the link between energy costs and Bitcoin mining economics.</p>
+                    <div class="tag-list">
+                        <span class="tag">Energy</span>
+                        <span class="tag">Colombia</span>
+                        <span class="tag">Economics</span>
+                    </div>
+                </div>
+
+                <div class="glass-card project-card fade-in delay-1">
+                    <div class="card-icon">🌐</div>
+                    <h3>Geopolitics Dashboard</h3>
+                    <p>Compiling AI-assisted geopolitical analysis reports covering international trade, sanctions, and their market impact. Connecting global events to local Colombian economic effects.</p>
+                    <div class="tag-list">
+                        <span class="tag">Geopolitics</span>
+                        <span class="tag">AI Tools</span>
+                        <span class="tag">Reports</span>
+                    </div>
+                </div>
+
+                <div class="glass-card project-card fade-in delay-2">
+                    <div class="card-icon">🤝</div>
+                    <h3>AI-Assisted Learning</h3>
+                    <p>Actively using AI tools for English language practice, technical research, and building interactive web experiences. Exploring prompt engineering and AI model capabilities for real-world applications.</p>
+                    <div class="tag-list">
+                        <span class="tag">Prompt Engineering</span>
+                        <span class="tag">Education</span>
+                        <span class="tag">English</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools & Skills -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Tools & <span>Technologies</span></h2>
+            <div class="tools-grid">
+                <div class="tool-item"><span class="tool-icon">🤖</span><span>Perplexity AI</span></div>
+                <div class="tool-item"><span class="tool-icon">🐍</span><span>Python</span></div>
+                <div class="tool-item"><span class="tool-icon">🗺️</span><span>QGIS</span></div>
+                <div class="tool-item"><span class="tool-icon">📈</span><span>TradingView</span></div>
+                <div class="tool-item"><span class="tool-icon">🌿</span><span>GitHub</span></div>
+                <div class="tool-item"><span class="tool-icon">₿</span><span>Binance</span></div>
+                <div class="tool-item"><span class="tool-icon">📊</span><span>Data Viz</span></div>
+                <div class="tool-item"><span class="tool-icon">🌍</span><span>GIS / GPS</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+        <div class="container" style="text-align:center">
+            <h2 class="section-title fade-in">Let's <span>Collaborate</span></h2>
+            <p class="fade-in" style="color:var(--light-gray);max-width:500px;margin:0 auto 0.5rem;font-size:1rem;">
+                Interested in agronomy, AI, crypto data, or GIS projects? I'd love to connect.
+            </p>
+            <div class="cta-row">
+                <a href="./index.html#contact" class="cta-button">Contact Me</a>
+                <a href="https://github.com/alexanderbacca" target="_blank" rel="noopener noreferrer" class="cta-button outline">View GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Alexander Bacca</p>
+            <p class="footer-note">Cultivating the future with AI 🌱</p>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection observer for fade-in
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = entry.target.style.animationDelay || '0.1s';
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // Particle spawn
+        function createParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            const size = (Math.random() * 6 + 2) + 'px';
+            p.style.width = size; p.style.height = size;
+            p.style.animationDelay = Math.random() * 6 + 's';
+            document.querySelector('.background-animation').appendChild(p);
+            setTimeout(() => p.remove(), 6000);
+        }
+        setInterval(createParticle, 3000);
+
+        // Scroll header
+        window.addEventListener('scroll', () => {
+            const h = document.querySelector('header');
+            h.style.background = window.pageYOffset > 50
+                ? 'rgba(26,75,58,0.98)' : 'rgba(26,75,58,0.95)';
+        });
+    </script>
+</body>
+</html>
