@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Corrector ✍️</title>
+    <link rel="icon" href="Corrector.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="Corrector.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="Corrector.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-green: #1a4b3a;
+            --secondary-green: #2d7a5f;
+            --accent-teal: #00b4a6;
+            --slate-gray: #2c3e50;
+            --light-gray: #ecf0f1;
+            --white: #ffffff;
+            --glass-bg: rgba(255,255,255,0.1);
+            --glass-border: rgba(255,255,255,0.2);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--slate-gray);
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 50%, var(--accent-teal) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(26,75,58,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color .3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent-teal);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .tool-wrapper {
+            min-height: calc(100vh - 90px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 0;
+        }
+
+        .tool-card {
+            width: 100%;
+            max-width: 820px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.18);
+        }
+
+        .return-home {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            color: var(--white);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .return-home:hover {
+            color: var(--accent-teal);
+        }
+
+        h1 {
+            color: var(--white);
+            font-size: 2.4rem;
+            margin-bottom: .75rem;
+        }
+
+        .subtitle {
+            color: var(--light-gray);
+            font-size: 1rem;
+            margin-bottom: 1.75rem;
+        }
+
+        label {
+            display: block;
+            color: var(--white);
+            font-weight: 600;
+            margin-bottom: .75rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 280px;
+            padding: 1rem 1.1rem;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.92);
+            color: var(--slate-gray);
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        textarea:focus {
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 4px rgba(0,180,166,0.18);
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .helper {
+            color: var(--light-gray);
+            font-size: 0.95rem;
+            max-width: 460px;
+        }
+
+        .send-button {
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, var(--accent-teal), var(--secondary-green));
+            color: var(--white);
+            padding: 1rem 1.75rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform .2s ease, box-shadow .2s ease;
+            box-shadow: 0 6px 18px rgba(0,180,166,0.28);
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,180,166,0.38);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .warning {
+            margin-top: 1rem;
+            color: #fff5c4;
+            font-size: .92rem;
+            display: none;
+        }
+
+        footer {
+            background: rgba(26,75,58,0.95);
+            color: var(--light-gray);
+            text-align: center;
+            padding: 1.25rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            nav {
+                align-items: flex-start;
+                gap: 1rem;
+                flex-direction: column;
+            }
+
+            .tool-card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.9rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="logo">Alexander Bacca</a>
+            <ul class="nav-links">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#project">Projects</a></li>
+                <li><a href="index.html#videos">Videos</a></li>
+                <li><a href="Messages-tool.html" class="active">WA Tool</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="tool-wrapper">
+        <div class="container">
+            <section class="tool-card">
+                <a href="index.html" class="return-home">← Return to Home</a>
+                <h1>WhatsApp Corrector ✍️</h1>
+                <p class="subtitle">Pega tu borrador, corrígelo y ábrelo directamente en Perplexity con el prompt listo.</p>
+
+                <label for="rawMessage">Tu mensaje</label>
+                <textarea id="rawMessage" placeholder="Escribe o pega aquí tu mensaje de WhatsApp..."></textarea>
+
+                <div class="actions">
+                    <p class="helper">El texto se enviará a Perplexity en una nueva pestaña con instrucciones para generar tres versiones en español.</p>
+                    <button class="send-button" id="correctBtn">Corregir Mensaje</button>
+                </div>
+
+                <p class="warning" id="warningText">Por favor, escribe un mensaje antes de continuar.</p>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Alexander Bacca</p>
+        </div>
+    </footer>
+
+    <script>
+        const promptBase = "Actúa como un experto asistente de comunicaciones. Te proporcionaré un borrador de mensaje y necesito que lo reescribas en tres versiones distintas, adecuadas para enviar por WhatsApp. Estos son los estilos requeridos: Profesional: Formal, educado y apropiado para negocios o comunicación formal. Amistoso: Cálido, accesible y casual. Plano: Completamente neutral, directo, objetivo y sin emociones. Restricciones: Todas tus respuestas y las versiones de los mensajes deben estar siempre estrictamente en español. Mantén los mensajes concisos y perfectamente formateados para una lectura rápida en WhatsApp. No utilices viñetas (bullet points) en tu respuesta. Presenta cada versión claramente con una etiqueta simple (por ejemplo, Profesional:, Amistoso:, Plano:) seguida de un salto de línea. No incluyas ningún comentario o texto adicional; proporciona únicamente los tres mensajes reescritos. Aquí está el mensaje para reescribir: ";
+
+        const button = document.getElementById('correctBtn');
+        const textArea = document.getElementById('rawMessage');
+        const warning = document.getElementById('warningText');
+
+        button.addEventListener('click', () => {
+            const userText = textArea.value.trim();
+
+            if (!userText) {
+                warning.style.display = 'block';
+                textArea.focus();
+                return;
+            }
+
+            warning.style.display = 'none';
+            const fullPrompt = promptBase + userText;
+            const encodedPrompt = encodeURIComponent(fullPrompt);
+            const url = `https://www.perplexity.ai/search?q=${encodedPrompt}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        });
+    </script>
+</body>
+</html>
