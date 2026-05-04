@@ -140,7 +140,6 @@
     .barcode-raw-wrap.visible { display:flex; }
     .barcode-raw-label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; }
     .barcode-raw-value { font-size:var(--text-xs); font-family:monospace; color:var(--color-text-muted); word-break:break-all; line-height:1.5; }
-    /* Highlighted segment: positions 21-30 */
     .barcode-raw-value .seg-before { color:var(--color-text-faint); }
     .barcode-raw-value .seg-match  { color:var(--gas-accent); font-weight:700; font-size:0.9em; background:rgba(2,132,199,0.1); border-radius:3px; padding:0 2px; }
     .barcode-raw-value .seg-after  { color:var(--color-text-faint); }
@@ -414,24 +413,25 @@
 
     /* ======================================================
        BARCODE SCANNER
-       Extraction rule: strip all non-digits from raw barcode,
-       then take characters at positions 21-30 (1-indexed),
-       i.e. rawDigits.slice(20, 30)
+       Camera: opened via getUserMedia directly (no device
+       enumeration — avoids broken listVideoInputDevices).
+       Decoding: decodeFromVideoElement() polls the live
+       <video> element continuously via ZXing.
+       Extraction: strip non-digits, slice index 20–30
+       (positions 21–30, 1-indexed).
     ====================================================== */
     let codeReader = null;
     let scannerOpen = false;
     let scannedValue = null;
+    let decodeInterval = null;
+    let videoStream = null;
 
     function extractFactura(rawText) {
-      // Work on the raw string as-is (barcode may include non-digit separators)
-      // Step 1: keep only digit characters
       const digits = rawText.replace(/\D/g, '');
-      // Step 2: slice positions 21-30 (0-indexed: 20 to 30)
       return digits.slice(20, 30);
     }
 
     function highlightBarcode(rawText) {
-      // Show the raw digit string with positions 21-30 highlighted
       const digits = rawText.replace(/\D/g, '');
       const before = digits.slice(0, 20);
       const match  = digits.slice(20, 30);
@@ -476,9 +476,11 @@
     }
 
     function stopDecoding(){
-      if(codeReader){ try{ codeReader.reset(); }catch(e){} codeReader=null; }
+      if(decodeInterval){ clearInterval(decodeInterval); decodeInterval = null; }
+      if(codeReader){ try{ codeReader.reset(); }catch(e){} codeReader = null; }
+      if(videoStream){ videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
       const video = document.getElementById('scanner-video');
-      if(video.srcObject){ video.srcObject.getTracks().forEach(t=>t.stop()); video.srcObject=null; }
+      video.srcObject = null;
     }
 
     async function startDecoding(){
@@ -489,41 +491,69 @@
       document.getElementById('barcode-raw-wrap').classList.remove('visible');
 
       if(typeof ZXing === 'undefined'){
-        status.textContent = 'Error: librería no cargó. Verifica tu conexión a internet.';
+        status.textContent = 'Error: librería ZXing no cargó. Verifica tu conexión.';
         status.className = 'scanner-status error'; return;
       }
 
-      try{
-        codeReader = new ZXing.BrowserMultiFormatReader();
-        const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-        let deviceId = devices.length > 0 ? devices[devices.length-1].deviceId : undefined;
-        for(const d of devices){
-          const lbl = d.label.toLowerCase();
-          if(lbl.includes('back')||lbl.includes('trasera')||lbl.includes('environment')||lbl.includes('rear')){
-            deviceId = d.deviceId; break;
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        status.textContent = 'Tu navegador no soporta acceso a cámara. Usa Chrome o Safari reciente.';
+        status.className = 'scanner-status error'; return;
+      }
+
+      try {
+        /* Request rear camera directly — no device enumeration needed */
+        const constraints = {
+          video: {
+            facingMode: { ideal: 'environment' },
+            width:  { ideal: 1280 },
+            height: { ideal: 720 }
           }
-        }
+        };
+        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('scanner-video');
+        video.srcObject = videoStream;
+        await video.play();
+
         status.textContent = 'Apunta al código de barras…';
 
-        codeReader.decodeFromVideoDevice(deviceId, 'scanner-video', (result, err) => {
-          if(result){
-            const raw = result.getText();
-            const extracted = extractFactura(raw);
-            if(extracted.length > 0){
-              onScanSuccess(raw, extracted);
-            } else {
-              status.textContent = 'Código leído, pero no hay dígitos en posición 21–30. Intenta de nuevo.';
-              status.className = 'scanner-status error';
+        /* Use decodeFromVideoElement — instance method, always works in 0.21 */
+        codeReader = new ZXing.BrowserMultiFormatReader();
+
+        /* Poll every 400ms — decodeFromVideoElement reads a single frame */
+        decodeInterval = setInterval(async () => {
+          if(!scannerOpen) return;
+          try {
+            const result = await codeReader.decodeFromVideoElement(video);
+            if(result){
+              const raw = result.getText();
+              const extracted = extractFactura(raw);
+              clearInterval(decodeInterval);
+              decodeInterval = null;
+              if(extracted.length > 0){
+                onScanSuccess(raw, extracted);
+              } else {
+                status.textContent = 'Código leído, pero no hay dígitos en posición 21–30. Intenta de nuevo.';
+                status.className = 'scanner-status error';
+                /* restart polling */
+                decodeInterval = setInterval(arguments.callee, 400);
+              }
+            }
+          } catch(e){
+            /* NotFoundException is normal between frames — ignore silently */
+            if(e && e.name !== 'NotFoundException' && !(e instanceof ZXing.NotFoundException)){
+              console.warn('Decode error:', e);
             }
           }
-          if(err && !(err instanceof ZXing.NotFoundException)){ console.warn('Scan warn:',err); }
-        });
+        }, 400);
+
       } catch(e){
-        console.error(e);
-        if(e.name==='NotAllowedError'||String(e).includes('Permission')){
+        console.error('Camera error:', e);
+        if(e.name === 'NotAllowedError' || String(e).includes('Permission')){
           status.textContent = 'Permiso de cámara denegado. Habilítalo en ajustes del navegador.';
+        } else if(e.name === 'NotFoundError'){
+          status.textContent = 'No se encontró ninguna cámara en este dispositivo.';
         } else {
-          status.textContent = 'No se pudo acceder a la cámara: ' + e.message;
+          status.textContent = 'No se pudo abrir la cámara: ' + (e.message || e.name);
         }
         status.className = 'scanner-status error';
       }
@@ -533,7 +563,6 @@
       scannedValue = extracted;
       stopDecoding();
 
-      // Show highlighted raw barcode
       document.getElementById('barcode-raw-value').innerHTML = highlightBarcode(rawText);
       document.getElementById('barcode-raw-wrap').classList.add('visible');
 
@@ -553,13 +582,13 @@
       document.getElementById('factura-copy-btn').style.display = 'inline-flex';
       closeScanner();
       navigator.clipboard.writeText(scannedValue).catch(()=>{});
-      // Flash green
       display.style.transition = 'color 0.2s';
       display.style.color = '#22c55e';
       setTimeout(()=>{ display.style.color = ''; }, 1500);
     }
 
     function restartScan(){
+      stopDecoding();
       resetScannerUI();
       startDecoding();
     }
