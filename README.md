@@ -1,2 +1,2 @@
 # alexanderbacca.github.io
-My projects, now just for fun 😅
+My projects, now just for fun 😅.
