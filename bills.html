@@ -132,10 +132,12 @@
     .barcode-raw-value .seg-before { color:var(--color-text-faint); }
     .barcode-raw-value .seg-match  { color:var(--gas-accent); font-weight:700; font-size:0.9em; background:rgba(2,132,199,0.1); border-radius:3px; padding:0 2px; }
     .barcode-raw-value .seg-after  { color:var(--color-text-faint); }
+    .barcode-format-badge { display:inline-block; font-size:var(--text-xs); font-family:monospace; padding:1px 6px; border-radius:var(--radius-sm); background:rgba(2,132,199,0.1); color:var(--gas-accent); font-weight:600; margin-bottom:var(--space-1); }
 
     .scanner-status { font-size:var(--text-xs); text-align:center; min-height:1.4em; color:var(--color-text-muted); }
     .scanner-status.error   { color:#ef4444; }
     .scanner-status.success { color:#22c55e; font-weight:600; }
+    .scanner-status.warn    { color:#f59e0b; font-weight:500; }
 
     .scanner-result-row { display:none; align-items:center; gap:var(--space-2); padding:var(--space-3) var(--space-4); border-radius:var(--radius-md); background:var(--color-bg); border:1px solid var(--color-border); }
     .scanner-result-row.visible { display:flex; }
@@ -296,11 +298,9 @@
 
             <!-- Scanner panel -->
             <div class="scanner-panel" id="scanner-panel" role="region" aria-label="Escáner de código de barras">
-              <p class="scanner-hint">Apunta al <strong>código de barras</strong> de la factura — se extraen los dígitos del <strong>21 al 30</strong></p>
+              <p class="scanner-hint">Apunta al <strong>código de barras largo</strong> de la factura — se extraen los dígitos del <strong>21 al 30</strong></p>
 
               <div class="scanner-viewport-wrap">
-                <!-- playsinline is critical on iOS to prevent fullscreen takeover -->
-                <!-- NO autoplay attr — we call play() manually after srcObject is set -->
                 <video id="scanner-video" playsinline muted aria-label="Vista de cámara"></video>
                 <div class="scan-overlay" aria-hidden="true">
                   <div class="scan-line"></div>
@@ -311,6 +311,7 @@
 
               <div class="barcode-raw-wrap" id="barcode-raw-wrap">
                 <span class="barcode-raw-label">Código completo leído</span>
+                <span id="barcode-format-badge" class="barcode-format-badge"></span>
                 <span class="barcode-raw-value" id="barcode-raw-value"></span>
               </div>
 
@@ -410,65 +411,65 @@
     }
 
     /* ══════════════════════════════════════════════════════════════════
-       BARCODE SCANNER — Fixed by Perplexity pro 
+       BARCODE SCANNER
        ─────────────────────────────────────────────────────────────────
-       ROOT CAUSE of the black-screen bug:
-         The old code used setInterval + decodeFromVideoElement(), then
-         called stopDecoding() inside onScanSuccess(), which immediately
-         called video.srcObject = null — blanking the feed before the
-         user could see the result.
+       ROOT CAUSE of wrong digits bug:
+         BrowserMultiFormatReader tries ALL formats simultaneously.
+         On a Montagas bill there are multiple barcodes. The scanner
+         was latching onto a secondary barcode (ITF / EAN) that decoded
+         first — producing a completely different number not present
+         anywhere in the correct Code128 payload.
 
-       FIXES applied:
-         1. Use decodeFromConstraints() — the correct ZXing 0.21 API
-            for continuous camera decoding. It handles getUserMedia,
-            srcObject assignment, and play() internally. The video
-            stream stays alive until we explicitly call codeReader.reset().
-         2. Never call stopDecoding() inside onScanSuccess(). Stream
-            stays visible while the user reviews the result.
-         3. Only stop the stream when the user clicks "Usar este número"
-            or "Cerrar" — i.e. after interaction, not mid-scan.
-         4. Removed arguments.callee (illegal in strict mode).
-         5. Removed the manual getUserMedia + video.play() block —
-            decodeFromConstraints handles it all, avoiding the race
-            condition where srcObject was set but play() hadn't resolved.
-         6. scanLocked flag prevents double-firing the callback.
+       FIX:
+         Restrict ZXing to CODE_128 only via the POSSIBLE_FORMATS hint.
+         Code 128 is the standard for Colombian utility invoice barcodes
+         and is the only format that contains the full 44-digit string
+         with the N° Factura at positions 21-30.
+         This prevents ITF, EAN-13, and other formats from firing first.
+
+         A length guard (MIN_DIGIT_LENGTH = 40) provides a second layer
+         of protection: if somehow a short result still slips through,
+         the scanner rejects it and keeps trying.
     ══════════════════════════════════════════════════════════════════ */
 
-    var codeReader  = null;
-    var scannerOpen = false;
+    var codeReader   = null;
+    var scannerOpen  = false;
     var scannedValue = null;
-    var scanLocked  = false;
+    var scanLocked   = false;
 
-    function extractFactura(raw){
+    /* Real Montagas Code128 payload is ~44 digits. Reject anything shorter. */
+    var MIN_DIGIT_LENGTH = 40;
+
+    function extractFactura(raw) {
       var digits = raw.replace(/\D/g, '');
       return digits.slice(20, 30);
     }
 
-    function highlightBarcode(raw){
+    function highlightBarcode(raw) {
       var digits = raw.replace(/\D/g, '');
       var before = digits.slice(0, 20);
       var match  = digits.slice(20, 30);
       var after  = digits.slice(30);
       var html = '';
-      if(before) html += '<span class="seg-before">' + before + '</span>';
-      if(match)  html += '<span class="seg-match">'  + match  + '</span>';
-      if(after)  html += '<span class="seg-after">'  + after  + '</span>';
+      if (before) html += '<span class="seg-before">' + before + '</span>';
+      if (match)  html += '<span class="seg-match">'  + match  + '</span>';
+      if (after)  html += '<span class="seg-after">'  + after  + '</span>';
       return html || digits;
     }
 
-    function toggleScanner(){ scannerOpen ? closeScanner() : openScanner(); }
+    function toggleScanner() { scannerOpen ? closeScanner() : openScanner(); }
 
-    function openScanner(){
+    function openScanner() {
       scannerOpen = true;
       document.getElementById('scanner-panel').classList.add('open');
       var btn = document.getElementById('btn-open-scanner');
       btn.classList.add('scanning');
       btn.querySelector('span').textContent = 'Cerrar';
-      document.getElementById('scanner-panel').scrollIntoView({behavior:'smooth', block:'nearest'});
+      document.getElementById('scanner-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       startDecoding();
     }
 
-    function closeScanner(){
+    function closeScanner() {
       scannerOpen = false;
       stopDecoding();
       document.getElementById('scanner-panel').classList.remove('open');
@@ -478,7 +479,7 @@
       resetScannerUI();
     }
 
-    function resetScannerUI(){
+    function resetScannerUI() {
       var status = document.getElementById('scanner-status');
       status.textContent = '';
       status.className = 'scanner-status';
@@ -486,25 +487,25 @@
       document.getElementById('scanner-actions').style.display = 'none';
       document.getElementById('barcode-raw-wrap').classList.remove('visible');
       document.getElementById('barcode-raw-value').innerHTML = '';
+      document.getElementById('barcode-format-badge').textContent = '';
       scannedValue = null;
       scanLocked   = false;
     }
 
-    function stopDecoding(){
-      if(codeReader){
-        try { codeReader.reset(); } catch(e){}
+    function stopDecoding() {
+      if (codeReader) {
+        try { codeReader.reset(); } catch(e) {}
         codeReader = null;
       }
-      /* Clean up video element manually in case reset() didn't */
       var video = document.getElementById('scanner-video');
-      if(video.srcObject){
-        video.srcObject.getTracks().forEach(function(t){ t.stop(); });
+      if (video.srcObject) {
+        video.srcObject.getTracks().forEach(function(t) { t.stop(); });
         video.srcObject = null;
       }
       scanLocked = false;
     }
 
-    function startDecoding(){
+    function startDecoding() {
       var status = document.getElementById('scanner-status');
       status.textContent = 'Iniciando cámara…';
       status.className = 'scanner-status';
@@ -513,24 +514,28 @@
       document.getElementById('barcode-raw-wrap').classList.remove('visible');
       scanLocked = false;
 
-      if(typeof ZXing === 'undefined'){
+      if (typeof ZXing === 'undefined') {
         status.textContent = 'Error: librería ZXing no cargó. Verifica tu conexión.';
         status.className = 'scanner-status error';
         return;
       }
-      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         status.textContent = 'Tu navegador no soporta acceso a cámara. Usa Chrome o Safari reciente.';
         status.className = 'scanner-status error';
         return;
       }
 
       try {
-        codeReader = new ZXing.BrowserMultiFormatReader();
-
-        /* Hint: try harder for low-contrast / small barcodes */
+        /*
+         * KEY FIX: Pass POSSIBLE_FORMATS = [CODE_128] as a hint.
+         * This locks the reader to Code 128 only, preventing ZXing
+         * from latching onto ITF-14 / EAN barcodes on the same bill.
+         */
         var hints = new Map();
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.CODE_128]);
         hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-        codeReader.hints = hints;
+
+        codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
         var constraints = {
           video: {
@@ -540,32 +545,33 @@
           }
         };
 
-        /*
-         * decodeFromConstraints(constraints, videoElementOrId, callback)
-         *
-         * This is the correct ZXing 0.21 continuous-decode API.
-         * It calls getUserMedia(), assigns srcObject, calls play(),
-         * and then fires the callback on every decoded frame or error.
-         *
-         * Because it manages the video element internally, the stream
-         * is NEVER nulled out between frames → no black screen.
-         *
-         * We only stop the stream from outside (user action).
-         */
-        codeReader.decodeFromConstraints(constraints, 'scanner-video', function(result, err){
-          if(!scannerOpen) return;
+        codeReader.decodeFromConstraints(constraints, 'scanner-video', function(result, err) {
+          if (!scannerOpen) return;
 
-          if(result){
-            if(scanLocked) return;   /* Ignore extra callbacks after first hit */
+          if (result) {
+            if (scanLocked) return;
+
+            var raw        = result.getText();
+            var formatName = result.getBarcodeFormat ? result.getBarcodeFormat().toString() : 'CODE_128';
+            var digits     = raw.replace(/\D/g, '');
+
+            /*
+             * Length guard — second layer of protection.
+             * A valid Montagas Code128 payload has ~44 digits.
+             * Anything shorter is the wrong barcode; keep scanning.
+             */
+            if (digits.length < MIN_DIGIT_LENGTH) {
+              status.textContent = 'Código muy corto (' + digits.length + ' dígitos) — apunta al código de barras largo…';
+              status.className   = 'scanner-status warn';
+              return;
+            }
+
             scanLocked = true;
-
-            var raw       = result.getText();
             var extracted = extractFactura(raw);
 
-            if(extracted.length > 0){
-              onScanSuccess(raw, extracted);
+            if (extracted.length > 0) {
+              onScanSuccess(raw, extracted, formatName);
             } else {
-              /* Barcode decoded but digits not at expected position — keep scanning */
               status.textContent = 'Código leído, sin dígitos en pos. 21–30. Sigue apuntando…';
               status.className   = 'scanner-status';
               scanLocked = false;
@@ -573,13 +579,11 @@
             return;
           }
 
-          if(err){
-            /* NotFoundException fires every frame when no barcode is visible — normal */
+          if (err) {
             var isNotFound = err.name === 'NotFoundException'
               || (typeof ZXing.NotFoundException !== 'undefined' && err instanceof ZXing.NotFoundException);
-            if(isNotFound){
-              /* Only update hint text on the very first "not found" */
-              if(status.textContent === 'Iniciando cámara…' || status.textContent === ''){
+            if (isNotFound) {
+              if (status.textContent === 'Iniciando cámara…' || status.textContent === '') {
                 status.textContent = 'Apunta al código de barras…';
                 status.className   = 'scanner-status';
               }
@@ -588,18 +592,17 @@
             }
           }
         })
-        .then(function(){
-          /* Stream started successfully */
-          if(status.textContent === 'Iniciando cámara…'){
+        .then(function() {
+          if (status.textContent === 'Iniciando cámara…') {
             status.textContent = 'Apunta al código de barras…';
             status.className   = 'scanner-status';
           }
         })
-        .catch(function(e){
+        .catch(function(e) {
           console.error('Camera error:', e);
-          if(e.name === 'NotAllowedError' || String(e).includes('Permission')){
+          if (e.name === 'NotAllowedError' || String(e).includes('Permission')) {
             status.textContent = 'Permiso de cámara denegado. Habilítalo en ajustes del navegador.';
-          } else if(e.name === 'NotFoundError'){
+          } else if (e.name === 'NotFoundError') {
             status.textContent = 'No se encontró ninguna cámara en este dispositivo.';
           } else {
             status.textContent = 'No se pudo abrir la cámara: ' + (e.message || e.name || e);
@@ -607,21 +610,17 @@
           status.className = 'scanner-status error';
         });
 
-      } catch(e){
+      } catch(e) {
         console.error('ZXing init error:', e);
         status.textContent = 'Error iniciando el escáner: ' + (e.message || e);
         status.className   = 'scanner-status error';
       }
     }
 
-    function onScanSuccess(rawText, extracted){
+    function onScanSuccess(rawText, extracted, formatName) {
       scannedValue = extracted;
-      /*
-       * DO NOT call stopDecoding() here.
-       * Keeping the stream alive means the video stays visible
-       * while the user reviews the extracted number.
-       * Stream is stopped only when the user confirms or closes.
-       */
+
+      document.getElementById('barcode-format-badge').textContent = formatName || 'CODE_128';
       document.getElementById('barcode-raw-value').innerHTML = highlightBarcode(rawText);
       document.getElementById('barcode-raw-wrap').classList.add('visible');
 
@@ -634,19 +633,19 @@
       document.getElementById('scanner-actions').style.display = 'flex';
     }
 
-    function useScannedValue(){
-      if(!scannedValue) return;
+    function useScannedValue() {
+      if (!scannedValue) return;
       var display = document.getElementById('factura-display');
       display.textContent = scannedValue;
       document.getElementById('factura-copy-btn').style.display = 'inline-flex';
-      closeScanner();   /* stream stops here, after user confirms */
-      navigator.clipboard.writeText(scannedValue).catch(function(){});
+      closeScanner();
+      navigator.clipboard.writeText(scannedValue).catch(function() {});
       display.style.transition = 'color 0.2s';
       display.style.color = '#22c55e';
-      setTimeout(function(){ display.style.color = ''; }, 1500);
+      setTimeout(function() { display.style.color = ''; }, 1500);
     }
 
-    function restartScan(){
+    function restartScan() {
       stopDecoding();
       resetScannerUI();
       startDecoding();
