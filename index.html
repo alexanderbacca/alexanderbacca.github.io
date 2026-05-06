@@ -111,13 +111,20 @@
         .section { padding:4rem 0; }
         .section-title { text-align:center; font-size:2.5rem; font-weight:700; color:var(--white); margin-bottom:3rem; }
 
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
         .project-card {
-            max-width:600px; margin:0 auto; text-align:center;
+            text-align:center;
             cursor:pointer; text-decoration:none; color:inherit; display:block;
         }
-        .project-card h3 { font-size:2rem; color:var(--accent-teal); margin-bottom:1rem; }
-        .project-card p { font-size:1.1rem; color:var(--light-gray); margin-bottom:1.5rem; }
-        .project-icon { font-size:4rem; color:var(--accent-teal); margin-bottom:1rem; }
+        .project-card h3 { font-size:1.5rem; color:var(--accent-teal); margin-bottom:1rem; }
+        .project-card p { font-size:1rem; color:var(--light-gray); margin-bottom:1.5rem; line-height:1.6; }
+        .project-icon { font-size:3.5rem; color:var(--accent-teal); margin-bottom:1rem; }
 
         .contact-links {
             display:flex; justify-content:center; gap:2rem;
@@ -165,6 +172,7 @@
             .contact-links { flex-direction:column; align-items:center; }
             .container { padding:0 1rem; }
             .videos-grid { grid-template-columns:1fr; }
+            .project-grid { grid-template-columns:1fr; }
         }
         @media (max-width:480px) {
             .hero-text h1 { font-size:2rem; }
@@ -192,9 +200,9 @@
             <a href="#" class="logo">Alexander Bacca</a>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
-                <li><a href="#project">Projects</a></li>
+                <li><a href="#tools">Tools</a></li>
+                <li><a href="#projects">Projects</a></li>
                 <li><a href="#videos">Videos</a></li>
-                <li><a href="Messages-tool.html">WA Tool</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
@@ -207,7 +215,7 @@
                     <h1>Cultivating the Future</h1>
                     <div class="subtitle">Where Agriculture Meets AI</div>
                     <p>I am a Colombian Agronomy Engineer, bridging the gap between the field and the future. With a passion for technology and AI, I develop innovative solutions for a more sustainable and intelligent world.</p>
-                    <a href="#project" class="cta-button">Check Out My First Game</a>
+                    <a href="#projects" class="cta-button">Explore My Work</a>
                 </div>
                 <div class="hero-image fade-in">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggNALplGHFRfntTZLjL84sZe9pvHM_baMf_CYuMmyEzo360QGF4dwatcfUAFm8XHXJ6thqdPnrrP7eAqy737LJmKtsP3y3lY83Z3O8lgxkb-kZpZDgDqHDLVDcLIJaftOjGuT2GJ3kiME5/s320/Alex.jpg" alt="Alexander Bacca" class="profile-image">
@@ -216,54 +224,53 @@
         </div>
     </section>
 
-    <section id="project" class="section">
+    <section id="tools" class="section">
         <div class="container">
-            <h2 class="section-title fade-in">Featured Project</h2>
-            <div class="glass-card fade-in">
-                <a href="https://alexanderbacca.github.io/game.html" class="project-card">
-                    <div class="project-icon">🎮</div>
-                    <h3>Make JuanJo Fatter</h3>
-                    <p>A fun web game built to explore interactive development. Click to play!</p>
-                </a>
+            <h2 class="section-title fade-in">Featured Tools</h2>
+            <div class="project-grid">
+                <div class="glass-card fade-in">
+                    <a href="Messages-tool.html" class="project-card">
+                        <div class="project-icon">✍️</div>
+                        <h3>WhatsApp Corrector</h3>
+                        <p>Paste a draft message and instantly open Perplexity with a ready-made prompt that rewrites it in professional, friendly, and neutral Spanish.</p>
+                    </a>
+                </div>
+                <div class="glass-card fade-in">
+                    <a href="whatsapp-tool.html" class="project-card">
+                        <div class="project-icon">💬</div>
+                        <h3>WhatsApp Quick Message</h3>
+                        <p>Send a WhatsApp message to any Colombian number instantly — no need to save the contact first.</p>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="section">
+    <section id="projects" class="section">
         <div class="container">
-            <h2 class="section-title fade-in">Featured Project</h2>
-            <div class="glass-card fade-in">
-                <a href="https://alexanderbacca.github.io/colors.html" class="project-card">
-                    <div class="project-icon">🎉</div>
-                    <h3>Practica los colores en Ingles</h3>
-                    <p>Un sencillo juego para practicar los principales colores. Click to play!</p>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="container">
-            <h2 class="section-title fade-in">Featured Project</h2>
-            <div class="glass-card fade-in">
-                <a href="https://alexanderbacca.github.io/lunar-phases-guide/" class="project-card">
-                    <div class="project-icon">🌕</div>
-                    <h3>Lunar Phases & Agriculture Guide</h3>
-                    <p>Interactive study tool for learning lunar phases and agricultural activities in Spanish. Quiz yourself!</p>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section id="wa-tool" class="section">
-        <div class="container">
-            <h2 class="section-title fade-in">Featured Tool</h2>
-            <div class="glass-card fade-in">
-                <a href="Messages-tool.html" class="project-card">
-                    <div class="project-icon">✍️</div>
-                    <h3>WhatsApp Corrector</h3>
-                    <p>Paste a draft message and instantly open Perplexity with a ready-made prompt that rewrites it in professional, friendly, and neutral Spanish.</p>
-                </a>
+            <h2 class="section-title fade-in">Featured Projects</h2>
+            <div class="project-grid">
+                <div class="glass-card fade-in">
+                    <a href="https://alexanderbacca.github.io/game.html" class="project-card">
+                        <div class="project-icon">🎮</div>
+                        <h3>Make JuanJo Fatter</h3>
+                        <p>A fun web game built to explore interactive development. Click to play!</p>
+                    </a>
+                </div>
+                <div class="glass-card fade-in">
+                    <a href="https://alexanderbacca.github.io/colors.html" class="project-card">
+                        <div class="project-icon">🎉</div>
+                        <h3>Practica los colores en Ingles</h3>
+                        <p>Un sencillo juego para practicar los principales colores. Click to play!</p>
+                    </a>
+                </div>
+                <div class="glass-card fade-in">
+                    <a href="https://alexanderbacca.github.io/lunar-phases-guide/" class="project-card">
+                        <div class="project-icon">🌕</div>
+                        <h3>Lunar Phases & Agriculture Guide</h3>
+                        <p>Interactive study tool for learning lunar phases and agricultural activities in Spanish. Quiz yourself!</p>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
