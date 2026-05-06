@@ -29,12 +29,10 @@
       --color-bg:#f7f6f2; --color-surface:#ffffff; --color-surface-2:#f9f8f5;
       --color-border:rgba(0,0,0,0.09); --color-divider:rgba(0,0,0,0.07);
       --color-text:#1a1917; --color-text-muted:#6b6a67; --color-text-faint:#a8a7a3;
-      --elec-accent:#d97706;
-      --gas-accent:#0284c7;
+      --elec-accent:#d97706; --gas-accent:#0284c7;
       --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
       --shadow-md:0 4px 12px rgba(0,0,0,0.08);
     }
-
     [data-theme="dark"] {
       --color-bg:#131211; --color-surface:#1c1b19; --color-surface-2:#222120;
       --color-border:rgba(255,255,255,0.09); --color-divider:rgba(255,255,255,0.07);
@@ -70,11 +68,9 @@
     .theme-toggle:active { opacity:0.7; }
 
     .main-content { max-width:600px; margin-inline:auto; padding:var(--space-8) var(--space-4) 0; display:flex; flex-direction:column; gap:var(--space-8); }
-
     .section-header { display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-4); }
     .section-icon { font-size:1.35rem; line-height:1; }
     .section-title { font-size:var(--text-lg); font-weight:700; letter-spacing:-0.02em; }
-
     .cards-list { display:flex; flex-direction:column; gap:var(--space-3); }
     .card { background:var(--color-surface); border-radius:var(--radius-xl); border:1px solid var(--color-border); box-shadow:var(--shadow-sm); overflow:hidden; transition:box-shadow var(--transition); }
     .card:hover { box-shadow:var(--shadow-md); }
@@ -82,7 +78,6 @@
     .card-name { font-size:var(--text-base); font-weight:600; }
     .card-body { padding:var(--space-4) var(--space-5); display:flex; flex-direction:column; gap:var(--space-3); }
     .card-footer { padding:var(--space-3) var(--space-5) var(--space-4); }
-
     .code-row { display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); flex-wrap:wrap; }
     .code-label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.06em; font-weight:500; flex-shrink:0; min-width:100px; }
     .code-value-wrap { display:flex; align-items:center; gap:var(--space-2); flex:1; justify-content:flex-end; flex-wrap:wrap; }
@@ -98,61 +93,53 @@
     .btn-copy.copied { background:#dcfce7; color:#166534; border-color:#bbf7d0; }
     [data-theme="dark"] .btn-copy.copied { background:#14291e; color:#4ade80; border-color:#166534; }
     .btn-copy svg { flex-shrink:0; }
-
     .btn-pay { display:flex; align-items:center; justify-content:center; gap:var(--space-2); width:100%; padding:var(--space-3) var(--space-5); border-radius:var(--radius-lg); font-size:var(--text-sm); font-weight:600; color:#fff; transition:opacity var(--transition),transform var(--transition),box-shadow var(--transition); min-height:44px; letter-spacing:0.01em; }
     .btn-pay:hover { opacity:0.9; box-shadow:var(--shadow-md); }
     .btn-pay:active { transform:scale(0.98); opacity:0.85; }
     .elec-section .btn-pay { background:var(--elec-accent); }
     .gas-section  .btn-pay { background:var(--gas-accent); }
-
     .btn-scan { display:inline-flex; align-items:center; gap:var(--space-1); padding:var(--space-1) var(--space-3); border-radius:var(--radius-full); font-size:var(--text-xs); font-weight:500; border:1px solid var(--gas-accent); background:transparent; color:var(--gas-accent); transition:background var(--transition),color var(--transition),transform var(--transition); white-space:nowrap; min-height:28px; flex-shrink:0; }
     .btn-scan:hover { background:var(--gas-accent); color:#fff; }
     .btn-scan:active { transform:scale(0.96); }
     .btn-scan.scanning { background:var(--gas-accent); color:#fff; }
 
-    .scanner-panel { display:none; flex-direction:column; gap:var(--space-3); margin-top:var(--space-3); padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid var(--color-border); animation:slideDown 200ms ease forwards; }
+    .scanner-panel { display:none; flex-direction:column; gap:var(--space-3); margin-top:var(--space-3); padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid var(--color-border); }
     .scanner-panel.open { display:flex; }
-    @keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-
     .scanner-viewport-wrap { position:relative; width:100%; border-radius:var(--radius-md); overflow:hidden; background:#000; aspect-ratio:4/3; }
     #scanner-video { width:100%; height:100%; object-fit:cover; display:block; }
-
     .scan-overlay { position:absolute; inset:0; pointer-events:none; }
     .scan-overlay::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80%; height:30%; border:2px solid rgba(255,255,255,0.85); border-radius:var(--radius-md); box-shadow:0 0 0 9999px rgba(0,0,0,0.45); }
     .scan-line { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80%; height:2px; background:linear-gradient(90deg,transparent,var(--gas-accent),transparent); animation:scanMove 1.6s ease-in-out infinite; }
     @keyframes scanMove { 0%{margin-top:-13%} 50%{margin-top:13%} 100%{margin-top:-13%} }
-
     .scanner-hint { font-size:var(--text-xs); color:var(--color-text-muted); text-align:center; }
     .scanner-hint strong { color:var(--color-text); }
-
-    .barcode-raw-wrap { display:none; flex-direction:column; gap:var(--space-1); padding:var(--space-3); border-radius:var(--radius-md); background:var(--color-bg); border:1px solid var(--color-border); }
-    .barcode-raw-wrap.visible { display:flex; }
-    .barcode-raw-label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; }
-    .barcode-raw-value { font-size:var(--text-xs); font-family:monospace; color:var(--color-text-muted); word-break:break-all; line-height:1.5; }
-    .barcode-raw-value .seg-before { color:var(--color-text-faint); }
-    .barcode-raw-value .seg-match  { color:var(--gas-accent); font-weight:700; font-size:0.9em; background:rgba(2,132,199,0.1); border-radius:3px; padding:0 2px; }
-    .barcode-raw-value .seg-after  { color:var(--color-text-faint); }
-    .barcode-format-badge { display:inline-block; font-size:var(--text-xs); font-family:monospace; padding:1px 6px; border-radius:var(--radius-sm); background:rgba(2,132,199,0.1); color:var(--gas-accent); font-weight:600; margin-bottom:var(--space-1); }
-
     .scanner-status { font-size:var(--text-xs); text-align:center; min-height:1.4em; color:var(--color-text-muted); }
     .scanner-status.error   { color:#ef4444; }
     .scanner-status.success { color:#22c55e; font-weight:600; }
     .scanner-status.warn    { color:#f59e0b; font-weight:500; }
+    .scanner-status.collecting { color:var(--gas-accent); font-weight:500; }
 
-    .scanner-result-row { display:none; align-items:center; gap:var(--space-2); padding:var(--space-3) var(--space-4); border-radius:var(--radius-md); background:var(--color-bg); border:1px solid var(--color-border); }
-    .scanner-result-row.visible { display:flex; }
-    .scanner-result-label { font-size:var(--text-xs); color:var(--color-text-muted); flex-shrink:0; }
-    .scanner-result-value { font-size:var(--text-sm); font-weight:700; color:var(--gas-accent); flex:1; font-variant-numeric:tabular-nums; word-break:break-all; }
+    /* Candidates list */
+    .candidates-wrap { display:none; flex-direction:column; gap:var(--space-2); }
+    .candidates-wrap.visible { display:flex; }
+    .candidates-label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+    .candidate-item { display:flex; flex-direction:column; gap:4px; padding:var(--space-3); border-radius:var(--radius-md); background:var(--color-bg); border:2px solid var(--color-border); cursor:pointer; transition:border-color var(--transition),background var(--transition); }
+    .candidate-item:hover { border-color:var(--gas-accent); background:rgba(2,132,199,0.04); }
+    .candidate-item.best { border-color:var(--gas-accent); }
+    .candidate-meta { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
+    .candidate-badge { font-size:10px; font-family:monospace; font-weight:700; padding:1px 5px; border-radius:3px; background:rgba(2,132,199,0.12); color:var(--gas-accent); }
+    .candidate-badge.itf { background:rgba(217,119,6,0.12); color:var(--elec-accent); }
+    .candidate-len { font-size:10px; color:var(--color-text-faint); }
+    .candidate-best-tag { font-size:10px; font-weight:700; color:#22c55e; margin-left:auto; }
+    .candidate-raw { font-size:var(--text-xs); font-family:monospace; color:var(--color-text-muted); word-break:break-all; line-height:1.5; }
+    .candidate-raw .seg-match { color:var(--gas-accent); font-weight:700; background:rgba(2,132,199,0.1); border-radius:3px; padding:0 2px; }
+    .candidate-hint { font-size:10px; color:var(--color-text-faint); margin-top:2px; }
 
     .scanner-actions { display:flex; gap:var(--space-2); }
-    .btn-use-value { flex:1; display:flex; align-items:center; justify-content:center; gap:var(--space-1); padding:var(--space-2) var(--space-4); border-radius:var(--radius-lg); font-size:var(--text-sm); font-weight:600; background:var(--gas-accent); color:#fff; border:none; min-height:40px; transition:opacity var(--transition),transform var(--transition); }
-    .btn-use-value:hover { opacity:0.9; }
-    .btn-use-value:active { transform:scale(0.97); }
-    .btn-scan-again { display:flex; align-items:center; justify-content:center; padding:var(--space-2) var(--space-4); border-radius:var(--radius-lg); font-size:var(--text-sm); font-weight:500; border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text-muted); min-height:40px; transition:background var(--transition),color var(--transition); }
+    .btn-scan-again { display:flex; align-items:center; justify-content:center; padding:var(--space-2) var(--space-4); border-radius:var(--radius-lg); font-size:var(--text-sm); font-weight:500; border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text-muted); min-height:40px; flex:1; transition:background var(--transition),color var(--transition); }
     .btn-scan-again:hover { background:var(--color-bg); color:var(--color-text); }
 
     .page-footer { text-align:center; color:var(--color-text-faint); font-size:var(--text-xs); margin-top:var(--space-10); padding-inline:var(--space-4); }
-
     @media (max-width:400px) {
       .code-row { flex-direction:column; align-items:flex-start; }
       .code-value-wrap { justify-content:flex-start; }
@@ -175,14 +162,13 @@
 
   <main class="main-content">
 
-    <!-- ELECTRICITY — CEDENAR -->
+    <!-- ELECTRICITY -->
     <section class="elec-section" aria-labelledby="elec-title">
       <div class="section-header">
         <span class="section-icon" aria-hidden="true">⚡</span>
         <h1 class="section-title" id="elec-title">Electricidad — Cedenar</h1>
       </div>
       <div class="cards-list">
-
         <article class="card">
           <div class="card-header"><span class="card-name">Casa Sotomayor</span></div>
           <div class="card-body">
@@ -190,7 +176,7 @@
               <span class="code-label">Referencia</span>
               <div class="code-value-wrap">
                 <span class="code-value">635608</span>
-                <button class="btn-copy" onclick="copyText('635608',this)" aria-label="Copiar referencia 635608">
+                <button class="btn-copy" onclick="copyText('635608',this)" aria-label="Copiar referencia">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   <span>Copiar</span>
                 </button>
@@ -204,7 +190,6 @@
             </a>
           </div>
         </article>
-
         <article class="card">
           <div class="card-header"><span class="card-name">Casa Arenal</span></div>
           <div class="card-body">
@@ -212,7 +197,7 @@
               <span class="code-label">Referencia</span>
               <div class="code-value-wrap">
                 <span class="code-value">309566</span>
-                <button class="btn-copy" onclick="copyText('309566',this)" aria-label="Copiar referencia 309566">
+                <button class="btn-copy" onclick="copyText('309566',this)" aria-label="Copiar referencia">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   <span>Copiar</span>
                 </button>
@@ -226,7 +211,6 @@
             </a>
           </div>
         </article>
-
         <article class="card">
           <div class="card-header"><span class="card-name">Taller de madera</span></div>
           <div class="card-body">
@@ -234,7 +218,7 @@
               <span class="code-label">Referencia</span>
               <div class="code-value-wrap">
                 <span class="code-value">1263712</span>
-                <button class="btn-copy" onclick="copyText('1263712',this)" aria-label="Copiar referencia 1263712">
+                <button class="btn-copy" onclick="copyText('1263712',this)" aria-label="Copiar referencia">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   <span>Copiar</span>
                 </button>
@@ -248,23 +232,19 @@
             </a>
           </div>
         </article>
-
       </div>
     </section>
 
-
-    <!-- GAS — MONTAGAS -->
+    <!-- GAS -->
     <section class="gas-section" aria-labelledby="gas-title">
       <div class="section-header">
         <span class="section-icon" aria-hidden="true">🔥</span>
         <h2 class="section-title" id="gas-title">Gas — Montagas</h2>
       </div>
-
       <div class="cards-list">
         <article class="card">
           <div class="card-header"><span class="card-name">Casa Sotomayor</span></div>
           <div class="card-body">
-
             <div class="code-row">
               <span class="code-label">Ref. de Pago</span>
               <div class="code-value-wrap">
@@ -278,7 +258,6 @@
 
             <div class="divider"></div>
 
-            <!-- N° Factura with barcode scanner -->
             <div class="code-row">
               <span class="code-label">N° Factura</span>
               <div class="code-value-wrap">
@@ -297,37 +276,26 @@
             </div>
 
             <!-- Scanner panel -->
-            <div class="scanner-panel" id="scanner-panel" role="region" aria-label="Escáner de código de barras">
-              <p class="scanner-hint">Apunta al <strong>código de barras largo</strong> de la factura — se extraen los dígitos del <strong>21 al 30</strong></p>
+            <div class="scanner-panel" id="scanner-panel" role="region" aria-label="Escáner">
+              <p class="scanner-hint">Apunta al <strong>código de barras largo</strong>. Se recolectan <strong>ambos códigos</strong> y puedes elegir el correcto.</p>
 
               <div class="scanner-viewport-wrap">
                 <video id="scanner-video" playsinline muted aria-label="Vista de cámara"></video>
-                <div class="scan-overlay" aria-hidden="true">
-                  <div class="scan-line"></div>
-                </div>
+                <div class="scan-overlay" aria-hidden="true"><div class="scan-line"></div></div>
               </div>
 
               <p class="scanner-status" id="scanner-status">Iniciando cámara…</p>
 
-              <div class="barcode-raw-wrap" id="barcode-raw-wrap">
-                <span class="barcode-raw-label">Código completo leído</span>
-                <span id="barcode-format-badge" class="barcode-format-badge"></span>
-                <span class="barcode-raw-value" id="barcode-raw-value"></span>
-              </div>
-
-              <div class="scanner-result-row" id="scanner-result-row">
-                <span class="scanner-result-label">Dígitos 21–30:</span>
-                <span class="scanner-result-value" id="scanner-result-value"></span>
+              <!-- All scanned candidates -->
+              <div class="candidates-wrap" id="candidates-wrap">
+                <span class="candidates-label">Códigos detectados — toca el correcto</span>
+                <div id="candidates-list"></div>
               </div>
 
               <div class="scanner-actions" id="scanner-actions" style="display:none">
-                <button class="btn-use-value" onclick="useScannedValue()">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  Usar este número
-                </button>
                 <button class="btn-scan-again" onclick="restartScan()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
-                  Repetir
+                  Escanear de nuevo
                 </button>
               </div>
             </div>
@@ -360,285 +328,206 @@
   </main>
 
   <script>
-    /* ── Theme toggle ── */
+    /* Theme toggle */
     (function(){
-      var html = document.documentElement;
-      var btn  = document.querySelector('[data-theme-toggle]');
-      var theme = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
-      html.setAttribute('data-theme', theme);
-      updateIcon();
-      btn.addEventListener('click', function(){
-        theme = theme === 'dark' ? 'light' : 'dark';
-        html.setAttribute('data-theme', theme);
-        updateIcon();
-      });
-      function updateIcon(){
-        btn.setAttribute('aria-label','Cambiar a modo ' + (theme==='dark' ? 'claro' : 'oscuro'));
-        btn.innerHTML = theme === 'dark'
-          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-      }
+      var html=document.documentElement,btn=document.querySelector('[data-theme-toggle]');
+      var theme=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+      html.setAttribute('data-theme',theme); updateIcon();
+      btn.addEventListener('click',function(){ theme=theme==='dark'?'light':'dark'; html.setAttribute('data-theme',theme); updateIcon(); });
+      function updateIcon(){ btn.setAttribute('aria-label','Cambiar a modo '+(theme==='dark'?'claro':'oscuro')); btn.innerHTML=theme==='dark'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'; }
     })();
 
-    /* ── Copy to clipboard ── */
-    function copyText(value, btn){
-      if(!value || value === '—') return;
-      var span = btn.querySelector('span');
-      var orig = span.textContent;
-      navigator.clipboard.writeText(value)
-        .then(function(){ showCopied(btn, span, orig); })
-        .catch(function(){
-          var ta = document.createElement('textarea');
-          ta.value = value;
-          ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          ta.remove();
-          showCopied(btn, span, orig);
-        });
-    }
-    function showCopied(btn, span, orig){
-      btn.classList.add('copied');
-      span.textContent = '¡Copiado!';
-      var icon = btn.querySelector('svg');
-      if(icon) icon.innerHTML = '<polyline points="20 6 9 17 4 12" stroke-width="2.5"/>';
-      setTimeout(function(){
-        btn.classList.remove('copied');
-        span.textContent = orig;
-        if(icon) icon.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
-      }, 2000);
-    }
+    /* Copy */
+    function copyText(value,btn){ if(!value||value==='—')return; var span=btn.querySelector('span'),orig=span.textContent; navigator.clipboard.writeText(value).then(function(){ showCopied(btn,span,orig); }).catch(function(){ var ta=document.createElement('textarea'); ta.value=value; ta.style.cssText='position:fixed;opacity:0;pointer-events:none'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showCopied(btn,span,orig); }); }
+    function showCopied(btn,span,orig){ btn.classList.add('copied'); span.textContent='¡Copiado!'; var icon=btn.querySelector('svg'); if(icon)icon.innerHTML='<polyline points="20 6 9 17 4 12" stroke-width="2.5"/>'; setTimeout(function(){ btn.classList.remove('copied'); span.textContent=orig; if(icon)icon.innerHTML='<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'; },2000); }
 
-    /* ══════════════════════════════════════════════════════════════════
+    /* =====================================================================
        BARCODE SCANNER
-       ─────────────────────────────────────────────────────────────────
-       Strategy: use BrowserMultiFormatReader with NO format hints
-       (hints caused a silent crash in ZXing 0.21.3 UMD that prevented
-       any decoding at all).
+       Strategy: collect EVERY unique barcode the camera sees (deduplicated
+       by raw text). Show them all as tappable cards sorted longest-first.
+       The longest one is highlighted as the best candidate.
+       User taps the correct one — no more guessing on our side.
 
-       Instead, rely solely on a LENGTH GUARD: the Montagas Code128
-       barcode has ~44 digits in its payload. Every other barcode on the
-       bill (ITF-14, EAN-13) produces far fewer digits. So we simply
-       reject any result with fewer than MIN_DIGIT_LENGTH digits and
-       keep scanning — this is enough to guarantee we only accept the
-       correct long barcode.
-    ══════════════════════════════════════════════════════════════════ */
+       Extraction: digits 21-30 (index 20..30) from the chosen barcode.
+       Once the user confirms the correct card we learn the right barcode
+       and can hard-code the extraction in the next update if needed.
+    ===================================================================== */
 
-    var codeReader   = null;
-    var scannerOpen  = false;
-    var scannedValue = null;
-    var scanLocked   = false;
+    var codeReader  = null;
+    var scannerOpen = false;
 
-    /*
-     * Montagas Code128 payload has ~44 digits.
-     * ITF-14 has 14, EAN-13 has 13 — both well below this threshold.
-     * Raise to 40 to be safe while still accepting any valid long barcode.
-     */
-    var MIN_DIGIT_LENGTH = 40;
+    /* Map of rawText → { raw, format, digits, count } — deduplicated */
+    var candidates  = {};
+    /* How many unique barcodes we've seen */
+    var candidateCount = 0;
+    /* Scanning stops collecting after this many unique codes */
+    var MAX_CANDIDATES = 6;
+    /* Keep scanning for this many ms before showing "done" */
+    var COLLECT_MS = 4000;
+    var collectTimer = null;
+    var collecting = false;
 
     function extractFactura(raw) {
-      var digits = raw.replace(/\D/g, '');
-      return digits.slice(20, 30);
+      return raw.replace(/\D/g,'').slice(20,30);
     }
 
-    function highlightBarcode(raw) {
-      var digits = raw.replace(/\D/g, '');
-      var before = digits.slice(0, 20);
-      var match  = digits.slice(20, 30);
-      var after  = digits.slice(30);
-      var html = '';
-      if (before) html += '<span class="seg-before">' + before + '</span>';
-      if (match)  html += '<span class="seg-match">'  + match  + '</span>';
-      if (after)  html += '<span class="seg-after">'  + after  + '</span>';
-      return html || digits;
+    function highlightRaw(raw) {
+      var d=raw.replace(/\D/g,'');
+      var b=d.slice(0,20), m=d.slice(20,30), a=d.slice(30);
+      return (b?'<span style="opacity:.5">'+b+'</span>':'')
+           + (m?'<span class="seg-match">'+m+'</span>':'')
+           + (a?'<span style="opacity:.5">'+a+'</span>':'');
     }
 
-    function toggleScanner() { scannerOpen ? closeScanner() : openScanner(); }
+    function toggleScanner(){ scannerOpen ? closeScanner() : openScanner(); }
 
-    function openScanner() {
-      scannerOpen = true;
+    function openScanner(){
+      scannerOpen=true;
       document.getElementById('scanner-panel').classList.add('open');
-      var btn = document.getElementById('btn-open-scanner');
-      btn.classList.add('scanning');
-      btn.querySelector('span').textContent = 'Cerrar';
-      document.getElementById('scanner-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      var btn=document.getElementById('btn-open-scanner');
+      btn.classList.add('scanning'); btn.querySelector('span').textContent='Cerrar';
+      document.getElementById('scanner-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
       startDecoding();
     }
 
-    function closeScanner() {
-      scannerOpen = false;
+    function closeScanner(){
+      scannerOpen=false;
       stopDecoding();
       document.getElementById('scanner-panel').classList.remove('open');
-      var btn = document.getElementById('btn-open-scanner');
-      btn.classList.remove('scanning');
-      btn.querySelector('span').textContent = 'Escanear';
+      var btn=document.getElementById('btn-open-scanner');
+      btn.classList.remove('scanning'); btn.querySelector('span').textContent='Escanear';
       resetScannerUI();
     }
 
-    function resetScannerUI() {
-      var status = document.getElementById('scanner-status');
-      status.textContent = '';
-      status.className = 'scanner-status';
-      document.getElementById('scanner-result-row').classList.remove('visible');
-      document.getElementById('scanner-actions').style.display = 'none';
-      document.getElementById('barcode-raw-wrap').classList.remove('visible');
-      document.getElementById('barcode-raw-value').innerHTML = '';
-      document.getElementById('barcode-format-badge').textContent = '';
-      scannedValue = null;
-      scanLocked   = false;
+    function resetScannerUI(){
+      document.getElementById('scanner-status').textContent='';
+      document.getElementById('scanner-status').className='scanner-status';
+      document.getElementById('candidates-wrap').classList.remove('visible');
+      document.getElementById('candidates-list').innerHTML='';
+      document.getElementById('scanner-actions').style.display='none';
+      candidates={}; candidateCount=0; collecting=false;
+      if(collectTimer){ clearTimeout(collectTimer); collectTimer=null; }
     }
 
-    function stopDecoding() {
-      if (codeReader) {
-        try { codeReader.reset(); } catch(e) {}
-        codeReader = null;
-      }
-      var video = document.getElementById('scanner-video');
-      if (video.srcObject) {
-        video.srcObject.getTracks().forEach(function(t) { t.stop(); });
-        video.srcObject = null;
-      }
-      scanLocked = false;
+    function stopDecoding(){
+      if(codeReader){ try{ codeReader.reset(); }catch(e){} codeReader=null; }
+      var v=document.getElementById('scanner-video');
+      if(v.srcObject){ v.srcObject.getTracks().forEach(function(t){t.stop();}); v.srcObject=null; }
+      if(collectTimer){ clearTimeout(collectTimer); collectTimer=null; }
+      collecting=false;
     }
 
-    function startDecoding() {
-      var status = document.getElementById('scanner-status');
-      status.textContent = 'Iniciando cámara…';
-      status.className = 'scanner-status';
-      document.getElementById('scanner-result-row').classList.remove('visible');
-      document.getElementById('scanner-actions').style.display = 'none';
-      document.getElementById('barcode-raw-wrap').classList.remove('visible');
-      scanLocked = false;
+    function startDecoding(){
+      var status=document.getElementById('scanner-status');
+      status.textContent='Iniciando cámara…'; status.className='scanner-status';
+      resetScannerUI();
+      collecting=true;
 
-      if (typeof ZXing === 'undefined') {
-        status.textContent = 'Error: librería ZXing no cargó. Verifica tu conexión.';
-        status.className = 'scanner-status error';
-        return;
-      }
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        status.textContent = 'Tu navegador no soporta acceso a cámara. Usa Chrome o Safari reciente.';
-        status.className = 'scanner-status error';
-        return;
-      }
+      if(typeof ZXing==='undefined'){ status.textContent='Error: ZXing no cargó.'; status.className='scanner-status error'; return; }
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ status.textContent='Cámara no soportada.'; status.className='scanner-status error'; return; }
 
-      try {
-        /* No hints — plain reader. Format filtering is done by the length guard below. */
-        codeReader = new ZXing.BrowserMultiFormatReader();
-
-        var constraints = {
-          video: {
-            facingMode: { ideal: 'environment' },
-            width:  { ideal: 1280 },
-            height: { ideal: 720 }
-          }
-        };
-
-        codeReader.decodeFromConstraints(constraints, 'scanner-video', function(result, err) {
-          if (!scannerOpen) return;
-
-          if (result) {
-            if (scanLocked) return;
-
-            var raw        = result.getText();
-            var formatName = result.getBarcodeFormat ? result.getBarcodeFormat().toString() : '';
-            var digits     = raw.replace(/\D/g, '');
-
-            /*
-             * LENGTH GUARD — the only filter we need.
-             * Short barcodes (ITF-14=14 digits, EAN-13=13 digits) are silently
-             * discarded. Only the long Code128 barcode (~44 digits) passes.
-             */
-            if (digits.length < MIN_DIGIT_LENGTH) {
-              status.textContent = 'Código muy corto (' + digits.length + ' dígitos) — apunta al código de barras largo…';
-              status.className   = 'scanner-status warn';
-              return;
-            }
-
-            scanLocked = true;
-            var extracted = extractFactura(raw);
-
-            if (extracted.length > 0) {
-              onScanSuccess(raw, extracted, formatName);
-            } else {
-              status.textContent = 'Código leído, sin dígitos en pos. 21–30. Sigue apuntando…';
-              status.className   = 'scanner-status';
-              scanLocked = false;
-            }
-            return;
-          }
-
-          if (err) {
-            var isNotFound = err.name === 'NotFoundException'
-              || (typeof ZXing.NotFoundException !== 'undefined' && err instanceof ZXing.NotFoundException);
-            if (isNotFound) {
-              if (status.textContent === 'Iniciando cámara…' || status.textContent === '') {
-                status.textContent = 'Apunta al código de barras…';
-                status.className   = 'scanner-status';
+      try{
+        codeReader=new ZXing.BrowserMultiFormatReader();
+        codeReader.decodeFromConstraints(
+          {video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}},
+          'scanner-video',
+          function(result,err){
+            if(!scannerOpen||!collecting) return;
+            if(result){
+              var raw=result.getText();
+              var fmt=result.getBarcodeFormat?result.getBarcodeFormat().toString():'';
+              if(!candidates[raw]){
+                candidates[raw]={raw:raw,format:fmt,digits:raw.replace(/\D/g,''),count:1};
+                candidateCount++;
+                renderCandidates();
+                if(candidateCount>=MAX_CANDIDATES) finishCollecting();
+              } else {
+                candidates[raw].count++;
               }
-            } else {
-              console.warn('Decode error:', err);
+              /* Reset the auto-finish timer on each new detection */
+              if(collectTimer){ clearTimeout(collectTimer); }
+              collectTimer=setTimeout(finishCollecting, COLLECT_MS);
+            }
+            if(err){
+              var notFound=err.name==='NotFoundException'||(typeof ZXing.NotFoundException!=='undefined'&&err instanceof ZXing.NotFoundException);
+              if(notFound&&status.textContent==='Iniciando cámara…'){
+                status.textContent='Apunta al código de barras…'; status.className='scanner-status';
+              }
             }
           }
-        })
-        .then(function() {
-          if (status.textContent === 'Iniciando cámara…') {
-            status.textContent = 'Apunta al código de barras…';
-            status.className   = 'scanner-status';
-          }
-        })
-        .catch(function(e) {
-          console.error('Camera error:', e);
-          if (e.name === 'NotAllowedError' || String(e).includes('Permission')) {
-            status.textContent = 'Permiso de cámara denegado. Habilítalo en ajustes del navegador.';
-          } else if (e.name === 'NotFoundError') {
-            status.textContent = 'No se encontró ninguna cámara en este dispositivo.';
-          } else {
-            status.textContent = 'No se pudo abrir la cámara: ' + (e.message || e.name || e);
-          }
-          status.className = 'scanner-status error';
+        )
+        .then(function(){ if(status.textContent==='Iniciando cámara…'){ status.textContent='Apunta al código de barras…'; status.className='scanner-status'; } })
+        .catch(function(e){
+          if(e.name==='NotAllowedError') status.textContent='Permiso de cámara denegado.';
+          else if(e.name==='NotFoundError') status.textContent='No se encontró cámara.';
+          else status.textContent='Error cámara: '+(e.message||e.name||e);
+          status.className='scanner-status error';
         });
-
-      } catch(e) {
-        console.error('ZXing init error:', e);
-        status.textContent = 'Error iniciando el escáner: ' + (e.message || e);
-        status.className   = 'scanner-status error';
+      }catch(e){
+        status.textContent='Error iniciando escáner: '+(e.message||e);
+        document.getElementById('scanner-status').className='scanner-status error';
       }
     }
 
-    function onScanSuccess(rawText, extracted, formatName) {
-      scannedValue = extracted;
+    function renderCandidates(){
+      var status=document.getElementById('scanner-status');
+      status.textContent='Recolectando códigos… ('+candidateCount+' encontrado'+(candidateCount!==1?'s':'')+')';
+      status.className='scanner-status collecting';
 
-      document.getElementById('barcode-format-badge').textContent = formatName || 'CODE_128';
-      document.getElementById('barcode-raw-value').innerHTML = highlightBarcode(rawText);
-      document.getElementById('barcode-raw-wrap').classList.add('visible');
+      /* Sort by digit length descending */
+      var list=Object.values(candidates).sort(function(a,b){ return b.digits.length-a.digits.length; });
+      var bestLen=list[0]?list[0].digits.length:0;
 
-      var status = document.getElementById('scanner-status');
-      status.textContent = '¡Código detectado!';
-      status.className   = 'scanner-status success';
+      var html='';
+      list.forEach(function(c,i){
+        var isBest=(c.digits.length===bestLen);
+        var fmtLower=(c.format||'').toLowerCase();
+        var badgeClass=fmtLower.indexOf('itf')!==-1?'candidate-badge itf':'candidate-badge';
+        var extracted=c.digits.slice(20,30)||'—';
+        html+='<div class="candidate-item'+(isBest?' best':'')+'" onclick="useCandidate('+JSON.stringify(c.raw)+')">';
+        html+='<div class="candidate-meta">';
+        html+='<span class="'+badgeClass+'">'+(c.format||'?')+'</span>';
+        html+='<span class="candidate-len">'+c.digits.length+' dígitos</span>';
+        if(isBest) html+='<span class="candidate-best-tag">★ Más largo</span>';
+        html+='</div>';
+        html+='<div class="candidate-raw">'+highlightRaw(c.raw)+'</div>';
+        html+='<div class="candidate-hint">Dígitos 21–30: <strong>'+extracted+'</strong></div>';
+        html+='</div>';
+      });
 
-      document.getElementById('scanner-result-value').textContent = extracted;
-      document.getElementById('scanner-result-row').classList.add('visible');
-      document.getElementById('scanner-actions').style.display = 'flex';
+      document.getElementById('candidates-list').innerHTML=html;
+      document.getElementById('candidates-wrap').classList.add('visible');
+      document.getElementById('scanner-actions').style.display='flex';
     }
 
-    function useScannedValue() {
-      if (!scannedValue) return;
-      var display = document.getElementById('factura-display');
-      display.textContent = scannedValue;
-      document.getElementById('factura-copy-btn').style.display = 'inline-flex';
+    function finishCollecting(){
+      collecting=false;
+      if(collectTimer){ clearTimeout(collectTimer); collectTimer=null; }
+      var status=document.getElementById('scanner-status');
+      var count=Object.keys(candidates).length;
+      if(count===0){
+        status.textContent='No se leyó ningún código. Intenta de nuevo.';
+        status.className='scanner-status warn';
+      } else {
+        status.textContent='¡Listo! Toca el código correcto.';
+        status.className='scanner-status success';
+      }
+    }
+
+    function useCandidate(raw){
+      var digits=raw.replace(/\D/g,'');
+      var extracted=digits.slice(20,30);
+      var display=document.getElementById('factura-display');
+      display.textContent=extracted||digits;
+      document.getElementById('factura-copy-btn').style.display='inline-flex';
       closeScanner();
-      navigator.clipboard.writeText(scannedValue).catch(function() {});
-      display.style.transition = 'color 0.2s';
-      display.style.color = '#22c55e';
-      setTimeout(function() { display.style.color = ''; }, 1500);
+      navigator.clipboard.writeText(extracted||digits).catch(function(){});
+      display.style.transition='color 0.2s';
+      display.style.color='#22c55e';
+      setTimeout(function(){ display.style.color=''; },1500);
     }
 
-    function restartScan() {
-      stopDecoding();
-      resetScannerUI();
-      startDecoding();
-    }
+    function restartScan(){ stopDecoding(); resetScannerUI(); startDecoding(); }
   </script>
 </body>
 </html>
