@@ -413,23 +413,16 @@
     /* ══════════════════════════════════════════════════════════════════
        BARCODE SCANNER
        ─────────────────────────────────────────────────────────────────
-       ROOT CAUSE of wrong digits bug:
-         BrowserMultiFormatReader tries ALL formats simultaneously.
-         On a Montagas bill there are multiple barcodes. The scanner
-         was latching onto a secondary barcode (ITF / EAN) that decoded
-         first — producing a completely different number not present
-         anywhere in the correct Code128 payload.
+       Strategy: use BrowserMultiFormatReader with NO format hints
+       (hints caused a silent crash in ZXing 0.21.3 UMD that prevented
+       any decoding at all).
 
-       FIX:
-         Restrict ZXing to CODE_128 only via the POSSIBLE_FORMATS hint.
-         Code 128 is the standard for Colombian utility invoice barcodes
-         and is the only format that contains the full 44-digit string
-         with the N° Factura at positions 21-30.
-         This prevents ITF, EAN-13, and other formats from firing first.
-
-         A length guard (MIN_DIGIT_LENGTH = 40) provides a second layer
-         of protection: if somehow a short result still slips through,
-         the scanner rejects it and keeps trying.
+       Instead, rely solely on a LENGTH GUARD: the Montagas Code128
+       barcode has ~44 digits in its payload. Every other barcode on the
+       bill (ITF-14, EAN-13) produces far fewer digits. So we simply
+       reject any result with fewer than MIN_DIGIT_LENGTH digits and
+       keep scanning — this is enough to guarantee we only accept the
+       correct long barcode.
     ══════════════════════════════════════════════════════════════════ */
 
     var codeReader   = null;
@@ -437,7 +430,11 @@
     var scannedValue = null;
     var scanLocked   = false;
 
-    /* Real Montagas Code128 payload is ~44 digits. Reject anything shorter. */
+    /*
+     * Montagas Code128 payload has ~44 digits.
+     * ITF-14 has 14, EAN-13 has 13 — both well below this threshold.
+     * Raise to 40 to be safe while still accepting any valid long barcode.
+     */
     var MIN_DIGIT_LENGTH = 40;
 
     function extractFactura(raw) {
@@ -526,16 +523,8 @@
       }
 
       try {
-        /*
-         * KEY FIX: Pass POSSIBLE_FORMATS = [CODE_128] as a hint.
-         * This locks the reader to Code 128 only, preventing ZXing
-         * from latching onto ITF-14 / EAN barcodes on the same bill.
-         */
-        var hints = new Map();
-        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.CODE_128]);
-        hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-
-        codeReader = new ZXing.BrowserMultiFormatReader(hints);
+        /* No hints — plain reader. Format filtering is done by the length guard below. */
+        codeReader = new ZXing.BrowserMultiFormatReader();
 
         var constraints = {
           video: {
@@ -552,13 +541,13 @@
             if (scanLocked) return;
 
             var raw        = result.getText();
-            var formatName = result.getBarcodeFormat ? result.getBarcodeFormat().toString() : 'CODE_128';
+            var formatName = result.getBarcodeFormat ? result.getBarcodeFormat().toString() : '';
             var digits     = raw.replace(/\D/g, '');
 
             /*
-             * Length guard — second layer of protection.
-             * A valid Montagas Code128 payload has ~44 digits.
-             * Anything shorter is the wrong barcode; keep scanning.
+             * LENGTH GUARD — the only filter we need.
+             * Short barcodes (ITF-14=14 digits, EAN-13=13 digits) are silently
+             * discarded. Only the long Code128 barcode (~44 digits) passes.
              */
             if (digits.length < MIN_DIGIT_LENGTH) {
               status.textContent = 'Código muy corto (' + digits.length + ' dígitos) — apunta al código de barras largo…';
