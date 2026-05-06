@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.4.2/dist/quagga.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -105,12 +105,16 @@
 
     .scanner-panel { display:none; flex-direction:column; gap:var(--space-3); margin-top:var(--space-3); padding:var(--space-4); border-radius:var(--radius-lg); background:var(--color-surface-2); border:1px solid var(--color-border); }
     .scanner-panel.open { display:flex; }
-    .scanner-viewport-wrap { position:relative; width:100%; border-radius:var(--radius-md); overflow:hidden; background:#000; aspect-ratio:4/3; }
-    #scanner-video { width:100%; height:100%; object-fit:cover; display:block; }
-    .scan-overlay { position:absolute; inset:0; pointer-events:none; }
-    .scan-overlay::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80%; height:30%; border:2px solid rgba(255,255,255,0.85); border-radius:var(--radius-md); box-shadow:0 0 0 9999px rgba(0,0,0,0.45); }
-    .scan-line { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:80%; height:2px; background:linear-gradient(90deg,transparent,var(--gas-accent),transparent); animation:scanMove 1.6s ease-in-out infinite; }
-    @keyframes scanMove { 0%{margin-top:-13%} 50%{margin-top:13%} 100%{margin-top:-13%} }
+
+    /* Quagga renders into a div containing a <video> and a <canvas> overlay */
+    #quagga-viewport { position:relative; width:100%; border-radius:var(--radius-md); overflow:hidden; background:#000; aspect-ratio:4/3; }
+    #quagga-viewport video { width:100% !important; height:100% !important; object-fit:cover; display:block; }
+    #quagga-viewport canvas { position:absolute; top:0; left:0; width:100% !important; height:100% !important; }
+    /* targeting frame overlay */
+    .scan-frame { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:82%; height:32%; border:2px solid rgba(255,255,255,0.85); border-radius:var(--radius-md); box-shadow:0 0 0 9999px rgba(0,0,0,0.42); pointer-events:none; z-index:10; }
+    .scan-line { position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gas-accent),transparent); animation:scanMove 1.6s ease-in-out infinite; }
+    @keyframes scanMove { 0%{top:0%} 50%{top:90%} 100%{top:0%} }
+
     .scanner-hint { font-size:var(--text-xs); color:var(--color-text-muted); text-align:center; }
     .scanner-hint strong { color:var(--color-text); }
     .scanner-status { font-size:var(--text-xs); text-align:center; min-height:1.4em; color:var(--color-text-muted); }
@@ -119,7 +123,6 @@
     .scanner-status.warn    { color:#f59e0b; font-weight:500; }
     .scanner-status.collecting { color:var(--gas-accent); font-weight:500; }
 
-    /* Candidates list */
     .candidates-wrap { display:none; flex-direction:column; gap:var(--space-2); }
     .candidates-wrap.visible { display:flex; }
     .candidates-label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; }
@@ -132,11 +135,17 @@
     .candidate-len { font-size:10px; color:var(--color-text-faint); }
     .candidate-best-tag { font-size:10px; font-weight:700; color:#22c55e; margin-left:auto; }
     .candidate-raw { font-size:var(--text-xs); font-family:monospace; color:var(--color-text-muted); word-break:break-all; line-height:1.5; }
-    .candidate-raw .seg-match { color:var(--gas-accent); font-weight:700; background:rgba(2,132,199,0.1); border-radius:3px; padding:0 2px; }
-    .candidate-hint { font-size:10px; color:var(--color-text-faint); margin-top:2px; }
+    .candidate-raw .seg-hi { color:var(--gas-accent); font-weight:700; background:rgba(2,132,199,0.1); border-radius:3px; padding:0 2px; }
+
+    /* All 10-digit windows table */
+    .windows-wrap { margin-top:4px; }
+    .windows-label { font-size:9px; color:var(--color-text-faint); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+    .windows-grid { display:flex; flex-wrap:wrap; gap:4px; }
+    .win-chip { font-size:10px; font-family:monospace; padding:2px 6px; border-radius:3px; background:var(--color-surface-2); color:var(--color-text-muted); border:1px solid var(--color-border); white-space:nowrap; }
+    .win-chip .idx { font-size:8px; opacity:0.5; margin-right:2px; }
 
     .scanner-actions { display:flex; gap:var(--space-2); }
-    .btn-scan-again { display:flex; align-items:center; justify-content:center; padding:var(--space-2) var(--space-4); border-radius:var(--radius-lg); font-size:var(--text-sm); font-weight:500; border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text-muted); min-height:40px; flex:1; transition:background var(--transition),color var(--transition); }
+    .btn-scan-again { display:flex; align-items:center; justify-content:center; gap:var(--space-2); padding:var(--space-2) var(--space-4); border-radius:var(--radius-lg); font-size:var(--text-sm); font-weight:500; border:1px solid var(--color-border); background:var(--color-surface-2); color:var(--color-text-muted); min-height:40px; flex:1; transition:background var(--transition),color var(--transition); }
     .btn-scan-again:hover { background:var(--color-bg); color:var(--color-text); }
 
     .page-footer { text-align:center; color:var(--color-text-faint); font-size:var(--text-xs); margin-top:var(--space-10); padding-inline:var(--space-4); }
@@ -277,16 +286,14 @@
 
             <!-- Scanner panel -->
             <div class="scanner-panel" id="scanner-panel" role="region" aria-label="Escáner">
-              <p class="scanner-hint">Apunta al <strong>código de barras largo</strong>. Se recolectan <strong>ambos códigos</strong> y puedes elegir el correcto.</p>
+              <p class="scanner-hint">Apunta al <strong>código de barras largo</strong> de la factura. Se muestran <strong>todas las ventanas de 10 dígitos</strong> — toca la que coincida con el número impreso.</p>
 
-              <div class="scanner-viewport-wrap">
-                <video id="scanner-video" playsinline muted aria-label="Vista de cámara"></video>
-                <div class="scan-overlay" aria-hidden="true"><div class="scan-line"></div></div>
+              <div id="quagga-viewport">
+                <div class="scan-frame"><div class="scan-line"></div></div>
               </div>
 
               <p class="scanner-status" id="scanner-status">Iniciando cámara…</p>
 
-              <!-- All scanned candidates -->
               <div class="candidates-wrap" id="candidates-wrap">
                 <span class="candidates-label">Códigos detectados — toca el correcto</span>
                 <div id="candidates-list"></div>
@@ -342,156 +349,138 @@
     function showCopied(btn,span,orig){ btn.classList.add('copied'); span.textContent='¡Copiado!'; var icon=btn.querySelector('svg'); if(icon)icon.innerHTML='<polyline points="20 6 9 17 4 12" stroke-width="2.5"/>'; setTimeout(function(){ btn.classList.remove('copied'); span.textContent=orig; if(icon)icon.innerHTML='<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'; },2000); }
 
     /* =====================================================================
-       BARCODE SCANNER
-       Strategy: collect EVERY unique barcode the camera sees (deduplicated
-       by raw text). Show them all as tappable cards sorted longest-first.
-       The longest one is highlighted as the best candidate.
-       User taps the correct one — no more guessing on our side.
-
-       Extraction: digits 21-30 (index 20..30) from the chosen barcode.
-       Once the user confirms the correct card we learn the right barcode
-       and can hard-code the extraction in the next update if needed.
+       BARCODE SCANNER — Quagga2
+       Reads CODE_128 and ITF barcodes.
+       For every detected barcode, shows:
+         - format badge
+         - full raw digit string
+         - ALL consecutive 10-digit windows as chips (tap any chip to use it)
+       This lets you find the correct 10 digits no matter what position they sit at.
     ===================================================================== */
 
-    var codeReader  = null;
-    var scannerOpen = false;
-
-    /* Map of rawText → { raw, format, digits, count } — deduplicated */
-    var candidates  = {};
-    /* How many unique barcodes we've seen */
-    var candidateCount = 0;
-    /* Scanning stops collecting after this many unique codes */
-    var MAX_CANDIDATES = 6;
-    /* Keep scanning for this many ms before showing "done" */
-    var COLLECT_MS = 4000;
-    var collectTimer = null;
-    var collecting = false;
-
-    function extractFactura(raw) {
-      return raw.replace(/\D/g,'').slice(20,30);
-    }
-
-    function highlightRaw(raw) {
-      var d=raw.replace(/\D/g,'');
-      var b=d.slice(0,20), m=d.slice(20,30), a=d.slice(30);
-      return (b?'<span style="opacity:.5">'+b+'</span>':'')
-           + (m?'<span class="seg-match">'+m+'</span>':'')
-           + (a?'<span style="opacity:.5">'+a+'</span>':'');
-    }
+    var quaggaRunning = false;
+    var scannerOpen   = false;
+    var candidates    = {};   /* raw → { raw, format, digits } */
+    var collectTimer  = null;
+    var COLLECT_MS    = 5000;
 
     function toggleScanner(){ scannerOpen ? closeScanner() : openScanner(); }
 
     function openScanner(){
-      scannerOpen=true;
+      scannerOpen = true;
       document.getElementById('scanner-panel').classList.add('open');
       var btn=document.getElementById('btn-open-scanner');
       btn.classList.add('scanning'); btn.querySelector('span').textContent='Cerrar';
       document.getElementById('scanner-panel').scrollIntoView({behavior:'smooth',block:'nearest'});
-      startDecoding();
+      startQuagga();
     }
 
     function closeScanner(){
-      scannerOpen=false;
-      stopDecoding();
+      scannerOpen = false;
+      stopQuagga();
       document.getElementById('scanner-panel').classList.remove('open');
       var btn=document.getElementById('btn-open-scanner');
       btn.classList.remove('scanning'); btn.querySelector('span').textContent='Escanear';
-      resetScannerUI();
+      resetUI();
     }
 
-    function resetScannerUI(){
-      document.getElementById('scanner-status').textContent='';
-      document.getElementById('scanner-status').className='scanner-status';
+    function resetUI(){
+      setStatus('','');
       document.getElementById('candidates-wrap').classList.remove('visible');
       document.getElementById('candidates-list').innerHTML='';
       document.getElementById('scanner-actions').style.display='none';
-      candidates={}; candidateCount=0; collecting=false;
-      if(collectTimer){ clearTimeout(collectTimer); collectTimer=null; }
+      candidates={}; if(collectTimer){clearTimeout(collectTimer);collectTimer=null;}
     }
 
-    function stopDecoding(){
-      if(codeReader){ try{ codeReader.reset(); }catch(e){} codeReader=null; }
-      var v=document.getElementById('scanner-video');
-      if(v.srcObject){ v.srcObject.getTracks().forEach(function(t){t.stop();}); v.srcObject=null; }
-      if(collectTimer){ clearTimeout(collectTimer); collectTimer=null; }
-      collecting=false;
+    function setStatus(msg,cls){
+      var el=document.getElementById('scanner-status');
+      el.textContent=msg; el.className='scanner-status'+(cls?' '+cls:'');
     }
 
-    function startDecoding(){
-      var status=document.getElementById('scanner-status');
-      status.textContent='Iniciando cámara…'; status.className='scanner-status';
-      resetScannerUI();
-      collecting=true;
+    function stopQuagga(){
+      if(quaggaRunning){ try{ Quagga.stop(); }catch(e){} quaggaRunning=false; }
+      if(collectTimer){clearTimeout(collectTimer);collectTimer=null;}
+    }
 
-      if(typeof ZXing==='undefined'){ status.textContent='Error: ZXing no cargó.'; status.className='scanner-status error'; return; }
-      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ status.textContent='Cámara no soportada.'; status.className='scanner-status error'; return; }
+    function startQuagga(){
+      if(typeof Quagga==='undefined'){ setStatus('Error: Quagga no cargó.','error'); return; }
+      setStatus('Iniciando cámara…','');
+      resetUI();
 
-      try{
-        codeReader=new ZXing.BrowserMultiFormatReader();
-        codeReader.decodeFromConstraints(
-          {video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}},
-          'scanner-video',
-          function(result,err){
-            if(!scannerOpen||!collecting) return;
-            if(result){
-              var raw=result.getText();
-              var fmt=result.getBarcodeFormat?result.getBarcodeFormat().toString():'';
-              if(!candidates[raw]){
-                candidates[raw]={raw:raw,format:fmt,digits:raw.replace(/\D/g,''),count:1};
-                candidateCount++;
-                renderCandidates();
-                if(candidateCount>=MAX_CANDIDATES) finishCollecting();
-              } else {
-                candidates[raw].count++;
-              }
-              /* Reset the auto-finish timer on each new detection */
-              if(collectTimer){ clearTimeout(collectTimer); }
-              collectTimer=setTimeout(finishCollecting, COLLECT_MS);
-            }
-            if(err){
-              var notFound=err.name==='NotFoundException'||(typeof ZXing.NotFoundException!=='undefined'&&err instanceof ZXing.NotFoundException);
-              if(notFound&&status.textContent==='Iniciando cámara…'){
-                status.textContent='Apunta al código de barras…'; status.className='scanner-status';
-              }
-            }
-          }
-        )
-        .then(function(){ if(status.textContent==='Iniciando cámara…'){ status.textContent='Apunta al código de barras…'; status.className='scanner-status'; } })
-        .catch(function(e){
-          if(e.name==='NotAllowedError') status.textContent='Permiso de cámara denegado.';
-          else if(e.name==='NotFoundError') status.textContent='No se encontró cámara.';
-          else status.textContent='Error cámara: '+(e.message||e.name||e);
-          status.className='scanner-status error';
-        });
-      }catch(e){
-        status.textContent='Error iniciando escáner: '+(e.message||e);
-        document.getElementById('scanner-status').className='scanner-status error';
-      }
+      Quagga.init({
+        inputStream:{
+          type:'LiveStream',
+          target: document.getElementById('quagga-viewport'),
+          constraints:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} },
+          area:{ top:'30%', right:'5%', bottom:'30%', left:'5%' }
+        },
+        decoder:{
+          readers:['code_128_reader','i2of5_reader','itf_reader'],
+          multiple: false
+        },
+        locate: true,
+        numOfWorkers: 2,
+        frequency: 10
+      }, function(err){
+        if(err){
+          var msg = err && err.name==='NotAllowedError' ? 'Permiso de cámara denegado.'
+                  : err && err.name==='NotFoundError'   ? 'No se encontró cámara.'
+                  : 'Error cámara: '+(err.message||err.name||err);
+          setStatus(msg,'error'); return;
+        }
+        quaggaRunning=true;
+        Quagga.start();
+        setStatus('Apunta al código de barras largo…','');
+      });
+
+      Quagga.onDetected(function(result){
+        if(!scannerOpen) return;
+        var raw=(result.codeResult&&result.codeResult.code)||'';
+        var fmt=(result.codeResult&&result.codeResult.format)||'';
+        if(!raw) return;
+        if(!candidates[raw]){
+          candidates[raw]={raw:raw, format:fmt, digits:raw.replace(/\D/g,'')};
+          renderCandidates();
+        }
+        if(collectTimer) clearTimeout(collectTimer);
+        collectTimer=setTimeout(finishCollecting, COLLECT_MS);
+      });
     }
 
     function renderCandidates(){
-      var status=document.getElementById('scanner-status');
-      status.textContent='Recolectando códigos… ('+candidateCount+' encontrado'+(candidateCount!==1?'s':'')+')';
-      status.className='scanner-status collecting';
+      var count=Object.keys(candidates).length;
+      setStatus('Recolectando… ('+count+' código'+(count!==1?'s':'')+' detectado'+(count!==1?'s':'')+')', 'collecting');
 
-      /* Sort by digit length descending */
       var list=Object.values(candidates).sort(function(a,b){ return b.digits.length-a.digits.length; });
-      var bestLen=list[0]?list[0].digits.length:0;
-
       var html='';
-      list.forEach(function(c,i){
-        var isBest=(c.digits.length===bestLen);
-        var fmtLower=(c.format||'').toLowerCase();
-        var badgeClass=fmtLower.indexOf('itf')!==-1?'candidate-badge itf':'candidate-badge';
-        var extracted=c.digits.slice(20,30)||'—';
-        html+='<div class="candidate-item'+(isBest?' best':'')+'" onclick="useCandidate('+JSON.stringify(c.raw)+')">';
+
+      list.forEach(function(c){
+        var fmtL=(c.format||'').toLowerCase();
+        var isITF=fmtL.indexOf('itf')!==-1||fmtL.indexOf('i2of5')!==-1;
+        var badgeCls='candidate-badge'+(isITF?' itf':'');
+        var d=c.digits;
+
+        /* Build all 10-digit windows */
+        var chipsHtml='';
+        if(d.length>=10){
+          for(var i=0;i<=d.length-10;i++){
+            var w=d.slice(i,i+10);
+            chipsHtml+='<span class="win-chip" onclick="useWindow(\''+w+'\')" title="Posición '+(i+1)+' a '+(i+10)+'">'
+              +'<span class="idx">'+(i+1)+'–'+(i+10)+'</span>'+w+'</span>';
+          }
+        }
+
+        html+='<div class="candidate-item'+(list.indexOf(c)===0?' best':'')+'">';
         html+='<div class="candidate-meta">';
-        html+='<span class="'+badgeClass+'">'+(c.format||'?')+'</span>';
-        html+='<span class="candidate-len">'+c.digits.length+' dígitos</span>';
-        if(isBest) html+='<span class="candidate-best-tag">★ Más largo</span>';
+        html+='<span class="'+badgeCls+'">'+(c.format||'?')+'</span>';
+        html+='<span class="candidate-len">'+d.length+' dígitos</span>';
+        if(list.indexOf(c)===0) html+='<span class="candidate-best-tag">★ Más largo</span>';
         html+='</div>';
-        html+='<div class="candidate-raw">'+highlightRaw(c.raw)+'</div>';
-        html+='<div class="candidate-hint">Dígitos 21–30: <strong>'+extracted+'</strong></div>';
+        html+='<div class="candidate-raw">'+d+'</div>';
+        if(chipsHtml){
+          html+='<div class="windows-wrap"><div class="windows-label">Todas las ventanas de 10 dígitos — toca la correcta</div>';
+          html+='<div class="windows-grid">'+chipsHtml+'</div></div>';
+        }
         html+='</div>';
       });
 
@@ -501,33 +490,24 @@
     }
 
     function finishCollecting(){
-      collecting=false;
-      if(collectTimer){ clearTimeout(collectTimer); collectTimer=null; }
-      var status=document.getElementById('scanner-status');
+      collectTimer=null;
       var count=Object.keys(candidates).length;
-      if(count===0){
-        status.textContent='No se leyó ningún código. Intenta de nuevo.';
-        status.className='scanner-status warn';
-      } else {
-        status.textContent='¡Listo! Toca el código correcto.';
-        status.className='scanner-status success';
-      }
+      if(count===0){ setStatus('No se leyó ningún código. Intenta de nuevo.','warn'); }
+      else { setStatus('¡Listo! Toca el número de 10 dígitos correcto.','success'); }
     }
 
-    function useCandidate(raw){
-      var digits=raw.replace(/\D/g,'');
-      var extracted=digits.slice(20,30);
+    function useWindow(digits10){
       var display=document.getElementById('factura-display');
-      display.textContent=extracted||digits;
+      display.textContent=digits10;
       document.getElementById('factura-copy-btn').style.display='inline-flex';
       closeScanner();
-      navigator.clipboard.writeText(extracted||digits).catch(function(){});
+      navigator.clipboard.writeText(digits10).catch(function(){});
       display.style.transition='color 0.2s';
       display.style.color='#22c55e';
       setTimeout(function(){ display.style.color=''; },1500);
     }
 
-    function restartScan(){ stopDecoding(); resetScannerUI(); startDecoding(); }
+    function restartScan(){ stopQuagga(); resetUI(); startQuagga(); }
   </script>
 </body>
 </html>
