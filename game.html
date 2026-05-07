@@ -28,7 +28,8 @@
         try {
           await addDoc(collection(db, "leaderboard"), {
             name: name.trim().substring(0, 16) || "Anonymous",
-            score: score,
+            score: Number(score),
+            date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
             timestamp: serverTimestamp()
           });
           return true;
@@ -83,7 +84,6 @@
             overflow-x: hidden;
         }
 
-        /* TITLE */
         .title-wrapper {
             text-align: center;
             margin-bottom: 14px;
@@ -113,7 +113,6 @@
             text-shadow: 0 0 10px rgba(255,215,0,0.6);
         }
 
-        /* MAIN LAYOUT */
         .main-layout {
             display: flex;
             gap: 18px;
@@ -123,7 +122,6 @@
             justify-content: center;
         }
 
-        /* GAME PANEL */
         .game-panel {
             display: flex;
             flex-direction: column;
@@ -208,7 +206,6 @@
         }
         .ctrl-btn:hover { border-color: var(--green-teal); }
 
-        /* LEADERBOARD PANEL */
         .leaderboard-panel {
             background: rgba(0,10,6,0.7);
             border: 1px solid rgba(0,180,166,0.25);
@@ -293,7 +290,6 @@
         }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        /* GAME OVER OVERLAY */
         .overlay {
             position: fixed;
             inset: 0;
@@ -543,11 +539,12 @@
         const playerNameEl = document.getElementById('playerName');
         const saveStatusEl = document.getElementById('saveStatus');
 
-        const GRID = 20;
         const COLS = 20;
         const CELL = canvas.width / COLS;
+        const GAME_SPEED = 150; // ms per tick — single source of truth
 
-        let snake, direction, food, score, bestScore = 0, gameRunning, gameStarted, loopTimeout;
+        let snake, direction, food, score, bestScore = 0, gameRunning, gameStarted;
+        let loopTimeout = null; // track the ONE active loop timer
         let scoreSaved = false;
 
         const images = {};
@@ -610,14 +607,14 @@
         }
 
         const keyMap = {
-            'ArrowLeft': () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
-            'ArrowRight': () => { if (direction.x !== -1) direction = {x:1, y:0}; },
-            'ArrowUp': () => { if (direction.y !== 1)   direction = {x:0, y:-1}; },
-            'ArrowDown': () => { if (direction.y !== -1) direction = {x:0, y:1}; },
+            'ArrowLeft':  () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
+            'ArrowRight': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
+            'ArrowUp':    () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
+            'ArrowDown':  () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
             'a': () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
-            'd': () => { if (direction.x !== -1) direction = {x:1, y:0}; },
-            'w': () => { if (direction.y !== 1)  direction = {x:0, y:-1}; },
-            's': () => { if (direction.y !== -1) direction = {x:0, y:1}; },
+            'd': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
+            'w': () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
+            's': () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
         };
         document.addEventListener('keydown', e => {
             if (!gameRunning || !gameStarted) return;
@@ -695,9 +692,17 @@
             ctx.beginPath(); ctx.arc(fx - fr*0.25, fy - fr*0.25, fr*0.35, 0, Math.PI*2); ctx.fill();
         }
 
+        // Kill any running loop before starting a new one
+        function stopLoop() {
+            if (loopTimeout !== null) {
+                clearTimeout(loopTimeout);
+                loopTimeout = null;
+            }
+        }
+
         function triggerGameOver() {
             gameRunning = false;
-            clearTimeout(loopTimeout);
+            stopLoop();
             finalScoreEl.textContent = score;
             scoreSaved = false;
             saveStatusEl.textContent = '';
@@ -707,6 +712,7 @@
         }
 
         function restartGame() {
+            stopLoop(); // always kill old loop first
             overlay.classList.remove('active');
             snake = [{x:10, y:10}];
             direction = {x:0, y:-1};
@@ -722,7 +728,7 @@
         function gameLoop() {
             if (gameRunning) update();
             draw();
-            loopTimeout = setTimeout(() => requestAnimationFrame(gameLoop), 150);
+            loopTimeout = setTimeout(() => requestAnimationFrame(gameLoop), GAME_SPEED);
         }
 
         function startGame() {
