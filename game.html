@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐍 Snake Game v2.0</title>
+    <title>🐍 Make JuanJo Fatter</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Right_open.png">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <!-- Firebase v12 -->
@@ -92,7 +93,7 @@
 
         .game-title {
             font-family: var(--font-game);
-            font-size: clamp(1.8rem, 7vw, 3.2rem);
+            font-size: clamp(1.6rem, 6vw, 2.9rem);
             font-weight: 900;
             letter-spacing: 0.04em;
             background: linear-gradient(135deg, #00ffd0 0%, #00b4a6 30%, #a855f7 60%, #ffd700 100%);
@@ -168,12 +169,24 @@
             display: block;
         }
 
+        /* ── CONTROL LAYOUTS ── */
         .controls {
             display: flex;
             justify-content: space-between;
             width: 360px;
             margin-top: 14px;
             gap: 12px;
+        }
+
+        /* mode 3: 4-button d-pad */
+        .controls.mode3 {
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .dpad-row {
+            display: flex;
+            gap: 6px;
         }
 
         .ctrl-btn {
@@ -205,6 +218,32 @@
             box-shadow: 0 0 20px rgba(0,180,166,0.5);
         }
         .ctrl-btn:hover { border-color: var(--green-teal); }
+
+        /* d-pad buttons (mode 3) */
+        .dpad-btn {
+            background: linear-gradient(145deg, #1a4b3a, #0d2b1e);
+            border: 2px solid rgba(0,180,166,0.5);
+            color: var(--white);
+            border-radius: 12px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 72px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .dpad-btn:active {
+            transform: scale(0.94);
+            background: linear-gradient(145deg, #00b4a6, #1a4b3a);
+            box-shadow: 0 0 20px rgba(0,180,166,0.5);
+        }
+        .dpad-btn:hover { border-color: var(--green-teal); }
+        .dpad-spacer { width: 72px; height: 60px; }
 
         .leaderboard-panel {
             background: rgba(0,10,6,0.7);
@@ -289,6 +328,30 @@
             animation: pulse 1.2s ease-in-out infinite;
         }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* Home button in sidebar */
+        .lb-home-btn {
+            display: block;
+            width: 100%;
+            margin-top: 14px;
+            padding: 9px 10px;
+            background: transparent;
+            border: 1.5px solid rgba(0,180,166,0.35);
+            border-radius: 10px;
+            color: rgba(240,250,248,0.7);
+            font-family: var(--font-game);
+            font-size: 0.62rem;
+            letter-spacing: 0.08em;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .lb-home-btn:hover {
+            border-color: var(--green-teal);
+            color: var(--white);
+            background: rgba(0,180,166,0.08);
+        }
 
         .overlay {
             position: fixed;
@@ -397,7 +460,7 @@
         .modal-lb-name { flex:1; font-size: 0.75rem; color: var(--white); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .modal-lb-score { font-family: var(--font-game); font-size: 0.75rem; color: var(--green-teal); font-weight: 700; }
 
-        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .btn-submit {
             flex: 1;
@@ -434,6 +497,31 @@
         .btn-play:hover { border-color: var(--green-teal); background: rgba(0,180,166,0.1); }
         .btn-play:active { transform: scale(0.96); }
 
+        .btn-home-modal {
+            flex-basis: 100%;
+            background: transparent;
+            border: 1.5px solid rgba(255,215,0,0.3);
+            color: rgba(255,215,0,0.75);
+            font-family: var(--font-game);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 10px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            letter-spacing: 0.06em;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-home-modal:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(255,215,0,0.06);
+        }
+
         .save-status {
             font-size: 0.7rem;
             margin-top: 8px;
@@ -452,6 +540,100 @@
             letter-spacing: 0.06em;
         }
 
+        /* ── MODE SELECT MODAL ── */
+        .mode-modal {
+            background: linear-gradient(160deg, #0d2b1e 0%, #040d08 100%);
+            border: 1px solid rgba(0,180,166,0.4);
+            border-radius: 22px;
+            padding: 30px 26px 26px;
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 0 60px rgba(0,180,166,0.2), 0 20px 60px rgba(0,0,0,0.6);
+            animation: modalIn 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        .mode-modal-title {
+            font-family: var(--font-game);
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, #00ffd0 0%, #a855f7 60%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+        .mode-modal-sub {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            font-family: var(--font-game);
+            letter-spacing: 0.06em;
+            margin-bottom: 22px;
+        }
+
+        .mode-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mode-card {
+            background: rgba(0,180,166,0.05);
+            border: 1.5px solid rgba(0,180,166,0.25);
+            border-radius: 14px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+        .mode-card:hover {
+            background: rgba(0,180,166,0.12);
+            border-color: var(--green-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,180,166,0.18);
+        }
+        .mode-card:active { transform: scale(0.97); }
+
+        .mode-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .mode-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .mode-name {
+            font-family: var(--font-game);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.06em;
+        }
+        .mode-badge {
+            margin-left: auto;
+            font-family: var(--font-game);
+            font-size: 0.55rem;
+            padding: 3px 8px;
+            border-radius: 99px;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+        }
+        .mode-badge.classic { background: rgba(0,180,166,0.2); color: var(--green-teal); border: 1px solid rgba(0,180,166,0.35); }
+        .mode-badge.spin    { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.35); }
+        .mode-badge.full    { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.35); }
+
+        .mode-desc {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.5;
+            padding-left: 42px;
+        }
+
         @media (max-width: 660px) {
             .main-layout { flex-direction: column; align-items: center; }
             .leaderboard-panel { width: 360px; }
@@ -468,7 +650,7 @@
 <body>
 
     <div class="title-wrapper">
-        <div class="game-title">🐍 SNAKE GAME</div>
+        <div class="game-title">🐍 MAKE JUANJO FATTER</div>
         <div class="game-version">VERSION 2.0 — LEADERBOARD EDITION</div>
     </div>
 
@@ -488,11 +670,9 @@
 
             <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-            <div class="controls">
-                <button class="ctrl-btn" id="leftBtn">◀ UP-LEFT</button>
-                <button class="ctrl-btn" id="rightBtn">DOWN-RIGHT ▶</button>
-            </div>
-            <div class="keyboard-hint">KEYBOARD: ← ↑ ↓ →  |  WASD</div>
+            <!-- Controls injected dynamically based on mode -->
+            <div class="controls" id="controlsArea"></div>
+            <div class="keyboard-hint" id="kbHint">KEYBOARD: ← ↑ ↓ →  |  WASD</div>
         </div>
 
         <div class="leaderboard-panel">
@@ -500,10 +680,14 @@
             <ul class="lb-list" id="sidebarLb">
                 <li class="lb-loading">Loading…</li>
             </ul>
+            <a href="https://alexanderbacca.github.io" class="lb-home-btn" target="_blank" rel="noopener noreferrer">
+                🏠 RETURN TO HOME
+            </a>
         </div>
 
     </div>
 
+    <!-- GAME OVER OVERLAY -->
     <div class="overlay" id="gameOverOverlay">
         <div class="modal">
             <div class="modal-title">GAME OVER</div>
@@ -522,8 +706,49 @@
             <div class="modal-btns">
                 <button class="btn-submit" id="saveBtn">💾 SAVE SCORE</button>
                 <button class="btn-play" id="playAgainBtn">▶ PLAY AGAIN</button>
+                <a href="https://alexanderbacca.github.io" class="btn-home-modal" target="_blank" rel="noopener noreferrer">
+                    🏠 RETURN TO HOME
+                </a>
             </div>
             <div class="save-status" id="saveStatus"></div>
+        </div>
+    </div>
+
+    <!-- MODE SELECT OVERLAY -->
+    <div class="overlay active" id="modeSelectOverlay">
+        <div class="mode-modal">
+            <div class="mode-modal-title">🎮 CHOOSE YOUR CONTROLS</div>
+            <div class="mode-modal-sub">Select a control scheme to start</div>
+            <div class="mode-cards">
+
+                <div class="mode-card" data-mode="1">
+                    <div class="mode-card-header">
+                        <span class="mode-icon">◀▶</span>
+                        <span class="mode-name">DIAGONAL CLASSIC</span>
+                        <span class="mode-badge classic">CLASSIC</span>
+                    </div>
+                    <div class="mode-desc">Two buttons: <strong style="color:#00ffd0">UP-LEFT</strong> and <strong style="color:#00ffd0">DOWN-RIGHT</strong>. Each button turns the snake diagonally toward that corner.</div>
+                </div>
+
+                <div class="mode-card" data-mode="2">
+                    <div class="mode-card-header">
+                        <span class="mode-icon">🔄</span>
+                        <span class="mode-name">SPIN CONTROLS</span>
+                        <span class="mode-badge spin">SPIN</span>
+                    </div>
+                    <div class="mode-desc">Two buttons: <strong style="color:#c084fc">TURN LEFT ↺</strong> and <strong style="color:#c084fc">TURN RIGHT ↻</strong>. Each press rotates the snake 90° in that direction — no matter where it's headed.</div>
+                </div>
+
+                <div class="mode-card" data-mode="3">
+                    <div class="mode-card-header">
+                        <span class="mode-icon">🕹️</span>
+                        <span class="mode-name">D-PAD (4 BUTTONS)</span>
+                        <span class="mode-badge full">FULL</span>
+                    </div>
+                    <div class="mode-desc">Four directional buttons: <strong style="color:#ffd700">↑ ↓ ← →</strong>. Full control over every direction independently.</div>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -534,18 +759,22 @@
         const bestScoreEl = document.getElementById('bestScore');
         const finalScoreEl = document.getElementById('finalScore');
         const overlay = document.getElementById('gameOverOverlay');
+        const modeOverlay = document.getElementById('modeSelectOverlay');
         const saveBtn = document.getElementById('saveBtn');
         const playAgainBtn = document.getElementById('playAgainBtn');
         const playerNameEl = document.getElementById('playerName');
         const saveStatusEl = document.getElementById('saveStatus');
+        const controlsArea = document.getElementById('controlsArea');
+        const kbHint = document.getElementById('kbHint');
 
         const COLS = 20;
         const CELL = canvas.width / COLS;
-        const GAME_SPEED = 150; // ms per tick — single source of truth
+        const GAME_SPEED = 150;
 
         let snake, direction, food, score, bestScore = 0, gameRunning, gameStarted;
-        let loopTimeout = null; // track the ONE active loop timer
+        let loopTimeout = null;
         let scoreSaved = false;
+        let controlMode = 1; // 1=classic, 2=spin, 3=dpad
 
         const images = {};
         const imageUrls = {
@@ -561,12 +790,12 @@
         let imagesLoaded = 0;
         const totalImages = Object.keys(imageUrls).length;
 
-        function preloadImages() {
+        function preloadImages(cb) {
             Object.keys(imageUrls).forEach(key => {
                 images[key] = new Image();
                 images[key].crossOrigin = "anonymous";
                 images[key].onload = images[key].onerror = () => {
-                    if (++imagesLoaded === totalImages) startGame();
+                    if (++imagesLoaded === totalImages) cb();
                 };
                 images[key].src = imageUrls[key];
             });
@@ -589,6 +818,9 @@
             return f;
         }
 
+        // ── CONTROL HANDLERS ──
+
+        // Mode 1: Classic diagonal (original UP-LEFT / DOWN-RIGHT)
         function handleLeft() {
             if (!gameRunning || !gameStarted) return;
             const d = direction;
@@ -606,20 +838,112 @@
             else if (d.x === 1)  direction = {x:0, y:1};
         }
 
-        const keyMap = {
-            'ArrowLeft':  () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
-            'ArrowRight': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
-            'ArrowUp':    () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
-            'ArrowDown':  () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
-            'a': () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
-            'd': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
-            'w': () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
-            's': () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
-        };
+        // Mode 2: Spin — pure 90° relative turns
+        function handleTurnLeft() {
+            if (!gameRunning || !gameStarted) return;
+            const {x, y} = direction;
+            // rotate 90° counter-clockwise: (x,y) → (y,-x)
+            direction = {x: y, y: -x};
+        }
+        function handleTurnRight() {
+            if (!gameRunning || !gameStarted) return;
+            const {x, y} = direction;
+            // rotate 90° clockwise: (x,y) → (-y,x)
+            direction = {x: -y, y: x};
+        }
+
+        // Mode 3: D-Pad direct directions
+        function handleDirUp()    { if (!gameRunning || !gameStarted) return; if (direction.y !== 1)  direction = {x:0, y:-1}; }
+        function handleDirDown()  { if (!gameRunning || !gameStarted) return; if (direction.y !== -1) direction = {x:0, y:1}; }
+        function handleDirLeft()  { if (!gameRunning || !gameStarted) return; if (direction.x !== 1)  direction = {x:-1, y:0}; }
+        function handleDirRight() { if (!gameRunning || !gameStarted) return; if (direction.x !== -1) direction = {x:1, y:0}; }
+
+        function buildControls(mode) {
+            controlsArea.innerHTML = '';
+            controlsArea.className = 'controls';
+
+            if (mode === 1) {
+                controlsArea.innerHTML = `
+                    <button class="ctrl-btn" id="leftBtn">◀ UP-LEFT</button>
+                    <button class="ctrl-btn" id="rightBtn">DOWN-RIGHT ▶</button>`;
+                kbHint.textContent = 'KEYBOARD: ← ↑ ↓ →  |  WASD';
+                addBtnListeners('leftBtn', handleLeft);
+                addBtnListeners('rightBtn', handleRight);
+
+            } else if (mode === 2) {
+                controlsArea.innerHTML = `
+                    <button class="ctrl-btn" id="leftBtn">↺ TURN LEFT</button>
+                    <button class="ctrl-btn" id="rightBtn">TURN RIGHT ↻</button>`;
+                kbHint.textContent = 'KEYBOARD: ← / A  =  TURN LEFT   |   → / D  =  TURN RIGHT';
+                addBtnListeners('leftBtn', handleTurnLeft);
+                addBtnListeners('rightBtn', handleTurnRight);
+
+            } else if (mode === 3) {
+                controlsArea.classList.add('mode3');
+                controlsArea.innerHTML = `
+                    <div class="dpad-row">
+                        <div class="dpad-spacer"></div>
+                        <button class="dpad-btn" id="dUp">▲</button>
+                        <div class="dpad-spacer"></div>
+                    </div>
+                    <div class="dpad-row">
+                        <button class="dpad-btn" id="dLeft">◀</button>
+                        <div class="dpad-spacer" style="background:rgba(0,180,166,0.04);border-radius:10px;"></div>
+                        <button class="dpad-btn" id="dRight">▶</button>
+                    </div>
+                    <div class="dpad-row">
+                        <div class="dpad-spacer"></div>
+                        <button class="dpad-btn" id="dDown">▼</button>
+                        <div class="dpad-spacer"></div>
+                    </div>`;
+                kbHint.textContent = 'KEYBOARD: ↑ ↓ ← →  |  WASD';
+                addBtnListeners('dUp', handleDirUp);
+                addBtnListeners('dDown', handleDirDown);
+                addBtnListeners('dLeft', handleDirLeft);
+                addBtnListeners('dRight', handleDirRight);
+            }
+        }
+
+        function addBtnListeners(id, fn) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            ['click','touchstart'].forEach(ev => el.addEventListener(ev, e => { e.preventDefault(); fn(); }));
+        }
+
+        // Keyboard: always full arrows/WASD — behaviour adapts to mode
         document.addEventListener('keydown', e => {
             if (!gameRunning || !gameStarted) return;
-            const fn = keyMap[e.key] || keyMap[e.key.toLowerCase()];
-            if (fn) { e.preventDefault(); fn(); }
+            if (controlMode === 2) {
+                // spin mode: left/a = turn left, right/d = turn right
+                if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { e.preventDefault(); handleTurnLeft(); }
+                else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') { e.preventDefault(); handleTurnRight(); }
+                else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') { e.preventDefault(); handleTurnLeft(); }
+                else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') { e.preventDefault(); handleTurnRight(); }
+            } else {
+                // classic & dpad: direct direction keys
+                const map = {
+                    'ArrowLeft':  () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
+                    'ArrowRight': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
+                    'ArrowUp':    () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
+                    'ArrowDown':  () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
+                    'a': () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
+                    'd': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
+                    'w': () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
+                    's': () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
+                };
+                const fn = map[e.key] || map[e.key.toLowerCase()];
+                if (fn) { e.preventDefault(); fn(); }
+            }
+        });
+
+        // ── MODE SELECT ──
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('click', () => {
+                controlMode = parseInt(card.dataset.mode);
+                modeOverlay.classList.remove('active');
+                buildControls(controlMode);
+                preloadImages(() => startGame());
+            });
         });
 
         function update() {
@@ -692,12 +1016,8 @@
             ctx.beginPath(); ctx.arc(fx - fr*0.25, fy - fr*0.25, fr*0.35, 0, Math.PI*2); ctx.fill();
         }
 
-        // Kill any running loop before starting a new one
         function stopLoop() {
-            if (loopTimeout !== null) {
-                clearTimeout(loopTimeout);
-                loopTimeout = null;
-            }
+            if (loopTimeout !== null) { clearTimeout(loopTimeout); loopTimeout = null; }
         }
 
         function triggerGameOver() {
@@ -712,7 +1032,7 @@
         }
 
         function restartGame() {
-            stopLoop(); // always kill old loop first
+            stopLoop();
             overlay.classList.remove('active');
             snake = [{x:10, y:10}];
             direction = {x:0, y:-1};
@@ -800,11 +1120,7 @@
             saveBtn.disabled = true;
             saveStatusEl.className = 'save-status';
             saveStatusEl.textContent = '⏳ Saving…';
-
-            if (!window._fbSaveScore) {
-                await new Promise(r => setTimeout(r, 1000));
-            }
-
+            if (!window._fbSaveScore) await new Promise(r => setTimeout(r, 1000));
             const ok = window._fbSaveScore ? await window._fbSaveScore(name, score) : false;
             if (ok) {
                 scoreSaved = true;
@@ -819,19 +1135,25 @@
         });
 
         playAgainBtn.addEventListener('click', restartGame);
-
-        playerNameEl.addEventListener('keydown', e => {
-            if (e.key === 'Enter') saveBtn.click();
-        });
-
+        playerNameEl.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn.click(); });
         document.addEventListener('contextmenu', e => e.preventDefault());
 
-        ['click','touchstart'].forEach(ev => {
-            document.getElementById('leftBtn').addEventListener(ev, e => { e.preventDefault(); handleLeft(); });
-            document.getElementById('rightBtn').addEventListener(ev, e => { e.preventDefault(); handleRight(); });
-        });
-
-        preloadImages();
+        // Draw waiting screen while mode modal is open
+        (function waitingDraw() {
+            ctx.fillStyle = '#000c07';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(0,180,166,0.06)';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= COLS; i++) {
+                ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke();
+            }
+            ctx.font = `bold ${CELL * 0.7}px Orbitron, monospace`;
+            ctx.fillStyle = 'rgba(0,180,166,0.18)';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SELECT MODE', canvas.width/2, canvas.height/2);
+        })();
     </script>
 </body>
 </html>
