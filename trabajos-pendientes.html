@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧵 Trabajos Pendientes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink-50:  #fff0f6;
+      --pink-100: #ffd6e7;
+      --pink-200: #ffadd2;
+      --pink-300: #ff85c2;
+      --pink-400: #f759ab;
+      --pink-500: #eb2f96;
+      --lav-50:   #f9f0ff;
+      --lav-100:  #efdbff;
+      --lav-200:  #d3adf7;
+      --lav-300:  #b37feb;
+      --lav-400:  #9254de;
+      --rose:     #fff1f2;
+      --white:    #ffffff;
+      --text:     #3d1f2b;
+      --text-mid: #7a4060;
+      --text-muted: #b07090;
+      --border:   rgba(235, 47, 150, 0.18);
+      --shadow:   0 4px 24px rgba(235, 47, 150, 0.10);
+      --shadow-lg: 0 8px 40px rgba(235, 47, 150, 0.16);
+      --radius-sm: 0.5rem;
+      --radius-md: 1rem;
+      --radius-lg: 1.5rem;
+      --radius-xl: 2rem;
+      --font-body: 'Nunito', sans-serif;
+      --font-display: 'Pacifico', cursive;
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(135deg, #fff0f6 0%, #f9f0ff 40%, #fff5f8 100%);
+      min-height: 100dvh;
+      color: var(--text);
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    /* ── Floating background decoration ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px; right: -120px;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,173,210,0.35) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -100px; left: -100px;
+      width: 350px; height: 350px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(211,173,247,0.28) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .app-wrapper {
+      position: relative; z-index: 1;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header-icon {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      display: block;
+      filter: drop-shadow(0 2px 8px rgba(235,47,150,0.25));
+    }
+    .header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 6vw, 2.2rem);
+      color: var(--pink-500);
+      text-shadow: 0 2px 12px rgba(235,47,150,0.18);
+      line-height: 1.2;
+    }
+    .header p {
+      margin-top: 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 1.75rem 1.5rem 2rem;
+    }
+
+    /* ── Form groups ── */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-mid);
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.01em;
+    }
+    label .badge-req {
+      font-size: 0.68rem;
+      background: linear-gradient(135deg, var(--pink-300), var(--lav-300));
+      color: white;
+      border-radius: 99px;
+      padding: 0.1em 0.5em;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    label .badge-opt {
+      font-size: 0.68rem;
+      background: #f0f0f0;
+      color: var(--text-muted);
+      border-radius: 99px;
+      padding: 0.1em 0.5em;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      background: rgba(255,255,255,0.9);
+      border: 2px solid var(--pink-100);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--pink-300);
+      box-shadow: 0 0 0 3px rgba(255,133,194,0.22);
+    }
+    input[readonly] {
+      background: var(--pink-50);
+      color: var(--text-mid);
+      cursor: default;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f759ab' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.85rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.5rem 0 1.25rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, var(--pink-100), transparent);
+    }
+
+    /* ── Submit button ── */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 1.05rem 1.5rem;
+      font-family: var(--font-body);
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, var(--pink-400) 0%, var(--lav-300) 100%);
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      margin-top: 1.75rem;
+      box-shadow: 0 4px 20px rgba(235,47,150,0.30);
+      transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover {
+      filter: brightness(1.07);
+      box-shadow: 0 6px 28px rgba(235,47,150,0.40);
+      transform: translateY(-2px);
+    }
+    .btn-primary:active {
+      transform: translateY(0px) scale(0.98);
+      box-shadow: 0 2px 12px rgba(235,47,150,0.22);
+    }
+
+    /* ── Error hint ── */
+    .field-error {
+      display: none;
+      margin-top: 0.35rem;
+      font-size: 0.82rem;
+      color: #c41d7f;
+      font-weight: 600;
+    }
+    .field-error.visible { display: block; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 420px) {
+      body { padding: 1rem 0.75rem 2.5rem; }
+      .card { padding: 1.4rem 1.1rem 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+
+    <!-- Header -->
+    <header class="header">
+      <span class="header-icon">🧵</span>
+      <h1>Trabajos Pendientes</h1>
+      <p>Registro de trabajos de costura 🌸</p>
+    </header>
+
+    <!-- Form Card -->
+    <div class="card">
+      <form id="mainForm" novalidate>
+
+        <!-- Nombre del cliente -->
+        <div class="form-group">
+          <label for="nombre">
+            👤 Nombre del cliente
+            <span class="badge-req">Obligatorio</span>
+          </label>
+          <input
+            type="text"
+            id="nombre"
+            name="entry.2005620554"
+            placeholder="Nombre completo..."
+            required
+            autocomplete="name"
+          />
+          <p class="field-error" id="err-nombre">⚠️ Por favor ingresa el nombre del cliente.</p>
+        </div>
+
+        <!-- Fecha de recibido -->
+        <div class="form-group">
+          <label for="fechaRecibido">
+            📅 Fecha de recibido
+            <span class="badge-req">Obligatorio</span>
+          </label>
+          <input
+            type="date"
+            id="fechaRecibido"
+            name="entry.983633463"
+            required
+            readonly
+          />
+        </div>
+
+        <!-- Fecha de entrega -->
+        <div class="form-group">
+          <label for="fechaEntrega">
+            🗓️ Fecha de entrega
+            <span class="badge-req">Obligatorio</span>
+          </label>
+          <input
+            type="date"
+            id="fechaEntrega"
+            name="entry.900452356"
+            required
+          />
+          <p class="field-error" id="err-fecha">⚠️ Por favor selecciona la fecha de entrega.</p>
+        </div>
+
+        <!-- Celular -->
+        <div class="form-group">
+          <label for="celular">
+            📱 Celular
+            <span class="badge-req">Obligatorio</span>
+          </label>
+          <input
+            type="number"
+            id="celular"
+            name="entry.1166974658"
+            placeholder="10 dígitos..."
+            required
+            inputmode="numeric"
+          />
+          <p class="field-error" id="err-celular">⚠️ El celular debe tener exactamente 10 dígitos y solo números.</p>
+        </div>
+
+        <!-- Comentarios / Tipo de trabajo -->
+        <div class="form-group">
+          <label for="comentarios">
+            ✂️ Tipo de trabajo
+            <span class="badge-req">Obligatorio</span>
+          </label>
+          <select id="comentarios" name="entry.839337160" required>
+            <option value="" disabled selected>-- Selecciona un trabajo 💗 --</option>
+            <option value="👖 Pantalón doblado normal 7.000">👖 Pantalón doblado normal 7.000</option>
+            <option value="👦👖 Pantalón doblado niño 5.000">👦👖 Pantalón doblado niño 5.000</option>
+            <option value="✂️👖 Pantalón Meter y cortar 12.000">✂️👖 Pantalón Meter y cortar 12.000</option>
+            <option value="🪡👖 Pantalón cintura meter 10.000">🪡👖 Pantalón cintura meter 10.000</option>
+            <option value="🧥🤐 Chaqueta cambio de cierre 18.000">🧥🤐 Chaqueta cambio de cierre 18.000</option>
+            <option value="👖🤐 Pantalón cambio de cierre 10.000">👖🤐 Pantalón cambio de cierre 10.000</option>
+            <option value="👗✂️ Cortar vestido 12.000">👗✂️ Cortar vestido 12.000</option>
+            <option value="🧥✂️ Blazer corta manga 11.000">🧥✂️ Blazer corta manga 11.000</option>
+            <option value="👚🪡 Meter blusa 8.000">👚🪡 Meter blusa 8.000</option>
+            <option value="✨ Otro">✨ Otro</option>
+          </select>
+          <p class="field-error" id="err-comentarios">⚠️ Por favor selecciona el tipo de trabajo.</p>
+        </div>
+
+        <div class="divider">✨ Campos opcionales ✨</div>
+
+        <!-- Abono -->
+        <div class="form-group">
+          <label for="abono">
+            💰 Abono
+            <span class="badge-opt">Opcional</span>
+          </label>
+          <input
+            type="number"
+            id="abono"
+            name="entry.19079608"
+            placeholder="Valor del abono..."
+            inputmode="numeric"
+            min="0"
+          />
+        </div>
+
+        <!-- Especifique su trabajo -->
+        <div class="form-group">
+          <label for="especifique">
+            📝 Especifique su trabajo
+            <span class="badge-opt">Opcional</span>
+          </label>
+          <textarea
+            id="especifique"
+            name="entry.285133247"
+            placeholder="Describe los detalles adicionales del trabajo... 🌸"
+          ></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary">
+          🌸 Generar y Abrir Formulario ✨
+        </button>
+
+      </form>
+    </div>
+
+    <p class="footer">💕 Hecho con amor para tu taller de costura 🧵</p>
+  </div>
+
+  <script>
+    // ── Auto-fill today's date ──
+    (function() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm   = String(today.getMonth() + 1).padStart(2, '0');
+      const dd   = String(today.getDate()).padStart(2, '0');
+      document.getElementById('fechaRecibido').value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    // ── Form submission & URL builder ──
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      let valid = true;
+
+      // Helper: show/hide errors
+      function setError(id, show) {
+        const el = document.getElementById(id);
+        if (show) el.classList.add('visible');
+        else el.classList.remove('visible');
+        if (show) valid = false;
+      }
+
+      // Validate nombre
+      const nombre = document.getElementById('nombre').value.trim();
+      setError('err-nombre', nombre === '');
+
+      // Validate fecha entrega
+      const fechaEntrega = document.getElementById('fechaEntrega').value.trim();
+      setError('err-fecha', fechaEntrega === '');
+
+      // Validate celular (exactly 10 digits)
+      const celularRaw = document.getElementById('celular').value.trim();
+      const celularOnlyDigits = celularRaw.replace(/\D/g, '');
+      const celularValid = /^\d{10}$/.test(celularOnlyDigits);
+      setError('err-celular', !celularValid);
+
+      // Validate comentarios
+      const comentarios = document.getElementById('comentarios').value;
+      setError('err-comentarios', comentarios === '');
+
+      if (!valid) {
+        // Scroll to first error
+        const firstError = document.querySelector('.field-error.visible');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // ── Build pre-filled Google Form URL ──
+      const base = 'https://docs.google.com/forms/d/e/1FAIpQLScelNzAaWcZt4zTmyje8_afAyaqlj6tPZOKUa-GB2gzwVVlxw/viewform?usp=pp_url';
+
+      const fechaRecibido = document.getElementById('fechaRecibido').value;
+      const abono         = document.getElementById('abono').value.trim();
+      const especifique   = document.getElementById('especifique').value.trim();
+
+      const params = new URLSearchParams();
+      params.set('entry.2005620554', nombre);
+      params.set('entry.983633463',  fechaRecibido);
+      params.set('entry.900452356',  fechaEntrega);
+      params.set('entry.1166974658', celularOnlyDigits);
+      params.set('entry.839337160',  comentarios);
+      if (abono)      params.set('entry.19079608',  abono);
+      if (especifique) params.set('entry.285133247', especifique);
+
+      const finalURL = base + '&' + params.toString();
+      window.open(finalURL, '_blank', 'noopener,noreferrer');
+    });
+  </script>
+</body>
+</html>
