@@ -28,7 +28,7 @@
       window._fbSaveScore = async function(name, score) {
         try {
           await addDoc(collection(db, "leaderboard"), {
-            name: name.trim().substring(0, 16) || "Anonymous",
+            name: name.trim().substring(0, 16),
             score: Number(score),
             date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
             timestamp: serverTimestamp()
@@ -177,17 +177,12 @@
             margin-top: 14px;
             gap: 12px;
         }
-
-        /* mode 3: 4-button d-pad */
         .controls.mode3 {
             flex-direction: column;
             align-items: center;
             gap: 6px;
         }
-        .dpad-row {
-            display: flex;
-            gap: 6px;
-        }
+        .dpad-row { display: flex; gap: 6px; }
 
         .ctrl-btn {
             background: linear-gradient(145deg, #1a4b3a, #0d2b1e);
@@ -219,7 +214,6 @@
         }
         .ctrl-btn:hover { border-color: var(--green-teal); }
 
-        /* d-pad buttons (mode 3) */
         .dpad-btn {
             background: linear-gradient(145deg, #1a4b3a, #0d2b1e);
             border: 2px solid rgba(0,180,166,0.5);
@@ -253,7 +247,6 @@
             width: 220px;
             flex-shrink: 0;
         }
-
         .lb-title {
             font-family: var(--font-game);
             font-size: 0.75rem;
@@ -266,9 +259,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .lb-list { list-style: none; }
-
         .lb-item {
             display: flex;
             align-items: center;
@@ -276,60 +267,23 @@
             padding: 7px 8px;
             border-radius: 8px;
             margin-bottom: 4px;
-            transition: background 0.2s;
         }
         .lb-item:nth-child(1) { background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.25); }
         .lb-item:nth-child(2) { background: rgba(192,192,192,0.07); border: 1px solid rgba(192,192,192,0.2); }
         .lb-item:nth-child(3) { background: rgba(205,127,50,0.07); border: 1px solid rgba(205,127,50,0.2); }
         .lb-item:not(:nth-child(-n+3)) { border: 1px solid rgba(255,255,255,0.06); }
-
-        .lb-rank {
-            font-family: var(--font-game);
-            font-size: 0.65rem;
-            font-weight: 700;
-            min-width: 22px;
-            text-align: center;
-        }
+        .lb-rank { font-family: var(--font-game); font-size: 0.65rem; font-weight: 700; min-width: 22px; text-align: center; }
         .lb-item:nth-child(1) .lb-rank { color: var(--gold); }
         .lb-item:nth-child(2) .lb-rank { color: #c0c0c0; }
         .lb-item:nth-child(3) .lb-rank { color: #cd7f32; }
         .lb-item:not(:nth-child(-n+3)) .lb-rank { color: rgba(255,255,255,0.4); }
-
-        .lb-name {
-            flex: 1;
-            font-size: 0.75rem;
-            color: var(--white);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 110px;
-        }
-
-        .lb-score {
-            font-family: var(--font-game);
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--green-teal);
-        }
+        .lb-name { flex: 1; font-size: 0.75rem; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+        .lb-score { font-family: var(--font-game); font-size: 0.75rem; font-weight: 700; color: var(--green-teal); }
         .lb-item:nth-child(1) .lb-score { color: var(--gold); }
-
-        .lb-empty {
-            text-align: center;
-            color: rgba(255,255,255,0.3);
-            font-size: 0.75rem;
-            padding: 16px 0;
-        }
-
-        .lb-loading {
-            text-align: center;
-            color: var(--green-teal);
-            font-size: 0.7rem;
-            padding: 10px 0;
-            animation: pulse 1.2s ease-in-out infinite;
-        }
+        .lb-empty { text-align: center; color: rgba(255,255,255,0.3); font-size: 0.75rem; padding: 16px 0; }
+        .lb-loading { text-align: center; color: var(--green-teal); font-size: 0.7rem; padding: 10px 0; animation: pulse 1.2s ease-in-out infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-        /* Home button in sidebar */
         .lb-home-btn {
             display: block;
             width: 100%;
@@ -347,12 +301,9 @@
             text-decoration: none;
             transition: all 0.15s;
         }
-        .lb-home-btn:hover {
-            border-color: var(--green-teal);
-            color: var(--white);
-            background: rgba(0,180,166,0.08);
-        }
+        .lb-home-btn:hover { border-color: var(--green-teal); color: var(--white); background: rgba(0,180,166,0.08); }
 
+        /* ── OVERLAY & MODAL ── */
         .overlay {
             position: fixed;
             inset: 0;
@@ -370,7 +321,7 @@
             background: linear-gradient(160deg, #0d2b1e 0%, #040d08 100%);
             border: 1px solid rgba(0,180,166,0.4);
             border-radius: 20px;
-            padding: 28px 24px;
+            padding: 22px 24px 26px;
             text-align: center;
             width: 100%;
             max-width: 380px;
@@ -379,6 +330,13 @@
         }
         @keyframes modalIn { from{transform:scale(0.85) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
 
+        /* Modal header row: title left, Home button right */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
         .modal-title {
             font-family: var(--font-game);
             font-size: 1.7rem;
@@ -387,19 +345,37 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 6px;
+            line-height: 1;
         }
+        /* 🏠 Home button — top-right of Game Over */
+        .btn-home-corner {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 11px;
+            background: transparent;
+            border: 1.5px solid rgba(255,215,0,0.35);
+            border-radius: 8px;
+            color: rgba(255,215,0,0.75);
+            font-family: var(--font-game);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn-home-corner:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.07); }
 
         .modal-score {
             font-family: var(--font-game);
             font-size: 1rem;
             color: rgba(255,255,255,0.7);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .modal-score strong {
-            font-size: 1.6rem;
-            color: var(--green-bright);
-        }
+        .modal-score strong { font-size: 1.6rem; color: var(--green-bright); }
 
         .name-section { margin-bottom: 16px; }
         .name-section label {
@@ -423,35 +399,30 @@
             outline: none;
             text-align: center;
             letter-spacing: 0.06em;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .name-input:focus { border-color: var(--green-teal); box-shadow: 0 0 12px rgba(0,180,166,0.25); }
         .name-input::placeholder { color: rgba(255,255,255,0.25); }
+        .name-input.error { border-color: var(--red) !important; box-shadow: 0 0 12px rgba(255,71,87,0.3) !important; }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)}
+            20%{transform:translateX(-7px)}
+            40%{transform:translateX(7px)}
+            60%{transform:translateX(-5px)}
+            80%{transform:translateX(5px)}
+        }
+        .name-input.shake { animation: shake 0.35s ease; }
 
         .modal-lb {
             background: rgba(0,0,0,0.35);
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 16px;
-            max-height: 220px;
+            max-height: 210px;
             overflow-y: auto;
         }
-        .modal-lb-title {
-            font-family: var(--font-game);
-            font-size: 0.65rem;
-            color: var(--gold);
-            letter-spacing: 0.15em;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .modal-lb-item {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            padding: 5px 4px;
-            border-radius: 6px;
-        }
+        .modal-lb-title { font-family: var(--font-game); font-size: 0.65rem; color: var(--gold); letter-spacing: 0.15em; margin-bottom: 8px; text-transform: uppercase; }
+        .modal-lb-item { display: flex; gap: 8px; align-items: center; padding: 5px 4px; border-radius: 6px; }
         .modal-lb-item.highlight { background: rgba(0,255,208,0.1); border: 1px solid rgba(0,255,208,0.3); }
         .modal-lb-rank { font-family: var(--font-game); font-size: 0.65rem; min-width: 20px; color: rgba(255,255,255,0.4); }
         .modal-lb-rank.top1 { color: var(--gold); }
@@ -460,8 +431,7 @@
         .modal-lb-name { flex:1; font-size: 0.75rem; color: var(--white); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .modal-lb-score { font-family: var(--font-game); font-size: 0.75rem; color: var(--green-teal); font-weight: 700; }
 
-        .modal-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-
+        .modal-btns { display: flex; gap: 10px; }
         .btn-submit {
             flex: 1;
             background: linear-gradient(135deg, var(--green-teal), #007a73);
@@ -479,7 +449,6 @@
         .btn-submit:hover { filter: brightness(1.15); }
         .btn-submit:active { transform: scale(0.96); }
         .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
         .btn-play {
             flex: 1;
             background: transparent;
@@ -497,48 +466,10 @@
         .btn-play:hover { border-color: var(--green-teal); background: rgba(0,180,166,0.1); }
         .btn-play:active { transform: scale(0.96); }
 
-        .btn-home-modal {
-            flex-basis: 100%;
-            background: transparent;
-            border: 1.5px solid rgba(255,215,0,0.3);
-            color: rgba(255,215,0,0.75);
-            font-family: var(--font-game);
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 10px 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            letter-spacing: 0.06em;
-            transition: all 0.15s;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .btn-home-modal:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: rgba(255,215,0,0.06);
-        }
-
-        .save-status {
-            font-size: 0.7rem;
-            margin-top: 8px;
-            min-height: 18px;
-            color: var(--green-bright);
-            font-family: var(--font-game);
-        }
+        .save-status { font-size: 0.7rem; margin-top: 8px; min-height: 18px; color: var(--green-bright); font-family: var(--font-game); }
         .save-status.error { color: var(--red); }
 
-        .keyboard-hint {
-            font-size: 0.65rem;
-            color: rgba(255,255,255,0.25);
-            text-align: center;
-            margin-top: 10px;
-            font-family: var(--font-game);
-            letter-spacing: 0.06em;
-        }
+        .keyboard-hint { font-size: 0.65rem; color: rgba(255,255,255,0.25); text-align: center; margin-top: 10px; font-family: var(--font-game); letter-spacing: 0.06em; }
 
         /* ── MODE SELECT MODAL ── */
         .mode-modal {
@@ -552,7 +483,6 @@
             box-shadow: 0 0 60px rgba(0,180,166,0.2), 0 20px 60px rgba(0,0,0,0.6);
             animation: modalIn 0.35s cubic-bezier(0.16,1,0.3,1);
         }
-
         .mode-modal-title {
             font-family: var(--font-game);
             font-size: 1.1rem;
@@ -564,20 +494,8 @@
             background-clip: text;
             margin-bottom: 4px;
         }
-        .mode-modal-sub {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.4);
-            font-family: var(--font-game);
-            letter-spacing: 0.06em;
-            margin-bottom: 22px;
-        }
-
-        .mode-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
+        .mode-modal-sub { font-size: 0.75rem; color: rgba(255,255,255,0.4); font-family: var(--font-game); letter-spacing: 0.06em; margin-bottom: 22px; }
+        .mode-cards { display: flex; flex-direction: column; gap: 12px; }
         .mode-card {
             background: rgba(0,180,166,0.05);
             border: 1.5px solid rgba(0,180,166,0.25);
@@ -586,59 +504,22 @@
             cursor: pointer;
             transition: all 0.18s ease;
             text-align: left;
-            position: relative;
-            overflow: hidden;
         }
-        .mode-card:hover {
-            background: rgba(0,180,166,0.12);
-            border-color: var(--green-teal);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(0,180,166,0.18);
-        }
+        .mode-card:hover { background: rgba(0,180,166,0.12); border-color: var(--green-teal); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,180,166,0.18); }
         .mode-card:active { transform: scale(0.97); }
-
-        .mode-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 6px;
-        }
-        .mode-icon {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-        .mode-name {
-            font-family: var(--font-game);
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--white);
-            letter-spacing: 0.06em;
-        }
-        .mode-badge {
-            margin-left: auto;
-            font-family: var(--font-game);
-            font-size: 0.55rem;
-            padding: 3px 8px;
-            border-radius: 99px;
-            letter-spacing: 0.1em;
-            font-weight: 700;
-        }
+        .mode-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .mode-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .mode-name { font-family: var(--font-game); font-size: 0.82rem; font-weight: 700; color: var(--white); letter-spacing: 0.06em; }
+        .mode-badge { margin-left: auto; font-family: var(--font-game); font-size: 0.55rem; padding: 3px 8px; border-radius: 99px; letter-spacing: 0.1em; font-weight: 700; }
         .mode-badge.classic { background: rgba(0,180,166,0.2); color: var(--green-teal); border: 1px solid rgba(0,180,166,0.35); }
         .mode-badge.spin    { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.35); }
         .mode-badge.full    { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.35); }
-
-        .mode-desc {
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.45);
-            line-height: 1.5;
-            padding-left: 42px;
-        }
+        .mode-desc { font-size: 0.72rem; color: rgba(255,255,255,0.45); line-height: 1.5; padding-left: 42px; }
 
         @media (max-width: 660px) {
             .main-layout { flex-direction: column; align-items: center; }
             .leaderboard-panel { width: 360px; }
             canvas, .controls { width: 340px; }
-            .controls { width: 340px; }
             .leaderboard-panel { order: 2; }
             .game-panel { order: 1; }
         }
@@ -651,7 +532,7 @@
 
     <div class="title-wrapper">
         <div class="game-title">🐍 MAKE JUANJO FATTER</div>
-        <div class="game-version">VERSION 2.0 — LEADERBOARD EDITION</div>
+        <div class="game-version">VERSION 2.5 — LEADERBOARD EDITION</div>
     </div>
 
     <div class="main-layout">
@@ -670,7 +551,6 @@
 
             <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-            <!-- Controls injected dynamically based on mode -->
             <div class="controls" id="controlsArea"></div>
             <div class="keyboard-hint" id="kbHint">KEYBOARD: ← ↑ ↓ →  |  WASD</div>
         </div>
@@ -681,7 +561,7 @@
                 <li class="lb-loading">Loading…</li>
             </ul>
             <a href="https://alexanderbacca.github.io" class="lb-home-btn" target="_blank" rel="noopener noreferrer">
-                🏠 RETURN TO HOME
+                🏠 HOME
             </a>
         </div>
 
@@ -690,7 +570,13 @@
     <!-- GAME OVER OVERLAY -->
     <div class="overlay" id="gameOverOverlay">
         <div class="modal">
-            <div class="modal-title">GAME OVER</div>
+            <!-- Header: GAME OVER title + Home button top-right -->
+            <div class="modal-header">
+                <div class="modal-title">GAME OVER</div>
+                <a href="https://alexanderbacca.github.io" class="btn-home-corner" target="_blank" rel="noopener noreferrer">
+                    🏠 HOME
+                </a>
+            </div>
             <div class="modal-score">Your score: <strong id="finalScore">0</strong></div>
 
             <div class="name-section">
@@ -706,9 +592,6 @@
             <div class="modal-btns">
                 <button class="btn-submit" id="saveBtn">💾 SAVE SCORE</button>
                 <button class="btn-play" id="playAgainBtn">▶ PLAY AGAIN</button>
-                <a href="https://alexanderbacca.github.io" class="btn-home-modal" target="_blank" rel="noopener noreferrer">
-                    🏠 RETURN TO HOME
-                </a>
             </div>
             <div class="save-status" id="saveStatus"></div>
         </div>
@@ -774,17 +657,17 @@
         let snake, direction, food, score, bestScore = 0, gameRunning, gameStarted;
         let loopTimeout = null;
         let scoreSaved = false;
-        let controlMode = 1; // 1=classic, 2=spin, 3=dpad
+        let controlMode = 1;
 
         const images = {};
         const imageUrls = {
-            up: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Up.png',
-            down: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Down.png',
-            left: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Left.png',
-            right: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Right.png',
-            upOpen: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Up_open.png',
-            downOpen: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Down_open.png',
-            leftOpen: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Left_open.png',
+            up:        'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Up.png',
+            down:      'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Down.png',
+            left:      'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Left.png',
+            right:     'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Right.png',
+            upOpen:    'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Up_open.png',
+            downOpen:  'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Down_open.png',
+            leftOpen:  'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Left_open.png',
             rightOpen: 'https://raw.githubusercontent.com/alexanderbacca/alexanderbacca.github.io/main/Right_open.png'
         };
         let imagesLoaded = 0;
@@ -793,21 +676,19 @@
         function preloadImages(cb) {
             Object.keys(imageUrls).forEach(key => {
                 images[key] = new Image();
-                images[key].crossOrigin = "anonymous";
-                images[key].onload = images[key].onerror = () => {
-                    if (++imagesLoaded === totalImages) cb();
-                };
+                images[key].crossOrigin = 'anonymous';
+                images[key].onload = images[key].onerror = () => { if (++imagesLoaded === totalImages) cb(); };
                 images[key].src = imageUrls[key];
             });
         }
 
         function getHeadImage() {
             const head = snake[0];
-            const d = Math.abs(head.x - food.x) + Math.abs(head.y - food.y);
-            const near = d <= 2;
-            if (direction.x === 0 && direction.y === -1) return near ? images.upOpen : images.up;
-            if (direction.x === 0 && direction.y === 1)  return near ? images.downOpen : images.down;
-            if (direction.x === -1)                       return near ? images.leftOpen : images.left;
+            const dist = Math.abs(head.x - food.x) + Math.abs(head.y - food.y);
+            const near = dist <= 2;
+            if (direction.x === 0 && direction.y === -1) return near ? images.upOpen    : images.up;
+            if (direction.x === 0 && direction.y === 1)  return near ? images.downOpen  : images.down;
+            if (direction.x === -1)                       return near ? images.leftOpen  : images.left;
             return near ? images.rightOpen : images.right;
         }
 
@@ -819,8 +700,6 @@
         }
 
         // ── CONTROL HANDLERS ──
-
-        // Mode 1: Classic diagonal (original UP-LEFT / DOWN-RIGHT)
         function handleLeft() {
             if (!gameRunning || !gameStarted) return;
             const d = direction;
@@ -837,65 +716,38 @@
             else if (d.y === 1)  direction = {x:1, y:0};
             else if (d.x === 1)  direction = {x:0, y:1};
         }
-
-        // Mode 2: Spin — pure 90° relative turns
         function handleTurnLeft() {
             if (!gameRunning || !gameStarted) return;
-            const {x, y} = direction;
-            // rotate 90° counter-clockwise: (x,y) → (y,-x)
-            direction = {x: y, y: -x};
+            const {x,y} = direction; direction = {x:y, y:-x};
         }
         function handleTurnRight() {
             if (!gameRunning || !gameStarted) return;
-            const {x, y} = direction;
-            // rotate 90° clockwise: (x,y) → (-y,x)
-            direction = {x: -y, y: x};
+            const {x,y} = direction; direction = {x:-y, y:x};
         }
-
-        // Mode 3: D-Pad direct directions
-        function handleDirUp()    { if (!gameRunning || !gameStarted) return; if (direction.y !== 1)  direction = {x:0, y:-1}; }
-        function handleDirDown()  { if (!gameRunning || !gameStarted) return; if (direction.y !== -1) direction = {x:0, y:1}; }
-        function handleDirLeft()  { if (!gameRunning || !gameStarted) return; if (direction.x !== 1)  direction = {x:-1, y:0}; }
-        function handleDirRight() { if (!gameRunning || !gameStarted) return; if (direction.x !== -1) direction = {x:1, y:0}; }
+        function handleDirUp()    { if (!gameRunning||!gameStarted) return; if (direction.y !== 1)  direction={x:0,y:-1}; }
+        function handleDirDown()  { if (!gameRunning||!gameStarted) return; if (direction.y !== -1) direction={x:0,y:1}; }
+        function handleDirLeft()  { if (!gameRunning||!gameStarted) return; if (direction.x !== 1)  direction={x:-1,y:0}; }
+        function handleDirRight() { if (!gameRunning||!gameStarted) return; if (direction.x !== -1) direction={x:1,y:0}; }
 
         function buildControls(mode) {
             controlsArea.innerHTML = '';
             controlsArea.className = 'controls';
-
             if (mode === 1) {
-                controlsArea.innerHTML = `
-                    <button class="ctrl-btn" id="leftBtn">◀ UP-LEFT</button>
-                    <button class="ctrl-btn" id="rightBtn">DOWN-RIGHT ▶</button>`;
+                controlsArea.innerHTML = `<button class="ctrl-btn" id="leftBtn">◀ UP-LEFT</button><button class="ctrl-btn" id="rightBtn">DOWN-RIGHT ▶</button>`;
                 kbHint.textContent = 'KEYBOARD: ← ↑ ↓ →  |  WASD';
                 addBtnListeners('leftBtn', handleLeft);
                 addBtnListeners('rightBtn', handleRight);
-
             } else if (mode === 2) {
-                controlsArea.innerHTML = `
-                    <button class="ctrl-btn" id="leftBtn">↺ TURN LEFT</button>
-                    <button class="ctrl-btn" id="rightBtn">TURN RIGHT ↻</button>`;
+                controlsArea.innerHTML = `<button class="ctrl-btn" id="leftBtn">↺ TURN LEFT</button><button class="ctrl-btn" id="rightBtn">TURN RIGHT ↻</button>`;
                 kbHint.textContent = 'KEYBOARD: ← / A  =  TURN LEFT   |   → / D  =  TURN RIGHT';
                 addBtnListeners('leftBtn', handleTurnLeft);
                 addBtnListeners('rightBtn', handleTurnRight);
-
             } else if (mode === 3) {
                 controlsArea.classList.add('mode3');
                 controlsArea.innerHTML = `
-                    <div class="dpad-row">
-                        <div class="dpad-spacer"></div>
-                        <button class="dpad-btn" id="dUp">▲</button>
-                        <div class="dpad-spacer"></div>
-                    </div>
-                    <div class="dpad-row">
-                        <button class="dpad-btn" id="dLeft">◀</button>
-                        <div class="dpad-spacer" style="background:rgba(0,180,166,0.04);border-radius:10px;"></div>
-                        <button class="dpad-btn" id="dRight">▶</button>
-                    </div>
-                    <div class="dpad-row">
-                        <div class="dpad-spacer"></div>
-                        <button class="dpad-btn" id="dDown">▼</button>
-                        <div class="dpad-spacer"></div>
-                    </div>`;
+                    <div class="dpad-row"><div class="dpad-spacer"></div><button class="dpad-btn" id="dUp">▲</button><div class="dpad-spacer"></div></div>
+                    <div class="dpad-row"><button class="dpad-btn" id="dLeft">◀</button><div class="dpad-spacer" style="background:rgba(0,180,166,0.04);border-radius:10px;"></div><button class="dpad-btn" id="dRight">▶</button></div>
+                    <div class="dpad-row"><div class="dpad-spacer"></div><button class="dpad-btn" id="dDown">▼</button><div class="dpad-spacer"></div></div>`;
                 kbHint.textContent = 'KEYBOARD: ↑ ↓ ← →  |  WASD';
                 addBtnListeners('dUp', handleDirUp);
                 addBtnListeners('dDown', handleDirDown);
@@ -910,33 +762,29 @@
             ['click','touchstart'].forEach(ev => el.addEventListener(ev, e => { e.preventDefault(); fn(); }));
         }
 
-        // Keyboard: always full arrows/WASD — behaviour adapts to mode
         document.addEventListener('keydown', e => {
             if (!gameRunning || !gameStarted) return;
             if (controlMode === 2) {
-                // spin mode: left/a = turn left, right/d = turn right
-                if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { e.preventDefault(); handleTurnLeft(); }
-                else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') { e.preventDefault(); handleTurnRight(); }
-                else if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') { e.preventDefault(); handleTurnLeft(); }
-                else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') { e.preventDefault(); handleTurnRight(); }
+                if      (e.key==='ArrowLeft'  || e.key.toLowerCase()==='a') { e.preventDefault(); handleTurnLeft(); }
+                else if (e.key==='ArrowRight' || e.key.toLowerCase()==='d') { e.preventDefault(); handleTurnRight(); }
+                else if (e.key==='ArrowUp'    || e.key.toLowerCase()==='w') { e.preventDefault(); handleTurnLeft(); }
+                else if (e.key==='ArrowDown'  || e.key.toLowerCase()==='s') { e.preventDefault(); handleTurnRight(); }
             } else {
-                // classic & dpad: direct direction keys
                 const map = {
-                    'ArrowLeft':  () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
-                    'ArrowRight': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
-                    'ArrowUp':    () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
-                    'ArrowDown':  () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
-                    'a': () => { if (direction.x !== 1)  direction = {x:-1, y:0}; },
-                    'd': () => { if (direction.x !== -1) direction = {x:1,  y:0}; },
-                    'w': () => { if (direction.y !== 1)  direction = {x:0,  y:-1}; },
-                    's': () => { if (direction.y !== -1) direction = {x:0,  y:1}; },
+                    'ArrowLeft':  () => { if (direction.x!==1)  direction={x:-1,y:0}; },
+                    'ArrowRight': () => { if (direction.x!==-1) direction={x:1,y:0}; },
+                    'ArrowUp':    () => { if (direction.y!==1)  direction={x:0,y:-1}; },
+                    'ArrowDown':  () => { if (direction.y!==-1) direction={x:0,y:1}; },
+                    'a': () => { if (direction.x!==1)  direction={x:-1,y:0}; },
+                    'd': () => { if (direction.x!==-1) direction={x:1,y:0}; },
+                    'w': () => { if (direction.y!==1)  direction={x:0,y:-1}; },
+                    's': () => { if (direction.y!==-1) direction={x:0,y:1}; },
                 };
                 const fn = map[e.key] || map[e.key.toLowerCase()];
                 if (fn) { e.preventDefault(); fn(); }
             }
         });
 
-        // ── MODE SELECT ──
         document.querySelectorAll('.mode-card').forEach(card => {
             card.addEventListener('click', () => {
                 controlMode = parseInt(card.dataset.mode);
@@ -965,60 +813,39 @@
         function draw() {
             ctx.fillStyle = 'rgba(0,12,7,0.85)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             ctx.strokeStyle = 'rgba(0,180,166,0.06)';
             ctx.lineWidth = 0.5;
             for (let i = 0; i <= COLS; i++) {
-                ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL, canvas.height); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width, i*CELL); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke();
             }
-
             for (let i = 1; i < snake.length; i++) {
                 const ratio = i / snake.length;
-                const g = Math.round(180 - ratio * 60);
-                const b = Math.round(166 - ratio * 50);
-                ctx.fillStyle = `rgb(0,${g},${b})`;
+                ctx.fillStyle = `rgb(0,${Math.round(180-ratio*60)},${Math.round(166-ratio*50)})`;
                 ctx.strokeStyle = 'rgba(0,0,0,0.4)';
                 ctx.lineWidth = 1;
-                const x = snake[i].x * CELL + 2;
-                const y = snake[i].y * CELL + 2;
-                const sz = CELL - 4;
-                ctx.beginPath();
-                ctx.roundRect(x, y, sz, sz, 4);
-                ctx.fill();
-                ctx.stroke();
+                const x = snake[i].x*CELL+2, y = snake[i].y*CELL+2, sz = CELL-4;
+                ctx.beginPath(); ctx.roundRect(x,y,sz,sz,4); ctx.fill(); ctx.stroke();
             }
-
             if (snake.length > 0) {
                 const img = getHeadImage();
-                const hx = snake[0].x * CELL, hy = snake[0].y * CELL;
+                const hx = snake[0].x*CELL, hy = snake[0].y*CELL;
                 if (img && img.complete && img.naturalWidth > 0) {
                     ctx.drawImage(img, hx, hy, CELL, CELL);
                 } else {
                     ctx.fillStyle = '#2d7a5f';
-                    ctx.beginPath();
-                    ctx.roundRect(hx+1, hy+1, CELL-2, CELL-2, 5);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.roundRect(hx+1,hy+1,CELL-2,CELL-2,5); ctx.fill();
                 }
             }
-
-            const fx = food.x * CELL + CELL/2;
-            const fy = food.y * CELL + CELL/2;
-            const fr = CELL/2 - 3;
-            const grad = ctx.createRadialGradient(fx, fy, 1, fx, fy, fr+6);
-            grad.addColorStop(0, 'rgba(255,80,80,0.5)');
-            grad.addColorStop(1, 'rgba(255,80,80,0)');
-            ctx.fillStyle = grad;
-            ctx.beginPath(); ctx.arc(fx, fy, fr+6, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ff4757';
-            ctx.beginPath(); ctx.arc(fx, fy, fr, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.beginPath(); ctx.arc(fx - fr*0.25, fy - fr*0.25, fr*0.35, 0, Math.PI*2); ctx.fill();
+            const fx=food.x*CELL+CELL/2, fy=food.y*CELL+CELL/2, fr=CELL/2-3;
+            const grad = ctx.createRadialGradient(fx,fy,1,fx,fy,fr+6);
+            grad.addColorStop(0,'rgba(255,80,80,0.5)'); grad.addColorStop(1,'rgba(255,80,80,0)');
+            ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(fx,fy,fr+6,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='#ff4757'; ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(fx-fr*0.25,fy-fr*0.25,fr*0.35,0,Math.PI*2); ctx.fill();
         }
 
-        function stopLoop() {
-            if (loopTimeout !== null) { clearTimeout(loopTimeout); loopTimeout = null; }
-        }
+        function stopLoop() { if (loopTimeout!==null){clearTimeout(loopTimeout);loopTimeout=null;} }
 
         function triggerGameOver() {
             gameRunning = false;
@@ -1026,7 +853,10 @@
             finalScoreEl.textContent = score;
             scoreSaved = false;
             saveStatusEl.textContent = '';
+            saveStatusEl.className = 'save-status';
             saveBtn.disabled = false;
+            playerNameEl.value = '';
+            playerNameEl.classList.remove('error','shake');
             overlay.classList.add('active');
             loadAndShowLeaderboard();
         }
@@ -1034,8 +864,8 @@
         function restartGame() {
             stopLoop();
             overlay.classList.remove('active');
-            snake = [{x:10, y:10}];
-            direction = {x:0, y:-1};
+            snake = [{x:10,y:10}];
+            direction = {x:0,y:-1};
             food = generateFood();
             score = 0;
             gameRunning = true;
@@ -1052,8 +882,8 @@
         }
 
         function startGame() {
-            snake = [{x:10, y:10}];
-            direction = {x:0, y:-1};
+            snake = [{x:10,y:10}];
+            direction = {x:0,y:-1};
             food = generateFood();
             score = 0;
             gameRunning = true;
@@ -1062,65 +892,58 @@
             loadSidebarLeaderboard();
         }
 
-        function rankEmoji(i) {
-            if (i === 0) return '🥇';
-            if (i === 1) return '🥈';
-            if (i === 2) return '🥉';
-            return `#${i+1}`;
-        }
+        function rankEmoji(i) { return i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`; }
 
         async function loadSidebarLeaderboard() {
             const el = document.getElementById('sidebarLb');
             if (!window._fbGetLeaderboard) {
                 el.innerHTML = '<li class="lb-empty">Firebase loading…</li>';
-                setTimeout(loadSidebarLeaderboard, 1500);
-                return;
+                setTimeout(loadSidebarLeaderboard, 1500); return;
             }
             const entries = await window._fbGetLeaderboard();
-            if (!entries.length) {
-                el.innerHTML = '<li class="lb-empty">No scores yet!</li>';
-                return;
-            }
-            el.innerHTML = entries.map((e,i) => `
-                <li class="lb-item">
-                    <span class="lb-rank">${rankEmoji(i)}</span>
-                    <span class="lb-name">${escHtml(e.name)}</span>
-                    <span class="lb-score">${e.score}</span>
-                </li>`).join('');
+            el.innerHTML = entries.length
+                ? entries.map((e,i)=>`<li class="lb-item"><span class="lb-rank">${rankEmoji(i)}</span><span class="lb-name">${escHtml(e.name)}</span><span class="lb-score">${e.score}</span></li>`).join('')
+                : '<li class="lb-empty">No scores yet!</li>';
         }
 
         async function loadAndShowLeaderboard() {
             const el = document.getElementById('modalLbContent');
             el.innerHTML = '<div class="lb-loading">Loading…</div>';
-            if (!window._fbGetLeaderboard) {
-                await new Promise(r => setTimeout(r, 1500));
-            }
+            if (!window._fbGetLeaderboard) await new Promise(r=>setTimeout(r,1500));
             const entries = await window._fbGetLeaderboard();
-            if (!entries.length) {
-                el.innerHTML = '<div class="lb-empty">No scores yet — be the first!</div>';
-                return;
-            }
+            if (!entries.length) { el.innerHTML = '<div class="lb-empty">No scores yet — be the first!</div>'; return; }
             el.innerHTML = entries.map((e,i) => {
                 const cls = i===0?'top1':i===1?'top2':i===2?'top3':'';
-                return `<div class="modal-lb-item">
-                    <span class="modal-lb-rank ${cls}">${rankEmoji(i)}</span>
-                    <span class="modal-lb-name">${escHtml(e.name)}</span>
-                    <span class="modal-lb-score">${e.score}</span>
-                </div>`;
+                return `<div class="modal-lb-item"><span class="modal-lb-rank ${cls}">${rankEmoji(i)}</span><span class="modal-lb-name">${escHtml(e.name)}</span><span class="modal-lb-score">${e.score}</span></div>`;
             }).join('');
         }
 
-        function escHtml(s) {
-            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        }
+        function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+        // ── SAVE SCORE — name required ──
         saveBtn.addEventListener('click', async () => {
             if (scoreSaved) return;
-            const name = playerNameEl.value.trim() || 'Anonymous';
-            saveBtn.disabled = true;
+            const name = playerNameEl.value.trim();
+
+            // Block if name is empty
+            if (!name) {
+                playerNameEl.classList.add('error');
+                playerNameEl.classList.remove('shake');
+                // Force reflow so animation replays
+                void playerNameEl.offsetWidth;
+                playerNameEl.classList.add('shake');
+                saveStatusEl.className = 'save-status error';
+                saveStatusEl.textContent = '⚠️ Please enter your name before saving!';
+                playerNameEl.focus();
+                return;
+            }
+
+            playerNameEl.classList.remove('error','shake');
             saveStatusEl.className = 'save-status';
             saveStatusEl.textContent = '⏳ Saving…';
-            if (!window._fbSaveScore) await new Promise(r => setTimeout(r, 1000));
+            saveBtn.disabled = true;
+
+            if (!window._fbSaveScore) await new Promise(r=>setTimeout(r,1000));
             const ok = window._fbSaveScore ? await window._fbSaveScore(name, score) : false;
             if (ok) {
                 scoreSaved = true;
@@ -1134,25 +957,34 @@
             }
         });
 
+        // Clear error state as soon as the player starts typing
+        playerNameEl.addEventListener('input', () => {
+            if (playerNameEl.value.trim()) {
+                playerNameEl.classList.remove('error','shake');
+                if (saveStatusEl.textContent.includes('name')) {
+                    saveStatusEl.textContent = '';
+                    saveStatusEl.className = 'save-status';
+                }
+            }
+        });
+
         playAgainBtn.addEventListener('click', restartGame);
-        playerNameEl.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn.click(); });
+        playerNameEl.addEventListener('keydown', e => { if (e.key==='Enter') saveBtn.click(); });
         document.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Draw waiting screen while mode modal is open
+        // Waiting canvas
         (function waitingDraw() {
             ctx.fillStyle = '#000c07';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(0,180,166,0.06)';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i <= COLS; i++) {
-                ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,canvas.height); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(canvas.width,i*CELL); ctx.stroke();
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.strokeStyle='rgba(0,180,166,0.06)'; ctx.lineWidth=0.5;
+            for(let i=0;i<=COLS;i++){
+                ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,canvas.height);ctx.stroke();
+                ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(canvas.width,i*CELL);ctx.stroke();
             }
-            ctx.font = `bold ${CELL * 0.7}px Orbitron, monospace`;
-            ctx.fillStyle = 'rgba(0,180,166,0.18)';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('SELECT MODE', canvas.width/2, canvas.height/2);
+            ctx.font=`bold ${CELL*0.7}px Orbitron,monospace`;
+            ctx.fillStyle='rgba(0,180,166,0.18)';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText('SELECT MODE',canvas.width/2,canvas.height/2);
         })();
     </script>
 </body>
