@@ -184,6 +184,7 @@
         }
         .dpad-row { display: flex; gap: 6px; }
 
+        /* Base button style (mode 3 / fallback) */
         .ctrl-btn {
             background: linear-gradient(145deg, #1a4b3a, #0d2b1e);
             border: 2px solid rgba(0,180,166,0.5);
@@ -213,6 +214,15 @@
             box-shadow: 0 0 20px rgba(0,180,166,0.5);
         }
         .ctrl-btn:hover { border-color: var(--green-teal); }
+
+        /* ── BIGGER buttons when only 2 are shown (modes 1 & 2) ── */
+        .controls.mode2btn .ctrl-btn {
+            min-height: 100px;
+            font-size: 1.15rem;
+            padding: 20px 14px;
+            border-radius: 18px;
+            letter-spacing: 0.07em;
+        }
 
         .dpad-btn {
             background: linear-gradient(145deg, #1a4b3a, #0d2b1e);
@@ -650,6 +660,8 @@
         const controlsArea = document.getElementById('controlsArea');
         const kbHint = document.getElementById('kbHint');
 
+        const PLAYER_NAME_KEY = 'snakePlayerName';
+
         const COLS = 20;
         const CELL = canvas.width / COLS;
         const GAME_SPEED = 150;
@@ -733,11 +745,13 @@
             controlsArea.innerHTML = '';
             controlsArea.className = 'controls';
             if (mode === 1) {
+                controlsArea.classList.add('mode2btn');
                 controlsArea.innerHTML = `<button class="ctrl-btn" id="leftBtn">◀ UP-LEFT</button><button class="ctrl-btn" id="rightBtn">DOWN-RIGHT ▶</button>`;
                 kbHint.textContent = 'KEYBOARD: ← ↑ ↓ →  |  WASD';
                 addBtnListeners('leftBtn', handleLeft);
                 addBtnListeners('rightBtn', handleRight);
             } else if (mode === 2) {
+                controlsArea.classList.add('mode2btn');
                 controlsArea.innerHTML = `<button class="ctrl-btn" id="leftBtn">↺ TURN LEFT</button><button class="ctrl-btn" id="rightBtn">TURN RIGHT ↻</button>`;
                 kbHint.textContent = 'KEYBOARD: ← / A  =  TURN LEFT   |   → / D  =  TURN RIGHT';
                 addBtnListeners('leftBtn', handleTurnLeft);
@@ -855,7 +869,8 @@
             saveStatusEl.textContent = '';
             saveStatusEl.className = 'save-status';
             saveBtn.disabled = false;
-            playerNameEl.value = '';
+            // Restore saved player name (or clear if none stored)
+            playerNameEl.value = localStorage.getItem(PLAYER_NAME_KEY) || '';
             playerNameEl.classList.remove('error','shake');
             overlay.classList.add('active');
             loadAndShowLeaderboard();
@@ -937,6 +952,9 @@
                 playerNameEl.focus();
                 return;
             }
+
+            // Persist the name for future games
+            localStorage.setItem(PLAYER_NAME_KEY, name);
 
             playerNameEl.classList.remove('error','shake');
             saveStatusEl.className = 'save-status';
