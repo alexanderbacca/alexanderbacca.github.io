@@ -184,7 +184,7 @@
         }
         .dpad-row { display: flex; gap: 6px; }
 
-        /* Base button style (mode 3 / fallback) */
+        /* Base button style */
         .ctrl-btn {
             background: linear-gradient(145deg, #1a4b3a, #0d2b1e);
             border: 2px solid rgba(0,180,166,0.5);
@@ -215,13 +215,19 @@
         }
         .ctrl-btn:hover { border-color: var(--green-teal); }
 
-        /* ── BIGGER buttons when only 2 are shown (modes 1 & 2) ── */
+        /* ── MUCH BIGGER buttons for 2-button modes (Classic & Spin) ── */
         .controls.mode2btn .ctrl-btn {
-            min-height: 100px;
-            font-size: 1.15rem;
-            padding: 20px 14px;
-            border-radius: 18px;
-            letter-spacing: 0.07em;
+            min-height: 140px;
+            font-size: 1.3rem;
+            padding: 28px 18px;
+            border-radius: 22px;
+            letter-spacing: 0.08em;
+            border-width: 3px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,180,166,0.15);
+        }
+        .controls.mode2btn .ctrl-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 0 30px rgba(0,180,166,0.6);
         }
 
         .dpad-btn {
@@ -249,6 +255,7 @@
         .dpad-btn:hover { border-color: var(--green-teal); }
         .dpad-spacer { width: 72px; height: 60px; }
 
+        /* ── LEADERBOARD PANEL ── */
         .leaderboard-panel {
             background: rgba(0,10,6,0.7);
             border: 1px solid rgba(0,180,166,0.25);
@@ -256,7 +263,18 @@
             padding: 16px;
             width: 220px;
             flex-shrink: 0;
+            /* Hidden during gameplay, shown after game over */
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(16px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
+        .leaderboard-panel.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+
         .lb-title {
             font-family: var(--font-game);
             font-size: 0.75rem;
@@ -340,7 +358,6 @@
         }
         @keyframes modalIn { from{transform:scale(0.85) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
 
-        /* Modal header row: title left, Home button right */
         .modal-header {
             display: flex;
             align-items: center;
@@ -357,7 +374,6 @@
             background-clip: text;
             line-height: 1;
         }
-        /* 🏠 Home button — top-right of Game Over */
         .btn-home-corner {
             display: flex;
             align-items: center;
@@ -565,7 +581,8 @@
             <div class="keyboard-hint" id="kbHint">KEYBOARD: ← ↑ ↓ →  |  WASD</div>
         </div>
 
-        <div class="leaderboard-panel">
+        <!-- Leaderboard: hidden during play, revealed on game over -->
+        <div class="leaderboard-panel" id="leaderboardPanel">
             <div class="lb-title">🏆 TOP 10 PLAYERS</div>
             <ul class="lb-list" id="sidebarLb">
                 <li class="lb-loading">Loading…</li>
@@ -580,7 +597,6 @@
     <!-- GAME OVER OVERLAY -->
     <div class="overlay" id="gameOverOverlay">
         <div class="modal">
-            <!-- Header: GAME OVER title + Home button top-right -->
             <div class="modal-header">
                 <div class="modal-title">GAME OVER</div>
                 <a href="https://alexanderbacca.github.io" class="btn-home-corner" target="_blank" rel="noopener noreferrer">
@@ -659,6 +675,7 @@
         const saveStatusEl = document.getElementById('saveStatus');
         const controlsArea = document.getElementById('controlsArea');
         const kbHint = document.getElementById('kbHint');
+        const leaderboardPanel = document.getElementById('leaderboardPanel');
 
         const PLAYER_NAME_KEY = 'snakePlayerName';
 
@@ -709,6 +726,14 @@
             do { f = { x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*COLS) }; }
             while (snake.some(s => s.x === f.x && s.y === f.y));
             return f;
+        }
+
+        // ── Leaderboard visibility helpers ──
+        function showLeaderboard() {
+            leaderboardPanel.classList.add('visible');
+        }
+        function hideLeaderboard() {
+            leaderboardPanel.classList.remove('visible');
         }
 
         // ── CONTROL HANDLERS ──
@@ -804,6 +829,7 @@
                 controlMode = parseInt(card.dataset.mode);
                 modeOverlay.classList.remove('active');
                 buildControls(controlMode);
+                hideLeaderboard(); // ensure hidden when game starts
                 preloadImages(() => startGame());
             });
         });
@@ -869,9 +895,10 @@
             saveStatusEl.textContent = '';
             saveStatusEl.className = 'save-status';
             saveBtn.disabled = false;
-            // Restore saved player name (or clear if none stored)
             playerNameEl.value = localStorage.getItem(PLAYER_NAME_KEY) || '';
             playerNameEl.classList.remove('error','shake');
+            // Show leaderboard panel when game ends
+            loadSidebarLeaderboard().then(() => showLeaderboard());
             overlay.classList.add('active');
             loadAndShowLeaderboard();
         }
@@ -879,6 +906,8 @@
         function restartGame() {
             stopLoop();
             overlay.classList.remove('active');
+            // Hide leaderboard when a new game begins
+            hideLeaderboard();
             snake = [{x:10,y:10}];
             direction = {x:0,y:-1};
             food = generateFood();
@@ -903,8 +932,9 @@
             score = 0;
             gameRunning = true;
             gameStarted = true;
+            // Leaderboard hidden at start
+            hideLeaderboard();
             gameLoop();
-            loadSidebarLeaderboard();
         }
 
         function rankEmoji(i) { return i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`; }
@@ -913,7 +943,8 @@
             const el = document.getElementById('sidebarLb');
             if (!window._fbGetLeaderboard) {
                 el.innerHTML = '<li class="lb-empty">Firebase loading…</li>';
-                setTimeout(loadSidebarLeaderboard, 1500); return;
+                await new Promise(r => setTimeout(r, 1500));
+                return loadSidebarLeaderboard();
             }
             const entries = await window._fbGetLeaderboard();
             el.innerHTML = entries.length
@@ -935,16 +966,12 @@
 
         function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-        // ── SAVE SCORE — name required ──
         saveBtn.addEventListener('click', async () => {
             if (scoreSaved) return;
             const name = playerNameEl.value.trim();
-
-            // Block if name is empty
             if (!name) {
                 playerNameEl.classList.add('error');
                 playerNameEl.classList.remove('shake');
-                // Force reflow so animation replays
                 void playerNameEl.offsetWidth;
                 playerNameEl.classList.add('shake');
                 saveStatusEl.className = 'save-status error';
@@ -952,15 +979,11 @@
                 playerNameEl.focus();
                 return;
             }
-
-            // Persist the name for future games
             localStorage.setItem(PLAYER_NAME_KEY, name);
-
             playerNameEl.classList.remove('error','shake');
             saveStatusEl.className = 'save-status';
             saveStatusEl.textContent = '⏳ Saving…';
             saveBtn.disabled = true;
-
             if (!window._fbSaveScore) await new Promise(r=>setTimeout(r,1000));
             const ok = window._fbSaveScore ? await window._fbSaveScore(name, score) : false;
             if (ok) {
@@ -975,7 +998,6 @@
             }
         });
 
-        // Clear error state as soon as the player starts typing
         playerNameEl.addEventListener('input', () => {
             if (playerNameEl.value.trim()) {
                 playerNameEl.classList.remove('error','shake');
