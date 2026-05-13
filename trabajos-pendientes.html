@@ -43,7 +43,7 @@
 
     body {
       font-family: var(--font-body);
-      background: linear-gradient(135deg, #fff0f6 0%, #f9f0ff 40%, #fff5f8 100%);
+      background: #ffbbff;
       min-height: 100dvh;
       color: var(--text);
       padding: 1.5rem 1rem 3rem;
@@ -344,6 +344,8 @@
         </div>
 
         <!-- Comentarios / Tipo de trabajo -->
+        <!-- The value= attributes contain the exact text the Google Form accepts (no emojis).
+             The visible option text keeps the emojis for a friendly UI. -->
         <div class="form-group">
           <label for="comentarios">
             ✂️ Tipo de trabajo
@@ -351,16 +353,16 @@
           </label>
           <select id="comentarios" name="entry.839337160" required>
             <option value="" disabled selected>-- Selecciona un trabajo 💗 --</option>
-            <option value="👖 Pantalón doblado normal 7.000">👖 Pantalón doblado normal 7.000</option>
-            <option value="👦👖 Pantalón doblado niño 5.000">👦👖 Pantalón doblado niño 5.000</option>
-            <option value="✂️👖 Pantalón Meter y cortar 12.000">✂️👖 Pantalón Meter y cortar 12.000</option>
-            <option value="🪡👖 Pantalón cintura meter 10.000">🪡👖 Pantalón cintura meter 10.000</option>
-            <option value="🧥🤐 Chaqueta cambio de cierre 18.000">🧥🤐 Chaqueta cambio de cierre 18.000</option>
-            <option value="👖🤐 Pantalón cambio de cierre 10.000">👖🤐 Pantalón cambio de cierre 10.000</option>
-            <option value="👗✂️ Cortar vestido 12.000">👗✂️ Cortar vestido 12.000</option>
-            <option value="🧥✂️ Blazer corta manga 11.000">🧥✂️ Blazer corta manga 11.000</option>
-            <option value="👚🪡 Meter blusa 8.000">👚🪡 Meter blusa 8.000</option>
-            <option value="✨ Otro">✨ Otro</option>
+            <option value="Pantalón doblado normal 7.000">👖 Pantalón doblado normal 7.000</option>
+            <option value="Pantalón doblado niño 5.000">👦👖 Pantalón doblado niño 5.000</option>
+            <option value="Pantalón Meter y cortar 12.000">✂️👖 Pantalón Meter y cortar 12.000</option>
+            <option value="Pantalón cintura meter 10.000">🪡👖 Pantalón cintura meter 10.000</option>
+            <option value="Chaqueta cambio de cierre 18.000">🧥🤐 Chaqueta cambio de cierre 18.000</option>
+            <option value="Pantalón cambió de cierre 10.000">👖🤐 Pantalón cambió de cierre 10.000</option>
+            <option value="Cortar vestido 12.000">👗✂️ Cortar vestido 12.000</option>
+            <option value="Blazer corta manga 11.000">🧥✂️ Blazer corta manga 11.000</option>
+            <option value="Meter blusa 8.000">👚🪡 Meter blusa 8.000</option>
+            <option value="Otro">✨ Otro</option>
           </select>
           <p class="field-error" id="err-comentarios">⚠️ Por favor selecciona el tipo de trabajo.</p>
         </div>
