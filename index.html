@@ -144,6 +144,12 @@
             text-align:center; padding:2rem 0; margin-top:4rem;
         }
         .footer-note { font-size:.9rem; opacity:.8; margin-top:.5rem; }
+        .footer-note a {
+            color: var(--accent-teal);
+            text-decoration: none;
+            transition: opacity .3s ease;
+        }
+        .footer-note a:hover { opacity: .75; text-decoration: underline; }
 
         .video-section { margin:4rem 0; }
         .videos-grid {
@@ -313,7 +319,7 @@
     <footer>
         <div class="container">
             <p>&copy; 2025 Alexander Bacca</p>
-            <p class="footer-note">Let's cultivate something great together. Reach out at hello@alexanderbacca.com</p>
+            <p class="footer-note">Let's cultivate something great together. Reach out at <a href="mailto:hello@alexanderbacca.com">hello@alexanderbacca.com</a></p>
         </div>
     </footer>
 
