@@ -6,50 +6,55 @@
     <title>Corre Vairon</title>
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js classic (no modules) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <!-- GLTFLoader as a global (compiled UMD build) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
-            --primary-green: #1a4b3a;
-            --secondary-green: #2d7a5f;
-            --accent-teal: #00b4a6;
+            --teal:  #00b4a6;
+            --dark:  #1a4b3a;
+            --mid:   #2d7a5f;
             --white: #ffffff;
-            --glass-bg: rgba(255,255,255,0.1);
-            --glass-border: rgba(255,255,255,0.2);
         }
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 50%, var(--accent-teal) 100%);
+            background: var(--dark);
             height: 100dvh; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: flex; flex-direction: column;
         }
 
         /* ── HEADER ── */
         .game-header {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(26,75,58,0.95); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
+            position: relative; z-index: 100;
+            background: rgba(26,75,58,0.97);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0.5rem 1.5rem; z-index: 100; height: 52px;
+            padding: 0 1.5rem; height: 52px; flex-shrink: 0;
         }
         .back-link {
             color: var(--white); text-decoration: none; font-size: 0.9rem;
             display: flex; align-items: center; gap: 0.4rem;
-            transition: color 0.3s;
+            transition: color 0.2s;
         }
-        .back-link:hover { color: var(--accent-teal); }
-        .game-title-header { color: var(--accent-teal); font-weight: 700; font-size: 1.1rem; }
-        .score-display {
+        .back-link:hover { color: var(--teal); }
+        .game-title-hdr { color: var(--teal); font-weight: 700; font-size: 1.1rem; }
+        .score-box {
             color: var(--white); font-weight: 600; font-size: 1rem;
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            padding: 0.25rem 0.75rem; border-radius: 50px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.25rem 0.9rem; border-radius: 50px; min-width: 64px;
+            text-align: center;
         }
 
         /* ── CANVAS WRAPPER ── */
         #game-wrap {
             position: relative;
-            margin-top: 52px;
-            width: 100vw;
-            height: calc(100dvh - 52px);
+            flex: 1;
+            overflow: hidden;
         }
         #gameCanvas {
             display: block;
@@ -62,30 +67,32 @@
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            background: rgba(26,75,58,0.82); backdrop-filter: blur(6px);
-            z-index: 10; gap: 1.2rem; padding: 1rem;
+            background: rgba(20,55,40,0.84); backdrop-filter: blur(6px);
+            z-index: 10; gap: 1rem; padding: 1.5rem;
         }
         .overlay h2 {
-            color: var(--accent-teal); font-size: clamp(1.6rem, 5vw, 2.8rem);
-            font-weight: 700; text-align: center; text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+            color: var(--teal);
+            font-size: clamp(1.6rem, 5vw, 2.6rem);
+            font-weight: 700; text-align: center;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.5);
         }
         .overlay p {
-            color: var(--white); font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+            color: var(--white); font-size: clamp(0.85rem, 2.5vw, 1.05rem);
             text-align: center; max-width: 420px; line-height: 1.6;
         }
-        .overlay .final-score {
-            color: var(--accent-teal); font-size: clamp(1.1rem, 3vw, 1.4rem);
-            font-weight: 600;
+        .overlay .big-score {
+            color: var(--teal);
+            font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700;
         }
         .btn-play {
-            background: linear-gradient(45deg, var(--accent-teal), var(--secondary-green));
-            color: var(--white); border: none; border-radius: 50px;
-            padding: 0.85rem 2.5rem; font-size: 1rem; font-weight: 600;
+            background: var(--teal); color: var(--white);
+            border: none; border-radius: 50px;
+            padding: 0.85rem 2.6rem; font-size: 1rem; font-weight: 600;
             cursor: pointer; font-family: 'Poppins', sans-serif;
-            box-shadow: 0 4px 15px rgba(0,180,166,0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 18px rgba(0,180,166,0.45);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-        .btn-play:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,180,166,0.5); }
+        .btn-play:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,180,166,0.55); }
         .btn-play:active { transform: translateY(0); }
         .hidden { display: none !important; }
 
@@ -94,316 +101,335 @@
             display: none;
             position: absolute; bottom: 0; left: 0; right: 0;
             justify-content: space-between; align-items: flex-end;
-            padding: 0 1.5rem 1.5rem; pointer-events: none; z-index: 20;
+            padding: 0 1.2rem 1.4rem;
+            pointer-events: none; z-index: 20;
         }
         .dir-btn {
             pointer-events: all;
-            width: clamp(70px, 18vw, 96px); height: clamp(70px, 18vw, 96px);
-            background: rgba(0,180,166,0.25); border: 2px solid var(--accent-teal);
-            border-radius: 50%; color: var(--white);
+            width:  clamp(68px, 17vw, 96px);
+            height: clamp(68px, 17vw, 96px);
+            background: rgba(0,180,166,0.22);
+            border: 2.5px solid var(--teal);
+            border-radius: 50%;
+            color: var(--white);
             font-size: clamp(1.8rem, 5vw, 2.6rem);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; user-select: none;
             -webkit-tap-highlight-color: transparent;
-            transition: background 0.15s;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            transition: background 0.12s;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.3);
         }
-        .dir-btn:active, .dir-btn.pressed { background: rgba(0,180,166,0.55); }
+        .dir-btn:active, .dir-btn.pressed { background: rgba(0,180,166,0.52); }
     </style>
 </head>
 <body>
 
 <header class="game-header">
     <a href="../" class="back-link">&#8592; Inicio</a>
-    <span class="game-title-header">&#127939; Corre Vairon</span>
-    <span class="score-display" id="scoreDisplay">0</span>
+    <span class="game-title-hdr">&#127939; Corre Vairon</span>
+    <span class="score-box" id="scoreDisplay">0</span>
 </header>
 
 <div id="game-wrap">
     <canvas id="gameCanvas"></canvas>
 
-    <!-- START SCREEN -->
+    <!-- START -->
     <div class="overlay" id="startScreen">
         <h2>&#127939; Corre Vairon</h2>
         <p>&#161;Mueve a Vairon izquierda y derecha para esquivar las caras que caen!<br>
         Las caras se vuelven m&#225;s r&#225;pidas con el tiempo. &#191;Cu&#225;nto aguantas?</p>
-        <p style="color:var(--accent-teal); font-size:0.85rem;">PC: flechas &#8592; &#8594; &nbsp;|&nbsp; M&#243;vil: botones abajo</p>
+        <p style="color:var(--teal); font-size:0.82rem;">
+            PC: flechas &#8592; &#8594; &nbsp;|&nbsp; M&#243;vil: botones de abajo
+        </p>
         <button class="btn-play" id="startBtn">&#161;Comenzar!</button>
     </div>
 
-    <!-- GAME OVER SCREEN -->
+    <!-- GAME OVER -->
     <div class="overlay hidden" id="gameOverScreen">
         <h2>&#128128; &#161;Game Over!</h2>
-        <p class="final-score" id="finalScore">Puntaje: 0</p>
+        <p class="big-score" id="finalScore">Puntaje: 0</p>
         <p>Las caras te alcanzaron, Vairon.</p>
         <button class="btn-play" id="restartBtn">&#128260; Jugar de nuevo</button>
     </div>
 
     <!-- MOBILE CONTROLS -->
     <div id="mobile-controls">
-        <button class="dir-btn" id="btnLeft" aria-label="Mover izquierda">&#8592;</button>
+        <button class="dir-btn" id="btnLeft"  aria-label="Mover izquierda">&#8592;</button>
         <button class="dir-btn" id="btnRight" aria-label="Mover derecha">&#8594;</button>
     </div>
 </div>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
+<script>
+(function () {
+    'use strict';
 
-const BASE_URL = 'https://alexanderbacca.github.io';
-const FACE_URLS = [
-    BASE_URL + '/Right.png',
-    BASE_URL + '/Down.png',
-    BASE_URL + '/Down_open.png'
-];
-const BG_URL    = BASE_URL + '/skeleton-runner/Gemini_Generated_Image_uzip21uzip21uzip.png';
-const MODEL_URL = BASE_URL + '/skeleton-runner/Vairon.glb';
+    /* ── CONSTANTS ── */
+    var BASE      = 'https://alexanderbacca.github.io';
+    var BG_URL    = BASE + '/skeleton-runner/Gemini_Generated_Image_uzip21uzip21uzip.png';
+    var MODEL_URL = BASE + '/skeleton-runner/Vairon.glb';
+    var FACE_URLS = [
+        BASE + '/Right.png',
+        BASE + '/Down.png',
+        BASE + '/Down_open.png'
+    ];
 
-const GAME_W = 800, GAME_H = 450;
-const PLAYER_W = 64, PLAYER_H = 96;
-const FACE_SIZE = 60;
-const PLAYER_SPEED = 380;
+    var GAME_W     = 800;
+    var GAME_H     = 450;
+    var PLAYER_W   = 60;
+    var PLAYER_H   = 90;
+    var FACE_SIZE  = 58;
+    var PLR_SPEED  = 390;
 
-const WAVES = [
-    { minScore:    0, faceIdx: 0, speedMin: 200, speedMax: 320, spawnInterval: 1.8 },
-    { minScore:  500, faceIdx: 1, speedMin: 320, speedMax: 480, spawnInterval: 1.3 },
-    { minScore: 1200, faceIdx: 2, speedMin: 500, speedMax: 700, spawnInterval: 0.85 },
-];
+    var WAVES = [
+        { minScore:    0, faceIdx: 0, speedMin: 190, speedMax: 310, interval: 1.8 },
+        { minScore:  500, faceIdx: 1, speedMin: 320, speedMax: 480, interval: 1.25 },
+        { minScore: 1200, faceIdx: 2, speedMin: 500, speedMax: 700, interval: 0.8  }
+    ];
 
-const canvas  = document.getElementById('gameCanvas');
-const wrap    = document.getElementById('game-wrap');
+    /* ── THREE SETUP ── */
+    var canvas   = document.getElementById('gameCanvas');
+    var wrap     = document.getElementById('game-wrap');
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-const camera = new THREE.OrthographicCamera(
-    -GAME_W/2, GAME_W/2, GAME_H/2, -GAME_H/2, 0.1, 1000
-);
-camera.position.set(0, 0, 100);
-camera.lookAt(0, 0, 0);
+    var scene  = new THREE.Scene();
+    var camera = new THREE.OrthographicCamera(
+        -GAME_W/2, GAME_W/2, GAME_H/2, -GAME_H/2, 0.1, 1000
+    );
+    camera.position.set(0, 0, 100);
+    camera.lookAt(0, 0, 0);
 
-const scene = new THREE.Scene();
-const ambient  = new THREE.AmbientLight(0xffffff, 1.4);
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
-dirLight.position.set(5, 10, 10);
-scene.add(ambient, dirLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+    var dir = new THREE.DirectionalLight(0xffffff, 1.8);
+    dir.position.set(5, 10, 10);
+    scene.add(dir);
 
-function resize() {
-    const w = wrap.clientWidth;
-    const h = wrap.clientHeight;
-    renderer.setSize(w, h);
-    const aspect = w / h;
-    const gameAspect = GAME_W / GAME_H;
-    if (aspect > gameAspect) {
-        const s = h / GAME_H;
-        camera.left   = -(w / s) / 2;
-        camera.right  =  (w / s) / 2;
-        camera.top    =  GAME_H / 2;
-        camera.bottom = -GAME_H / 2;
-    } else {
-        const s = w / GAME_W;
-        camera.left   = -GAME_W / 2;
-        camera.right  =  GAME_W / 2;
-        camera.top    =  (h / s) / 2;
-        camera.bottom = -(h / s) / 2;
+    /* ── RESIZE ── */
+    function resize() {
+        var w = wrap.clientWidth;
+        var h = wrap.clientHeight;
+        renderer.setSize(w, h);
+        var aspect      = w / h;
+        var gameAspect  = GAME_W / GAME_H;
+        if (aspect > gameAspect) {
+            var s = h / GAME_H;
+            camera.left   = -(w / s) / 2;
+            camera.right  =  (w / s) / 2;
+            camera.top    =  GAME_H / 2;
+            camera.bottom = -GAME_H / 2;
+        } else {
+            var s2 = w / GAME_W;
+            camera.left   = -GAME_W / 2;
+            camera.right  =  GAME_W / 2;
+            camera.top    =  (h / s2) / 2;
+            camera.bottom = -(h / s2) / 2;
+        }
+        camera.updateProjectionMatrix();
     }
-    camera.updateProjectionMatrix();
-}
-window.addEventListener('resize', resize);
-resize();
+    window.addEventListener('resize', resize);
+    resize();
 
-// Background
-{
-    const texLoader = new THREE.TextureLoader();
-    texLoader.load(BG_URL, (tex) => {
+    /* ── BACKGROUND ── */
+    var texLoader = new THREE.TextureLoader();
+    texLoader.load(BG_URL, function (tex) {
         tex.colorSpace = THREE.SRGBColorSpace;
-        const mat = new THREE.MeshBasicMaterial({ map: tex, depthWrite: false });
-        const geo = new THREE.PlaneGeometry(GAME_W, GAME_H);
-        const mesh = new THREE.Mesh(geo, mat);
+        var mat  = new THREE.MeshBasicMaterial({ map: tex, depthWrite: false });
+        var geo  = new THREE.PlaneGeometry(GAME_W, GAME_H);
+        var mesh = new THREE.Mesh(geo, mat);
         mesh.position.set(0, 0, -10);
         scene.add(mesh);
     });
-}
 
-// Ground line
-{
-    const geo = new THREE.PlaneGeometry(GAME_W, 4);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x00b4a6, transparent: true, opacity: 0.6 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(0, -GAME_H/2 + 90, 1);
-    scene.add(mesh);
-}
+    /* ── GROUND LINE ── */
+    var groundY = -GAME_H / 2 + 88;
+    var gGeo = new THREE.PlaneGeometry(GAME_W, 4);
+    var gMat = new THREE.MeshBasicMaterial({ color: 0x00b4a6, transparent: true, opacity: 0.55 });
+    scene.add(Object.assign(new THREE.Mesh(gGeo, gMat), { position: new THREE.Vector3(0, groundY, 1) }));
 
-// Player
-let mixer = null;
-let playerMesh = null;
-let playerX = 0;
-const clock = new THREE.Clock();
+    /* ── PLAYER ── */
+    var mixer      = null;
+    var playerMesh = null;
+    var playerX    = 0;
+    var clock      = new THREE.Clock();
 
-const gltfLoader = new GLTFLoader();
-gltfLoader.load(MODEL_URL, (gltf) => {
-    playerMesh = gltf.scene;
-    playerMesh.scale.set(38, 38, 38);
-    playerMesh.position.set(0, -GAME_H/2 + 90 + PLAYER_H/2, 2);
-    playerMesh.rotation.y = 0;
-    scene.add(playerMesh);
-    mixer = new THREE.AnimationMixer(playerMesh);
-    if (gltf.animations.length > 0) {
-        mixer.clipAction(gltf.animations[0]).play();
+    function buildFallback() {
+        var geo  = new THREE.CapsuleGeometry(16, 46, 4, 8);
+        var mat  = new THREE.MeshLambertMaterial({ color: 0x00b4a6 });
+        playerMesh = new THREE.Mesh(geo, mat);
+        playerMesh.position.set(0, groundY + PLAYER_H / 2, 2);
+        scene.add(playerMesh);
     }
-}, undefined, () => {
-    // Fallback capsule
-    const geo = new THREE.CapsuleGeometry(16, 48, 4, 8);
-    const mat = new THREE.MeshLambertMaterial({ color: 0x00b4a6 });
-    playerMesh = new THREE.Mesh(geo, mat);
-    playerMesh.position.set(0, -GAME_H/2 + 90 + PLAYER_H/2, 2);
-    scene.add(playerMesh);
-});
 
-// Face textures
-const faceTextures = FACE_URLS.map(url => {
-    const t = new THREE.TextureLoader().load(url);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-});
-
-const obstacles = [];
-
-function spawnFace(waveIdx) {
-    const w = WAVES[waveIdx];
-    const mat = new THREE.MeshBasicMaterial({ map: faceTextures[w.faceIdx], transparent: true, side: THREE.DoubleSide });
-    const geo = new THREE.PlaneGeometry(FACE_SIZE, FACE_SIZE);
-    const mesh = new THREE.Mesh(geo, mat);
-    const xRange = GAME_W / 2 - FACE_SIZE;
-    mesh.position.set(
-        (Math.random() * 2 - 1) * xRange,
-        GAME_H / 2 + FACE_SIZE,
-        3
-    );
-    const speed = w.speedMin + Math.random() * (w.speedMax - w.speedMin);
-    scene.add(mesh);
-    obstacles.push({ mesh, speed });
-}
-
-// Input
-const keys = { left: false, right: false };
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft')  { keys.left  = true;  startGame(); }
-    if (e.key === 'ArrowRight') { keys.right = true;  startGame(); }
-});
-document.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowLeft')  keys.left  = false;
-    if (e.key === 'ArrowRight') keys.right = false;
-});
-
-function addHold(btn, keyName) {
-    const press   = (e) => { e.preventDefault(); keys[keyName] = true;  btn.classList.add('pressed');    startGame(); };
-    const release = (e) => { e.preventDefault(); keys[keyName] = false; btn.classList.remove('pressed'); };
-    btn.addEventListener('touchstart',  press,   { passive: false });
-    btn.addEventListener('touchend',    release, { passive: false });
-    btn.addEventListener('touchcancel', release, { passive: false });
-    btn.addEventListener('mousedown',   press);
-    btn.addEventListener('mouseup',     release);
-    btn.addEventListener('mouseleave',  release);
-}
-
-const btnL = document.getElementById('btnLeft');
-const btnR = document.getElementById('btnRight');
-addHold(btnL, 'left');
-addHold(btnR, 'right');
-
-if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-    document.getElementById('mobile-controls').style.display = 'flex';
-}
-
-document.getElementById('startBtn').addEventListener('click',   () => startGame(true));
-document.getElementById('restartBtn').addEventListener('click', () => startGame(true));
-
-// Game state
-let state = 'start';
-let score = 0;
-let spawnTimer = 0;
-let currentWave = 0;
-const scoreDisplay = document.getElementById('scoreDisplay');
-const startScreen  = document.getElementById('startScreen');
-const overScreen   = document.getElementById('gameOverScreen');
-const finalScore   = document.getElementById('finalScore');
-
-function startGame(fromButton = false) {
-    if (state === 'playing' && !fromButton) return;
-    obstacles.forEach(o => scene.remove(o.mesh));
-    obstacles.length = 0;
-    score = 0; spawnTimer = 0; currentWave = 0;
-    scoreDisplay.textContent = '0';
-    if (playerMesh) { playerMesh.position.x = 0; }
-    playerX = 0;
-    state = 'playing';
-    startScreen.classList.add('hidden');
-    overScreen.classList.add('hidden');
-    clock.getDelta();
-}
-
-function gameOver() {
-    state = 'over';
-    finalScore.textContent = 'Puntaje: ' + Math.floor(score);
-    overScreen.classList.remove('hidden');
-}
-
-function checkCollision(obs) {
-    if (!playerMesh) return false;
-    const px = playerMesh.position.x;
-    const py = playerMesh.position.y;
-    const ox = obs.mesh.position.x;
-    const oy = obs.mesh.position.y;
-    return Math.abs(px - ox) < (PLAYER_W * 0.5 + FACE_SIZE * 0.4)
-        && Math.abs(py - oy) < (PLAYER_H * 0.5 + FACE_SIZE * 0.4);
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    const dt = Math.min(clock.getDelta(), 0.05);
-    if (mixer) mixer.update(dt);
-
-    if (state === 'playing') {
-        score += dt * 60;
-        scoreDisplay.textContent = Math.floor(score);
-
-        for (let i = WAVES.length - 1; i >= 0; i--) {
-            if (score >= WAVES[i].minScore) { currentWave = i; break; }
-        }
-
-        if (playerMesh) {
-            const halfW = GAME_W / 2 - PLAYER_W / 2;
-            if (keys.left)  playerX -= PLAYER_SPEED * dt;
-            if (keys.right) playerX += PLAYER_SPEED * dt;
-            playerX = Math.max(-halfW, Math.min(halfW, playerX));
-            playerMesh.position.x = playerX;
-            if (keys.left)  playerMesh.rotation.y = Math.PI;
-            if (keys.right) playerMesh.rotation.y = 0;
-        }
-
-        spawnTimer -= dt;
-        if (spawnTimer <= 0) {
-            spawnFace(currentWave);
-            spawnTimer = WAVES[currentWave].spawnInterval * (0.8 + Math.random() * 0.4);
-        }
-
-        for (let i = obstacles.length - 1; i >= 0; i--) {
-            const o = obstacles[i];
-            o.mesh.position.y -= o.speed * dt;
-            if (o.mesh.position.y < -GAME_H / 2 - FACE_SIZE) {
-                scene.remove(o.mesh);
-                obstacles.splice(i, 1);
-                continue;
+    var loader = new THREE.GLTFLoader();
+    loader.load(
+        MODEL_URL,
+        function (gltf) {
+            playerMesh = gltf.scene;
+            playerMesh.scale.set(38, 38, 38);
+            playerMesh.position.set(0, groundY + PLAYER_H / 2, 2);
+            scene.add(playerMesh);
+            mixer = new THREE.AnimationMixer(playerMesh);
+            if (gltf.animations.length > 0) {
+                mixer.clipAction(gltf.animations[0]).play();
             }
-            if (checkCollision(o)) { gameOver(); break; }
-        }
+        },
+        undefined,
+        function () { buildFallback(); }
+    );
+
+    /* ── FACE TEXTURES ── */
+    var faceTextures = FACE_URLS.map(function (url) {
+        var t = new THREE.TextureLoader().load(url);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+    });
+
+    /* ── OBSTACLES ── */
+    var obstacles = [];
+
+    function spawnFace(wIdx) {
+        var w   = WAVES[wIdx];
+        var mat = new THREE.MeshBasicMaterial({
+            map: faceTextures[w.faceIdx], transparent: true, side: THREE.DoubleSide
+        });
+        var geo  = new THREE.PlaneGeometry(FACE_SIZE, FACE_SIZE);
+        var mesh = new THREE.Mesh(geo, mat);
+        var xRange = GAME_W / 2 - FACE_SIZE;
+        mesh.position.set(
+            (Math.random() * 2 - 1) * xRange,
+            GAME_H / 2 + FACE_SIZE,
+            3
+        );
+        var speed = w.speedMin + Math.random() * (w.speedMax - w.speedMin);
+        scene.add(mesh);
+        obstacles.push({ mesh: mesh, speed: speed });
     }
 
-    renderer.render(scene, camera);
-}
-requestAnimationFrame(animate);
+    /* ── INPUT ── */
+    var keys = { left: false, right: false };
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft')  { keys.left  = true;  tryStart(); }
+        if (e.key === 'ArrowRight') { keys.right = true;  tryStart(); }
+    });
+    document.addEventListener('keyup', function (e) {
+        if (e.key === 'ArrowLeft')  keys.left  = false;
+        if (e.key === 'ArrowRight') keys.right = false;
+    });
+
+    function addHold(btn, which) {
+        function press(e)   { e.preventDefault(); keys[which] = true;  btn.classList.add('pressed');    tryStart(); }
+        function release(e) { e.preventDefault(); keys[which] = false; btn.classList.remove('pressed'); }
+        btn.addEventListener('touchstart',  press,   { passive: false });
+        btn.addEventListener('touchend',    release, { passive: false });
+        btn.addEventListener('touchcancel', release, { passive: false });
+        btn.addEventListener('mousedown',   press);
+        btn.addEventListener('mouseup',     release);
+        btn.addEventListener('mouseleave',  release);
+    }
+    addHold(document.getElementById('btnLeft'),  'left');
+    addHold(document.getElementById('btnRight'), 'right');
+
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobile-controls').style.display = 'flex';
+    }
+
+    /* ── GAME STATE ── */
+    var state       = 'start';
+    var score       = 0;
+    var spawnTimer  = 0;
+    var currentWave = 0;
+
+    var scoreDisplay = document.getElementById('scoreDisplay');
+    var startScreen  = document.getElementById('startScreen');
+    var overScreen   = document.getElementById('gameOverScreen');
+    var finalScore   = document.getElementById('finalScore');
+
+    document.getElementById('startBtn').addEventListener('click',   function () { doStart(); });
+    document.getElementById('restartBtn').addEventListener('click', function () { doStart(); });
+
+    function tryStart() {
+        if (state !== 'playing') doStart();
+    }
+
+    function doStart() {
+        obstacles.forEach(function (o) { scene.remove(o.mesh); });
+        obstacles.length = 0;
+        score = 0; spawnTimer = 0; currentWave = 0;
+        playerX = 0;
+        scoreDisplay.textContent = '0';
+        if (playerMesh) playerMesh.position.x = 0;
+        state = 'playing';
+        startScreen.classList.add('hidden');
+        overScreen.classList.add('hidden');
+        clock.getDelta(); // reset delta
+    }
+
+    function gameOver() {
+        state = 'over';
+        finalScore.textContent = 'Puntaje: ' + Math.floor(score);
+        overScreen.classList.remove('hidden');
+    }
+
+    function checkHit(obs) {
+        if (!playerMesh) return false;
+        var px = playerMesh.position.x, py = playerMesh.position.y;
+        var ox = obs.mesh.position.x,   oy = obs.mesh.position.y;
+        return Math.abs(px - ox) < (PLAYER_W * 0.5 + FACE_SIZE * 0.38)
+            && Math.abs(py - oy) < (PLAYER_H * 0.5 + FACE_SIZE * 0.38);
+    }
+
+    /* ── LOOP ── */
+    function animate() {
+        requestAnimationFrame(animate);
+        var dt = Math.min(clock.getDelta(), 0.05);
+        if (mixer) mixer.update(dt);
+
+        if (state === 'playing') {
+            score += dt * 60;
+            scoreDisplay.textContent = Math.floor(score);
+
+            for (var i = WAVES.length - 1; i >= 0; i--) {
+                if (score >= WAVES[i].minScore) { currentWave = i; break; }
+            }
+
+            if (playerMesh) {
+                var halfW = GAME_W / 2 - PLAYER_W / 2;
+                if (keys.left)  playerX -= PLR_SPEED * dt;
+                if (keys.right) playerX += PLR_SPEED * dt;
+                playerX = Math.max(-halfW, Math.min(halfW, playerX));
+                playerMesh.position.x = playerX;
+                if      (keys.left)  playerMesh.rotation.y = Math.PI;
+                else if (keys.right) playerMesh.rotation.y = 0;
+            }
+
+            spawnTimer -= dt;
+            if (spawnTimer <= 0) {
+                spawnFace(currentWave);
+                spawnTimer = WAVES[currentWave].interval * (0.75 + Math.random() * 0.5);
+            }
+
+            var hit = false;
+            for (var j = obstacles.length - 1; j >= 0; j--) {
+                var o = obstacles[j];
+                o.mesh.position.y -= o.speed * dt;
+                if (o.mesh.position.y < -GAME_H / 2 - FACE_SIZE) {
+                    scene.remove(o.mesh);
+                    obstacles.splice(j, 1);
+                    continue;
+                }
+                if (!hit && checkHit(o)) { hit = true; }
+            }
+            if (hit) gameOver();
+        }
+
+        renderer.render(scene, camera);
+    }
+    animate();
+
+})();
 </script>
 </body>
 </html>
