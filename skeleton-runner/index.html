@@ -83,7 +83,6 @@
         .btn-play:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,180,166,0.55); }
         .btn-play:active { transform: translateY(0); }
         .hidden { display: none !important; }
-        /* preload */
         .load-label { color: var(--white); font-size: 0.88rem; letter-spacing: 0.04em; }
         .bar-wrap {
             width: min(320px,80vw); height: 10px;
@@ -95,7 +94,6 @@
             background: var(--teal); border-radius: 99px;
             transition: width 0.25s ease;
         }
-        /* mobile buttons */
         #mobile-controls {
             display: none;
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -129,7 +127,6 @@
 <div id="game-wrap">
     <canvas id="gameCanvas"></canvas>
 
-    <!-- PRELOAD -->
     <div class="overlay" id="loadScreen">
         <h2>&#127939; Corre Vairon Vs 2.0</h2>
         <p class="load-label">Cargando recursos&hellip;</p>
@@ -137,7 +134,6 @@
         <p id="loadPct" style="color:var(--teal);font-size:0.82rem;">0%</p>
     </div>
 
-    <!-- START -->
     <div class="overlay hidden" id="startScreen">
         <h2>&#127939; Corre Vairon Vs 2.0</h2>
         <p>&#161;Mueve a Vairon izquierda y derecha para esquivar las caras que caen!<br>
@@ -148,7 +144,6 @@
         <button class="btn-play" id="startBtn">&#161;Comenzar!</button>
     </div>
 
-    <!-- GAME OVER -->
     <div class="overlay hidden" id="gameOverScreen">
         <h2>&#128128; &#161;Game Over!</h2>
         <p class="big-score" id="finalScore">Puntaje: 0</p>
@@ -156,7 +151,6 @@
         <button class="btn-play" id="restartBtn">&#128260; Jugar de nuevo</button>
     </div>
 
-    <!-- MOBILE CONTROLS -->
     <div id="mobile-controls">
         <button class="dir-btn" id="btnLeft"  aria-label="Mover izquierda">&#8592;</button>
         <button class="dir-btn" id="btnRight" aria-label="Mover derecha">&#8594;</button>
@@ -176,12 +170,15 @@ const FACE_URLS = [
     BASE + '/Down_open.png'
 ];
 
-const GAME_W   = 800, GAME_H = 450;
-const PLAYER_W = 60,  PLAYER_H = 90;
+const GAME_W    = 800, GAME_H = 450;
+const PLAYER_W  = 60,  PLAYER_H = 90;
 const FACE_SIZE = 58;
 const PLR_SPEED = 390;
-const GROUND_Y  = -GAME_H / 2 + GAME_H * 0.25;  // 25% from bottom = -112.5
 const MODEL_SCALE = 38;
+
+// Three.js coordinate system: center = 0, top = +GAME_H/2 = +225, bottom = -GAME_H/2 = -225
+// GROUND_Y = -GAME_H * 0.40 = -180  (40% of half-height below center, close to bottom)
+const GROUND_Y = -GAME_H * 0.40;   // = -180
 
 const WAVES = [
     { minScore:    0, faceIdx: 0, speedMin: 190, speedMax: 310, interval: 1.8  },
@@ -189,7 +186,6 @@ const WAVES = [
     { minScore: 1200, faceIdx: 2, speedMin: 500, speedMax: 700, interval: 0.8  }
 ];
 
-// ── RENDERER ──
 const canvas   = document.getElementById('gameCanvas');
 const wrap     = document.getElementById('game-wrap');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -206,7 +202,6 @@ const dir = new THREE.DirectionalLight(0xffffff, 1.8);
 dir.position.set(5, 10, 10);
 scene.add(dir);
 
-// ── RESIZE ──
 function resize() {
     const w = wrap.clientWidth, h = wrap.clientHeight;
     renderer.setSize(w, h);
@@ -225,17 +220,14 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// ── PRELOAD ──
 const loadBar     = document.getElementById('loadBar');
 const loadPct     = document.getElementById('loadPct');
 const loadScreen  = document.getElementById('loadScreen');
 const startScreen = document.getElementById('startScreen');
 
-const TOTAL_ASSETS = 5;   // bg + model + 3 faces
+const TOTAL_ASSETS = 5;
 let loadedAssets = 0;
 
-// THE FIX: after all assets are done, flip state to 'start'
-// so doStart() no longer blocks.
 function assetLoaded() {
     loadedAssets = Math.min(loadedAssets + 1, TOTAL_ASSETS);
     const pct = Math.round((loadedAssets / TOTAL_ASSETS) * 100);
@@ -243,14 +235,13 @@ function assetLoaded() {
     loadPct.textContent = pct + '%';
     if (loadedAssets >= TOTAL_ASSETS) {
         setTimeout(() => {
-            state = 'start';                          // <-- KEY FIX
+            state = 'start';
             loadScreen.classList.add('hidden');
             startScreen.classList.remove('hidden');
         }, 300);
     }
 }
 
-// ── BACKGROUND ──
 new THREE.TextureLoader().load(BG_URL, tex => {
     tex.colorSpace = THREE.SRGBColorSpace;
     const mesh = new THREE.Mesh(
@@ -262,7 +253,6 @@ new THREE.TextureLoader().load(BG_URL, tex => {
     assetLoaded();
 }, undefined, () => assetLoaded());
 
-// ── GROUND LINE ──
 const gnd = new THREE.Mesh(
     new THREE.PlaneGeometry(GAME_W, 4),
     new THREE.MeshBasicMaterial({ color: 0x00b4a6, transparent: true, opacity: 0.55 })
@@ -270,7 +260,6 @@ const gnd = new THREE.Mesh(
 gnd.position.set(0, GROUND_Y, 1);
 scene.add(gnd);
 
-// ── PLAYER ──
 let mixer = null, playerMesh = null, playerX = 0, facingRight = true;
 const clock = new THREE.Clock();
 
@@ -295,7 +284,6 @@ new GLTFLoader().load(MODEL_URL, gltf => {
     assetLoaded();
 }, undefined, () => buildFallback());
 
-// ── FACE TEXTURES ──
 const faceTextures = FACE_URLS.map(url => {
     const t = new THREE.TextureLoader().load(
         url,
@@ -324,7 +312,6 @@ function spawnFace(wIdx) {
     obstacles.push({ mesh, speed: w.speedMin + Math.random() * (w.speedMax - w.speedMin) });
 }
 
-// ── INPUT ──
 const keys = { left: false, right: false };
 
 document.addEventListener('keydown', e => {
@@ -353,9 +340,6 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     document.getElementById('mobile-controls').style.display = 'flex';
 }
 
-// ── STATE ──
-// Starts as 'load'. assetLoaded() sets it to 'start' when ready.
-// doStart() can only run when state is 'start' or 'over'.
 let state = 'load';
 let score = 0, spawnTimer = 0, currentWave = 0;
 
@@ -366,30 +350,25 @@ const finalScoreEl = document.getElementById('finalScore');
 document.getElementById('startBtn').addEventListener('click',   doStart);
 document.getElementById('restartBtn').addEventListener('click', doStart);
 
-// tryStart: called by keyboard/touch buttons, only when not already playing
 function tryStart() {
     if (state === 'start' || state === 'over') doStart();
 }
 
 function doStart() {
-    // Block if assets haven't finished loading yet
     if (state === 'load') return;
-
     obstacles.forEach(o => scene.remove(o.mesh));
     obstacles.length = 0;
     score = 0; spawnTimer = 0; currentWave = 0; playerX = 0;
     scoreDisplay.textContent = '0';
-
     if (playerMesh) {
         playerMesh.position.x = 0;
         facingRight = true;
         playerMesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
     }
-
     state = 'playing';
     startScreen.classList.add('hidden');
     overScreen.classList.add('hidden');
-    clock.getDelta(); // flush accumulated delta
+    clock.getDelta();
 }
 
 function gameOver() {
@@ -406,7 +385,6 @@ function checkHit(o) {
         && Math.abs(py - oy) < (PLAYER_H * 0.5 + FACE_SIZE * 0.38);
 }
 
-// ── GAME LOOP ──
 function animate() {
     requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), 0.05);
@@ -416,12 +394,10 @@ function animate() {
         score += dt * 60;
         scoreDisplay.textContent = Math.floor(score);
 
-        // Pick wave by score
         for (let i = WAVES.length - 1; i >= 0; i--) {
             if (score >= WAVES[i].minScore) { currentWave = i; break; }
         }
 
-        // Move player
         if (playerMesh) {
             const halfW = GAME_W / 2 - PLAYER_W / 2;
             if (keys.left)  playerX -= PLR_SPEED * dt;
@@ -429,7 +405,6 @@ function animate() {
             playerX = Math.max(-halfW, Math.min(halfW, playerX));
             playerMesh.position.x = playerX;
 
-            // Flip direction via scale.x (never rotation.y)
             if (keys.right && !facingRight) {
                 facingRight = true;
                 playerMesh.scale.x = MODEL_SCALE;
@@ -439,14 +414,12 @@ function animate() {
             }
         }
 
-        // Spawn obstacles
         spawnTimer -= dt;
         if (spawnTimer <= 0) {
             spawnFace(currentWave);
             spawnTimer = WAVES[currentWave].interval * (0.75 + Math.random() * 0.5);
         }
 
-        // Move + check collisions
         let hit = false;
         for (let j = obstacles.length - 1; j >= 0; j--) {
             const o = obstacles[j];
