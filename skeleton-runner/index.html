@@ -163,12 +163,20 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const BASE      = 'https://alexanderbacca.github.io';
 const BG_URL    = BASE + '/skeleton-runner/Gemini_Generated_Image_uzip21uzip21uzip.png';
-const MODEL_URL = BASE + '/skeleton-runner/Vairon.glb';
 const FACE_URLS = [
     BASE + '/Right.png',
     BASE + '/Down.png',
     BASE + '/Down_open.png'
 ];
+
+// Load Vairon.glb from R2 on Cloudflare Pages, or locally on GitHub Pages
+const isCloudflarePages = window.location.hostname.endsWith('.pages.dev') ||
+                          window.location.hostname === 'alexanderbacca.com' ||
+                          window.location.hostname === 'www.alexanderbacca.com';
+
+const MODEL_URL = isCloudflarePages
+  ? 'https://pub-fb98b1df577e4cf4a14e11e16ada4f35.r2.dev/Vairon.glb'
+  : BASE + '/skeleton-runner/Vairon.glb';
 
 const GAME_W    = 800, GAME_H = 450;
 const PLAYER_W  = 60,  PLAYER_H = 90;
