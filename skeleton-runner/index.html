@@ -7,10 +7,15 @@
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- Three.js classic (no modules) -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <!-- GLTFLoader as a global (compiled UMD build) -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- importmap: tells the browser where 'three' and its addons live -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three":              "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+        "three/addons/":      "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+      }
+    }
+    </script>
 
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -26,8 +31,6 @@
             height: 100dvh; overflow: hidden;
             display: flex; flex-direction: column;
         }
-
-        /* ── HEADER ── */
         .game-header {
             position: relative; z-index: 100;
             background: rgba(26,75,58,0.97);
@@ -49,8 +52,6 @@
             padding: 0.25rem 0.9rem; border-radius: 50px; min-width: 64px;
             text-align: center;
         }
-
-        /* ── CANVAS WRAPPER ── */
         #game-wrap {
             position: relative;
             flex: 1;
@@ -61,8 +62,6 @@
             width: 100%;
             height: 100%;
         }
-
-        /* ── OVERLAYS ── */
         .overlay {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
@@ -95,8 +94,6 @@
         .btn-play:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,180,166,0.55); }
         .btn-play:active { transform: translateY(0); }
         .hidden { display: none !important; }
-
-        /* ── MOBILE BUTTONS ── */
         #mobile-controls {
             display: none;
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -133,7 +130,6 @@
 <div id="game-wrap">
     <canvas id="gameCanvas"></canvas>
 
-    <!-- START -->
     <div class="overlay" id="startScreen">
         <h2>&#127939; Corre Vairon</h2>
         <p>&#161;Mueve a Vairon izquierda y derecha para esquivar las caras que caen!<br>
@@ -144,7 +140,6 @@
         <button class="btn-play" id="startBtn">&#161;Comenzar!</button>
     </div>
 
-    <!-- GAME OVER -->
     <div class="overlay hidden" id="gameOverScreen">
         <h2>&#128128; &#161;Game Over!</h2>
         <p class="big-score" id="finalScore">Puntaje: 0</p>
@@ -152,284 +147,255 @@
         <button class="btn-play" id="restartBtn">&#128260; Jugar de nuevo</button>
     </div>
 
-    <!-- MOBILE CONTROLS -->
     <div id="mobile-controls">
         <button class="dir-btn" id="btnLeft"  aria-label="Mover izquierda">&#8592;</button>
         <button class="dir-btn" id="btnRight" aria-label="Mover derecha">&#8594;</button>
     </div>
 </div>
 
-<script>
-(function () {
-    'use strict';
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    /* ── CONSTANTS ── */
-    var BASE      = 'https://alexanderbacca.github.io';
-    var BG_URL    = BASE + '/skeleton-runner/Gemini_Generated_Image_uzip21uzip21uzip.png';
-    var MODEL_URL = BASE + '/skeleton-runner/Vairon.glb';
-    var FACE_URLS = [
-        BASE + '/Right.png',
-        BASE + '/Down.png',
-        BASE + '/Down_open.png'
-    ];
+const BASE      = 'https://alexanderbacca.github.io';
+const BG_URL    = BASE + '/skeleton-runner/Gemini_Generated_Image_uzip21uzip21uzip.png';
+const MODEL_URL = BASE + '/skeleton-runner/Vairon.glb';
+const FACE_URLS = [
+    BASE + '/Right.png',
+    BASE + '/Down.png',
+    BASE + '/Down_open.png'
+];
 
-    var GAME_W     = 800;
-    var GAME_H     = 450;
-    var PLAYER_W   = 60;
-    var PLAYER_H   = 90;
-    var FACE_SIZE  = 58;
-    var PLR_SPEED  = 390;
+const GAME_W    = 800, GAME_H = 450;
+const PLAYER_W  = 60,  PLAYER_H = 90;
+const FACE_SIZE = 58;
+const PLR_SPEED = 390;
+const GROUND_Y  = -GAME_H / 2 + 88;
 
-    var WAVES = [
-        { minScore:    0, faceIdx: 0, speedMin: 190, speedMax: 310, interval: 1.8 },
-        { minScore:  500, faceIdx: 1, speedMin: 320, speedMax: 480, interval: 1.25 },
-        { minScore: 1200, faceIdx: 2, speedMin: 500, speedMax: 700, interval: 0.8  }
-    ];
+const WAVES = [
+    { minScore:    0, faceIdx: 0, speedMin: 190, speedMax: 310, interval: 1.8  },
+    { minScore:  500, faceIdx: 1, speedMin: 320, speedMax: 480, interval: 1.25 },
+    { minScore: 1200, faceIdx: 2, speedMin: 500, speedMax: 700, interval: 0.8  }
+];
 
-    /* ── THREE SETUP ── */
-    var canvas   = document.getElementById('gameCanvas');
-    var wrap     = document.getElementById('game-wrap');
+/* ── RENDERER ── */
+const canvas   = document.getElementById('gameCanvas');
+const wrap     = document.getElementById('game-wrap');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene  = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(
+    -GAME_W/2, GAME_W/2, GAME_H/2, -GAME_H/2, 0.1, 1000
+);
+camera.position.set(0, 0, 100);
+camera.lookAt(0, 0, 0);
 
-    var scene  = new THREE.Scene();
-    var camera = new THREE.OrthographicCamera(
-        -GAME_W/2, GAME_W/2, GAME_H/2, -GAME_H/2, 0.1, 1000
+scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+const dir = new THREE.DirectionalLight(0xffffff, 1.8);
+dir.position.set(5, 10, 10);
+scene.add(dir);
+
+/* ── RESIZE ── */
+function resize() {
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    renderer.setSize(w, h);
+    const aspect = w / h, ga = GAME_W / GAME_H;
+    if (aspect > ga) {
+        const s = h / GAME_H;
+        camera.left = -(w/s)/2; camera.right = (w/s)/2;
+        camera.top  = GAME_H/2; camera.bottom = -GAME_H/2;
+    } else {
+        const s = w / GAME_W;
+        camera.left = -GAME_W/2; camera.right = GAME_W/2;
+        camera.top  = (h/s)/2;   camera.bottom = -(h/s)/2;
+    }
+    camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+/* ── BACKGROUND ── */
+new THREE.TextureLoader().load(BG_URL, tex => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(GAME_W, GAME_H),
+        new THREE.MeshBasicMaterial({ map: tex, depthWrite: false })
     );
-    camera.position.set(0, 0, 100);
-    camera.lookAt(0, 0, 0);
+    mesh.position.set(0, 0, -10);
+    scene.add(mesh);
+});
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-    var dir = new THREE.DirectionalLight(0xffffff, 1.8);
-    dir.position.set(5, 10, 10);
-    scene.add(dir);
+/* ── GROUND LINE ── */
+const groundMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(GAME_W, 4),
+    new THREE.MeshBasicMaterial({ color: 0x00b4a6, transparent: true, opacity: 0.55 })
+);
+groundMesh.position.set(0, GROUND_Y, 1);
+scene.add(groundMesh);
 
-    /* ── RESIZE ── */
-    function resize() {
-        var w = wrap.clientWidth;
-        var h = wrap.clientHeight;
-        renderer.setSize(w, h);
-        var aspect      = w / h;
-        var gameAspect  = GAME_W / GAME_H;
-        if (aspect > gameAspect) {
-            var s = h / GAME_H;
-            camera.left   = -(w / s) / 2;
-            camera.right  =  (w / s) / 2;
-            camera.top    =  GAME_H / 2;
-            camera.bottom = -GAME_H / 2;
-        } else {
-            var s2 = w / GAME_W;
-            camera.left   = -GAME_W / 2;
-            camera.right  =  GAME_W / 2;
-            camera.top    =  (h / s2) / 2;
-            camera.bottom = -(h / s2) / 2;
-        }
-        camera.updateProjectionMatrix();
-    }
-    window.addEventListener('resize', resize);
-    resize();
+/* ── PLAYER ── */
+let mixer = null, playerMesh = null, playerX = 0;
+const clock = new THREE.Clock();
 
-    /* ── BACKGROUND ── */
-    var texLoader = new THREE.TextureLoader();
-    texLoader.load(BG_URL, function (tex) {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        var mat  = new THREE.MeshBasicMaterial({ map: tex, depthWrite: false });
-        var geo  = new THREE.PlaneGeometry(GAME_W, GAME_H);
-        var mesh = new THREE.Mesh(geo, mat);
-        mesh.position.set(0, 0, -10);
-        scene.add(mesh);
-    });
-
-    /* ── GROUND LINE ── */
-    var groundY = -GAME_H / 2 + 88;
-    var gGeo = new THREE.PlaneGeometry(GAME_W, 4);
-    var gMat = new THREE.MeshBasicMaterial({ color: 0x00b4a6, transparent: true, opacity: 0.55 });
-    scene.add(Object.assign(new THREE.Mesh(gGeo, gMat), { position: new THREE.Vector3(0, groundY, 1) }));
-
-    /* ── PLAYER ── */
-    var mixer      = null;
-    var playerMesh = null;
-    var playerX    = 0;
-    var clock      = new THREE.Clock();
-
-    function buildFallback() {
-        var geo  = new THREE.CapsuleGeometry(16, 46, 4, 8);
-        var mat  = new THREE.MeshLambertMaterial({ color: 0x00b4a6 });
-        playerMesh = new THREE.Mesh(geo, mat);
-        playerMesh.position.set(0, groundY + PLAYER_H / 2, 2);
-        scene.add(playerMesh);
-    }
-
-    var loader = new THREE.GLTFLoader();
-    loader.load(
-        MODEL_URL,
-        function (gltf) {
-            playerMesh = gltf.scene;
-            playerMesh.scale.set(38, 38, 38);
-            playerMesh.position.set(0, groundY + PLAYER_H / 2, 2);
-            scene.add(playerMesh);
-            mixer = new THREE.AnimationMixer(playerMesh);
-            if (gltf.animations.length > 0) {
-                mixer.clipAction(gltf.animations[0]).play();
-            }
-        },
-        undefined,
-        function () { buildFallback(); }
+function buildFallback() {
+    playerMesh = new THREE.Mesh(
+        new THREE.CapsuleGeometry(16, 46, 4, 8),
+        new THREE.MeshLambertMaterial({ color: 0x00b4a6 })
     );
+    playerMesh.position.set(0, GROUND_Y + PLAYER_H / 2, 2);
+    scene.add(playerMesh);
+}
 
-    /* ── FACE TEXTURES ── */
-    var faceTextures = FACE_URLS.map(function (url) {
-        var t = new THREE.TextureLoader().load(url);
-        t.colorSpace = THREE.SRGBColorSpace;
-        return t;
-    });
+new GLTFLoader().load(MODEL_URL, gltf => {
+    playerMesh = gltf.scene;
+    playerMesh.scale.set(38, 38, 38);
+    playerMesh.position.set(0, GROUND_Y + PLAYER_H / 2, 2);
+    scene.add(playerMesh);
+    mixer = new THREE.AnimationMixer(playerMesh);
+    if (gltf.animations.length > 0) mixer.clipAction(gltf.animations[0]).play();
+}, undefined, () => buildFallback());
 
-    /* ── OBSTACLES ── */
-    var obstacles = [];
+/* ── FACE TEXTURES ── */
+const faceTextures = FACE_URLS.map(url => {
+    const t = new THREE.TextureLoader().load(url);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+});
 
-    function spawnFace(wIdx) {
-        var w   = WAVES[wIdx];
-        var mat = new THREE.MeshBasicMaterial({
-            map: faceTextures[w.faceIdx], transparent: true, side: THREE.DoubleSide
-        });
-        var geo  = new THREE.PlaneGeometry(FACE_SIZE, FACE_SIZE);
-        var mesh = new THREE.Mesh(geo, mat);
-        var xRange = GAME_W / 2 - FACE_SIZE;
-        mesh.position.set(
-            (Math.random() * 2 - 1) * xRange,
-            GAME_H / 2 + FACE_SIZE,
-            3
-        );
-        var speed = w.speedMin + Math.random() * (w.speedMax - w.speedMin);
-        scene.add(mesh);
-        obstacles.push({ mesh: mesh, speed: speed });
-    }
+const obstacles = [];
 
-    /* ── INPUT ── */
-    var keys = { left: false, right: false };
+function spawnFace(wIdx) {
+    const w    = WAVES[wIdx];
+    const mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(FACE_SIZE, FACE_SIZE),
+        new THREE.MeshBasicMaterial({ map: faceTextures[w.faceIdx], transparent: true, side: THREE.DoubleSide })
+    );
+    mesh.position.set(
+        (Math.random() * 2 - 1) * (GAME_W / 2 - FACE_SIZE),
+        GAME_H / 2 + FACE_SIZE,
+        3
+    );
+    const speed = w.speedMin + Math.random() * (w.speedMax - w.speedMin);
+    scene.add(mesh);
+    obstacles.push({ mesh, speed });
+}
 
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowLeft')  { keys.left  = true;  tryStart(); }
-        if (e.key === 'ArrowRight') { keys.right = true;  tryStart(); }
-    });
-    document.addEventListener('keyup', function (e) {
-        if (e.key === 'ArrowLeft')  keys.left  = false;
-        if (e.key === 'ArrowRight') keys.right = false;
-    });
+/* ── INPUT ── */
+const keys = { left: false, right: false };
 
-    function addHold(btn, which) {
-        function press(e)   { e.preventDefault(); keys[which] = true;  btn.classList.add('pressed');    tryStart(); }
-        function release(e) { e.preventDefault(); keys[which] = false; btn.classList.remove('pressed'); }
-        btn.addEventListener('touchstart',  press,   { passive: false });
-        btn.addEventListener('touchend',    release, { passive: false });
-        btn.addEventListener('touchcancel', release, { passive: false });
-        btn.addEventListener('mousedown',   press);
-        btn.addEventListener('mouseup',     release);
-        btn.addEventListener('mouseleave',  release);
-    }
-    addHold(document.getElementById('btnLeft'),  'left');
-    addHold(document.getElementById('btnRight'), 'right');
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { keys.left  = true;  tryStart(); }
+    if (e.key === 'ArrowRight') { keys.right = true;  tryStart(); }
+});
+document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft')  keys.left  = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+});
 
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-        document.getElementById('mobile-controls').style.display = 'flex';
-    }
+function addHold(btn, which) {
+    const press   = e => { e.preventDefault(); keys[which] = true;  btn.classList.add('pressed');    tryStart(); };
+    const release = e => { e.preventDefault(); keys[which] = false; btn.classList.remove('pressed'); };
+    btn.addEventListener('touchstart',  press,   { passive: false });
+    btn.addEventListener('touchend',    release, { passive: false });
+    btn.addEventListener('touchcancel', release, { passive: false });
+    btn.addEventListener('mousedown',  press);
+    btn.addEventListener('mouseup',    release);
+    btn.addEventListener('mouseleave', release);
+}
+addHold(document.getElementById('btnLeft'),  'left');
+addHold(document.getElementById('btnRight'), 'right');
 
-    /* ── GAME STATE ── */
-    var state       = 'start';
-    var score       = 0;
-    var spawnTimer  = 0;
-    var currentWave = 0;
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    document.getElementById('mobile-controls').style.display = 'flex';
+}
 
-    var scoreDisplay = document.getElementById('scoreDisplay');
-    var startScreen  = document.getElementById('startScreen');
-    var overScreen   = document.getElementById('gameOverScreen');
-    var finalScore   = document.getElementById('finalScore');
+/* ── STATE ── */
+let state = 'start', score = 0, spawnTimer = 0, currentWave = 0;
 
-    document.getElementById('startBtn').addEventListener('click',   function () { doStart(); });
-    document.getElementById('restartBtn').addEventListener('click', function () { doStart(); });
+const scoreDisplay = document.getElementById('scoreDisplay');
+const startScreen  = document.getElementById('startScreen');
+const overScreen   = document.getElementById('gameOverScreen');
+const finalScoreEl = document.getElementById('finalScore');
 
-    function tryStart() {
-        if (state !== 'playing') doStart();
-    }
+document.getElementById('startBtn').addEventListener('click',   doStart);
+document.getElementById('restartBtn').addEventListener('click', doStart);
 
-    function doStart() {
-        obstacles.forEach(function (o) { scene.remove(o.mesh); });
-        obstacles.length = 0;
-        score = 0; spawnTimer = 0; currentWave = 0;
-        playerX = 0;
-        scoreDisplay.textContent = '0';
-        if (playerMesh) playerMesh.position.x = 0;
-        state = 'playing';
-        startScreen.classList.add('hidden');
-        overScreen.classList.add('hidden');
-        clock.getDelta(); // reset delta
-    }
+function tryStart() { if (state !== 'playing') doStart(); }
 
-    function gameOver() {
-        state = 'over';
-        finalScore.textContent = 'Puntaje: ' + Math.floor(score);
-        overScreen.classList.remove('hidden');
-    }
+function doStart() {
+    obstacles.forEach(o => scene.remove(o.mesh));
+    obstacles.length = 0;
+    score = 0; spawnTimer = 0; currentWave = 0; playerX = 0;
+    scoreDisplay.textContent = '0';
+    if (playerMesh) playerMesh.position.x = 0;
+    state = 'playing';
+    startScreen.classList.add('hidden');
+    overScreen.classList.add('hidden');
+    clock.getDelta();
+}
 
-    function checkHit(obs) {
-        if (!playerMesh) return false;
-        var px = playerMesh.position.x, py = playerMesh.position.y;
-        var ox = obs.mesh.position.x,   oy = obs.mesh.position.y;
-        return Math.abs(px - ox) < (PLAYER_W * 0.5 + FACE_SIZE * 0.38)
-            && Math.abs(py - oy) < (PLAYER_H * 0.5 + FACE_SIZE * 0.38);
-    }
+function gameOver() {
+    state = 'over';
+    finalScoreEl.textContent = 'Puntaje: ' + Math.floor(score);
+    overScreen.classList.remove('hidden');
+}
 
-    /* ── LOOP ── */
-    function animate() {
-        requestAnimationFrame(animate);
-        var dt = Math.min(clock.getDelta(), 0.05);
-        if (mixer) mixer.update(dt);
+function checkHit(o) {
+    if (!playerMesh) return false;
+    const px = playerMesh.position.x, py = playerMesh.position.y;
+    const ox = o.mesh.position.x,     oy = o.mesh.position.y;
+    return Math.abs(px - ox) < (PLAYER_W * 0.5 + FACE_SIZE * 0.38)
+        && Math.abs(py - oy) < (PLAYER_H * 0.5 + FACE_SIZE * 0.38);
+}
 
-        if (state === 'playing') {
-            score += dt * 60;
-            scoreDisplay.textContent = Math.floor(score);
+/* ── LOOP ── */
+function animate() {
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    if (mixer) mixer.update(dt);
 
-            for (var i = WAVES.length - 1; i >= 0; i--) {
-                if (score >= WAVES[i].minScore) { currentWave = i; break; }
-            }
+    if (state === 'playing') {
+        score += dt * 60;
+        scoreDisplay.textContent = Math.floor(score);
 
-            if (playerMesh) {
-                var halfW = GAME_W / 2 - PLAYER_W / 2;
-                if (keys.left)  playerX -= PLR_SPEED * dt;
-                if (keys.right) playerX += PLR_SPEED * dt;
-                playerX = Math.max(-halfW, Math.min(halfW, playerX));
-                playerMesh.position.x = playerX;
-                if      (keys.left)  playerMesh.rotation.y = Math.PI;
-                else if (keys.right) playerMesh.rotation.y = 0;
-            }
-
-            spawnTimer -= dt;
-            if (spawnTimer <= 0) {
-                spawnFace(currentWave);
-                spawnTimer = WAVES[currentWave].interval * (0.75 + Math.random() * 0.5);
-            }
-
-            var hit = false;
-            for (var j = obstacles.length - 1; j >= 0; j--) {
-                var o = obstacles[j];
-                o.mesh.position.y -= o.speed * dt;
-                if (o.mesh.position.y < -GAME_H / 2 - FACE_SIZE) {
-                    scene.remove(o.mesh);
-                    obstacles.splice(j, 1);
-                    continue;
-                }
-                if (!hit && checkHit(o)) { hit = true; }
-            }
-            if (hit) gameOver();
+        for (let i = WAVES.length - 1; i >= 0; i--) {
+            if (score >= WAVES[i].minScore) { currentWave = i; break; }
         }
 
-        renderer.render(scene, camera);
-    }
-    animate();
+        if (playerMesh) {
+            const halfW = GAME_W / 2 - PLAYER_W / 2;
+            if (keys.left)  playerX -= PLR_SPEED * dt;
+            if (keys.right) playerX += PLR_SPEED * dt;
+            playerX = Math.max(-halfW, Math.min(halfW, playerX));
+            playerMesh.position.x = playerX;
+            if      (keys.left)  playerMesh.rotation.y = Math.PI;
+            else if (keys.right) playerMesh.rotation.y = 0;
+        }
 
-})();
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) {
+            spawnFace(currentWave);
+            spawnTimer = WAVES[currentWave].interval * (0.75 + Math.random() * 0.5);
+        }
+
+        let hit = false;
+        for (let j = obstacles.length - 1; j >= 0; j--) {
+            const o = obstacles[j];
+            o.mesh.position.y -= o.speed * dt;
+            if (o.mesh.position.y < -GAME_H / 2 - FACE_SIZE) {
+                scene.remove(o.mesh);
+                obstacles.splice(j, 1);
+                continue;
+            }
+            if (!hit && checkHit(o)) hit = true;
+        }
+        if (hit) gameOver();
+    }
+
+    renderer.render(scene, camera);
+}
+animate();
 </script>
 </body>
 </html>
