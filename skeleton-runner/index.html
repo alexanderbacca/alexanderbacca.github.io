@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Corre Vairon</title>
+    <title>Corre Vairon Vs 2.0</title>
     <link rel="icon" href="../favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <!-- importmap: tells the browser where 'three' and its addons live -->
     <script type="importmap">
     {
       "imports": {
-        "three":              "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
-        "three/addons/":      "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+        "three":         "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
       }
     }
     </script>
@@ -22,7 +21,6 @@
         :root {
             --teal:  #00b4a6;
             --dark:  #1a4b3a;
-            --mid:   #2d7a5f;
             --white: #ffffff;
         }
         body {
@@ -31,6 +29,8 @@
             height: 100dvh; overflow: hidden;
             display: flex; flex-direction: column;
         }
+
+        /* ── HEADER ── */
         .game-header {
             position: relative; z-index: 100;
             background: rgba(26,75,58,0.97);
@@ -44,7 +44,7 @@
             transition: color 0.2s;
         }
         .back-link:hover { color: var(--teal); }
-        .game-title-hdr { color: var(--teal); font-weight: 700; font-size: 1.1rem; }
+        .game-title-hdr { color: var(--teal); font-weight: 700; font-size: 1rem; }
         .score-box {
             color: var(--white); font-weight: 600; font-size: 1rem;
             background: rgba(255,255,255,0.1);
@@ -52,6 +52,8 @@
             padding: 0.25rem 0.9rem; border-radius: 50px; min-width: 64px;
             text-align: center;
         }
+
+        /* ── CANVAS WRAPPER ── */
         #game-wrap {
             position: relative;
             flex: 1;
@@ -62,24 +64,27 @@
             width: 100%;
             height: 100%;
         }
+
+        /* ── OVERLAYS ── */
         .overlay {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            background: rgba(20,55,40,0.84); backdrop-filter: blur(6px);
+            background: rgba(20,55,40,0.88); backdrop-filter: blur(6px);
             z-index: 10; gap: 1rem; padding: 1.5rem;
+            transition: opacity 0.3s;
         }
         .overlay h2 {
             color: var(--teal);
-            font-size: clamp(1.6rem, 5vw, 2.6rem);
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
             font-weight: 700; text-align: center;
             text-shadow: 0 2px 14px rgba(0,0,0,0.5);
         }
         .overlay p {
-            color: var(--white); font-size: clamp(0.85rem, 2.5vw, 1.05rem);
-            text-align: center; max-width: 420px; line-height: 1.6;
+            color: var(--white); font-size: clamp(0.82rem, 2.4vw, 1.02rem);
+            text-align: center; max-width: 420px; line-height: 1.65;
         }
-        .overlay .big-score {
+        .big-score {
             color: var(--teal);
             font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 700;
         }
@@ -89,11 +94,29 @@
             padding: 0.85rem 2.6rem; font-size: 1rem; font-weight: 600;
             cursor: pointer; font-family: 'Poppins', sans-serif;
             box-shadow: 0 4px 18px rgba(0,180,166,0.45);
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
         }
         .btn-play:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,180,166,0.55); }
         .btn-play:active { transform: translateY(0); }
+        .btn-play:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
         .hidden { display: none !important; }
+
+        /* ── PRELOAD BAR ── */
+        #loadScreen { gap: 1.4rem; }
+        .load-label  { color: var(--white); font-size: 0.88rem; letter-spacing: 0.04em; }
+        .bar-wrap {
+            width: min(320px, 80vw); height: 10px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 99px; overflow: hidden;
+        }
+        #loadBar {
+            height: 100%; width: 0%;
+            background: var(--teal);
+            border-radius: 99px;
+            transition: width 0.25s ease;
+        }
+
+        /* ── MOBILE BUTTONS ── */
         #mobile-controls {
             display: none;
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -123,15 +146,24 @@
 
 <header class="game-header">
     <a href="../" class="back-link">&#8592; Inicio</a>
-    <span class="game-title-hdr">&#127939; Corre Vairon</span>
+    <span class="game-title-hdr">&#127939; Corre Vairon Vs 2.0</span>
     <span class="score-box" id="scoreDisplay">0</span>
 </header>
 
 <div id="game-wrap">
     <canvas id="gameCanvas"></canvas>
 
-    <div class="overlay" id="startScreen">
-        <h2>&#127939; Corre Vairon</h2>
+    <!-- PRELOAD SCREEN -->
+    <div class="overlay" id="loadScreen">
+        <h2>&#127939; Corre Vairon Vs 2.0</h2>
+        <p class="load-label">Cargando recursos&hellip;</p>
+        <div class="bar-wrap"><div id="loadBar"></div></div>
+        <p id="loadPct" style="color:var(--teal); font-size:0.82rem;">0%</p>
+    </div>
+
+    <!-- START SCREEN -->
+    <div class="overlay hidden" id="startScreen">
+        <h2>&#127939; Corre Vairon Vs 2.0</h2>
         <p>&#161;Mueve a Vairon izquierda y derecha para esquivar las caras que caen!<br>
         Las caras se vuelven m&#225;s r&#225;pidas con el tiempo. &#191;Cu&#225;nto aguantas?</p>
         <p style="color:var(--teal); font-size:0.82rem;">
@@ -140,6 +172,7 @@
         <button class="btn-play" id="startBtn">&#161;Comenzar!</button>
     </div>
 
+    <!-- GAME OVER -->
     <div class="overlay hidden" id="gameOverScreen">
         <h2>&#128128; &#161;Game Over!</h2>
         <p class="big-score" id="finalScore">Puntaje: 0</p>
@@ -147,6 +180,7 @@
         <button class="btn-play" id="restartBtn">&#128260; Jugar de nuevo</button>
     </div>
 
+    <!-- MOBILE CONTROLS -->
     <div id="mobile-controls">
         <button class="dir-btn" id="btnLeft"  aria-label="Mover izquierda">&#8592;</button>
         <button class="dir-btn" id="btnRight" aria-label="Mover derecha">&#8594;</button>
@@ -157,6 +191,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+/* ── CONSTANTS ── */
 const BASE      = 'https://alexanderbacca.github.io';
 const BG_URL    = BASE + '/skeleton-runner/Gemini_Generated_Image_uzip21uzip21uzip.png';
 const MODEL_URL = BASE + '/skeleton-runner/Vairon.glb';
@@ -170,7 +205,11 @@ const GAME_W    = 800, GAME_H = 450;
 const PLAYER_W  = 60,  PLAYER_H = 90;
 const FACE_SIZE = 58;
 const PLR_SPEED = 390;
-const GROUND_Y  = -GAME_H / 2 + 88;
+
+// 25% from bottom of the game world
+// GAME_H/2 = 225 (top edge), -GAME_H/2 = -225 (bottom edge)
+// 25% from bottom = -225 + 225*0.25 = -168.75 → character stands at -225+0.25*450 = -112.5
+const GROUND_Y = -GAME_H / 2 + GAME_H * 0.25;   // = -112.5
 
 const WAVES = [
     { minScore:    0, faceIdx: 0, speedMin: 190, speedMax: 310, interval: 1.8  },
@@ -191,7 +230,7 @@ const camera = new THREE.OrthographicCamera(
 camera.position.set(0, 0, 100);
 camera.lookAt(0, 0, 0);
 
-scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+scene.add(new THREE.AmbientLight(0xffffff, 1.6));
 const dir = new THREE.DirectionalLight(0xffffff, 1.8);
 dir.position.set(5, 10, 10);
 scene.add(dir);
@@ -215,6 +254,31 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
+/* ── PRELOAD TRACKING ── */
+const loadBar  = document.getElementById('loadBar');
+const loadPct  = document.getElementById('loadPct');
+const loadScreen  = document.getElementById('loadScreen');
+const startScreen = document.getElementById('startScreen');
+
+let totalAssets = 0, loadedAssets = 0;
+
+function assetLoaded() {
+    loadedAssets++;
+    const pct = Math.round((loadedAssets / totalAssets) * 100);
+    loadBar.style.width = pct + '%';
+    loadPct.textContent = pct + '%';
+    if (loadedAssets >= totalAssets) {
+        // Small delay so the bar visually reaches 100%
+        setTimeout(() => {
+            loadScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }, 300);
+    }
+}
+
+// We track: 1 background + 1 model + 3 face textures = 5 assets
+totalAssets = 5;
+
 /* ── BACKGROUND ── */
 new THREE.TextureLoader().load(BG_URL, tex => {
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -224,7 +288,8 @@ new THREE.TextureLoader().load(BG_URL, tex => {
     );
     mesh.position.set(0, 0, -10);
     scene.add(mesh);
-});
+    assetLoaded();
+}, undefined, () => assetLoaded()); // count even on error
 
 /* ── GROUND LINE ── */
 const groundMesh = new THREE.Mesh(
@@ -236,7 +301,13 @@ scene.add(groundMesh);
 
 /* ── PLAYER ── */
 let mixer = null, playerMesh = null, playerX = 0;
+// facingRight = true  → scale.x = +1 (original direction from Blender)
+// facingRight = false → scale.x = -1 (mirror horizontally)
+let facingRight = true;
 const clock = new THREE.Clock();
+
+// Base scale for the model — adjust if model appears too big/small
+const MODEL_SCALE = 38;
 
 function buildFallback() {
     playerMesh = new THREE.Mesh(
@@ -245,20 +316,25 @@ function buildFallback() {
     );
     playerMesh.position.set(0, GROUND_Y + PLAYER_H / 2, 2);
     scene.add(playerMesh);
+    assetLoaded();
 }
 
 new GLTFLoader().load(MODEL_URL, gltf => {
     playerMesh = gltf.scene;
-    playerMesh.scale.set(38, 38, 38);
+    // rotation.y = 0 keeps the model facing its original Blender direction
+    // We flip direction by changing scale.x to +1 or -1, never rotating Y
+    playerMesh.rotation.y = 0;
+    playerMesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
     playerMesh.position.set(0, GROUND_Y + PLAYER_H / 2, 2);
     scene.add(playerMesh);
     mixer = new THREE.AnimationMixer(playerMesh);
     if (gltf.animations.length > 0) mixer.clipAction(gltf.animations[0]).play();
+    assetLoaded();
 }, undefined, () => buildFallback());
 
 /* ── FACE TEXTURES ── */
 const faceTextures = FACE_URLS.map(url => {
-    const t = new THREE.TextureLoader().load(url);
+    const t = new THREE.TextureLoader().load(url, () => assetLoaded(), undefined, () => assetLoaded());
     t.colorSpace = THREE.SRGBColorSpace;
     return t;
 });
@@ -310,25 +386,30 @@ if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
     document.getElementById('mobile-controls').style.display = 'flex';
 }
 
-/* ── STATE ── */
-let state = 'start', score = 0, spawnTimer = 0, currentWave = 0;
+/* ── GAME STATE ── */
+let state = 'load', score = 0, spawnTimer = 0, currentWave = 0;
 
 const scoreDisplay = document.getElementById('scoreDisplay');
-const startScreen  = document.getElementById('startScreen');
 const overScreen   = document.getElementById('gameOverScreen');
 const finalScoreEl = document.getElementById('finalScore');
 
 document.getElementById('startBtn').addEventListener('click',   doStart);
 document.getElementById('restartBtn').addEventListener('click', doStart);
 
-function tryStart() { if (state !== 'playing') doStart(); }
+function tryStart() { if (state === 'start' || state === 'over') doStart(); }
 
 function doStart() {
+    if (state === 'load') return; // don't start if still loading
     obstacles.forEach(o => scene.remove(o.mesh));
     obstacles.length = 0;
     score = 0; spawnTimer = 0; currentWave = 0; playerX = 0;
     scoreDisplay.textContent = '0';
-    if (playerMesh) playerMesh.position.x = 0;
+    if (playerMesh) {
+        playerMesh.position.x = 0;
+        // Reset facing right
+        facingRight = true;
+        playerMesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+    }
     state = 'playing';
     startScreen.classList.add('hidden');
     overScreen.classList.add('hidden');
@@ -369,8 +450,19 @@ function animate() {
             if (keys.right) playerX += PLR_SPEED * dt;
             playerX = Math.max(-halfW, Math.min(halfW, playerX));
             playerMesh.position.x = playerX;
-            if      (keys.left)  playerMesh.rotation.y = Math.PI;
-            else if (keys.right) playerMesh.rotation.y = 0;
+
+            // ── DIRECTION FLIP ──
+            // We flip scale.x instead of rotation.y so the model stays
+            // visible from the front no matter which way it runs.
+            // scale.x = +MODEL_SCALE → faces right (original Blender direction)
+            // scale.x = -MODEL_SCALE → faces left  (mirrored horizontally)
+            if (keys.right && !facingRight) {
+                facingRight = true;
+                playerMesh.scale.x = MODEL_SCALE;
+            } else if (keys.left && facingRight) {
+                facingRight = false;
+                playerMesh.scale.x = -MODEL_SCALE;
+            }
         }
 
         spawnTimer -= dt;
