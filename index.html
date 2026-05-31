@@ -1,375 +1,647 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alexander Bacca - Agronomy Engineer &amp; AI Enthusiast</title>
-    <meta name="lightning" content="alexanderbm@getalby.com" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alexander Bacca · Agronomy & AI</title>
+  <meta name="description" content="Colombian Agronomy Engineer & AI Enthusiast building tools at the intersection of agriculture and technology." />
+  <meta name="lightning" content="alexanderbm@getalby.com" />
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VMZJXRJ30V"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VMZJXRJ30V');
-    </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VMZJXRJ30V"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-VMZJXRJ30V');
+  </script>
 
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" href="./favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="./favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        :root {
-            --primary-green: #1a4b3a;
-            --secondary-green: #2d7a5f;
-            --accent-teal: #00b4a6;
-            --slate-gray: #2c3e50;
-            --light-gray: #ecf0f1;
-            --white: #ffffff;
-            --glass-bg: rgba(255,255,255,0.1);
-            --glass-border: rgba(255,255,255,0.2);
-        }
+    :root {
+      --bg:        #0a0f0a;
+      --bg2:       #0f1a0f;
+      --surface:   #131f13;
+      --surface2:  #1a2e1a;
+      --border:    rgba(74,222,128,.15);
+      --border2:   rgba(74,222,128,.3);
+      --green:     #4ade80;
+      --green2:    #22c55e;
+      --green-dim: rgba(74,222,128,.08);
+      --text:      #e2e8f0;
+      --text-muted:#94a3b8;
+      --text-dim:  #64748b;
+      --accent:    #86efac;
+      --yellow:    #fbbf24;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
-            color: var(--slate-gray);
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 50%, var(--accent-teal) 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+    html { scroll-behavior: smooth; }
 
-        .background-animation {
-            position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.1;
-        }
-        .particle {
-            position: absolute; background: var(--white); border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%,100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
 
-        header {
-            position: sticky; top:0;
-            background: rgba(26,75,58,0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            z-index: 1000; padding: 1rem 0;
-        }
-        nav {
-            max-width: 1200px; margin:0 auto; padding:0 2rem;
-            display:flex; justify-content:space-between; align-items:center;
-        }
-        .logo { font-size:1.5rem; font-weight:700; color:var(--white); text-decoration:none; }
-        .nav-links { display:flex; list-style:none; gap:2rem; }
-        .nav-links a { color:var(--white); text-decoration:none; transition:color .3s ease; }
-        .nav-links a:hover { color:var(--accent-teal); }
+    /* ── scrollbar ── */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--green2); border-radius:3px; }
 
-        .container { max-width:1200px; margin:0 auto; padding:0 2rem; }
+    /* ── grid noise overlay ── */
+    body::before {
+      content:'';
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity:.4;
+    }
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: transform .3s ease, box-shadow .3s ease;
-        }
-        .glass-card:hover { transform:translateY(-5px); box-shadow:0 12px 40px rgba(0,0,0,0.2); }
+    /* ── NAV ── */
+    header {
+      position:sticky; top:0; z-index:100;
+      background:rgba(10,15,10,.92);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+    }
+    nav {
+      max-width:1100px; margin:0 auto;
+      padding:.85rem 2rem;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .logo {
+      font-family:var(--mono);
+      font-size:1rem; font-weight:600;
+      color:var(--green); text-decoration:none;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .logo::before { content:'> '; color:var(--text-dim); }
+    .logo span { color:var(--text); }
 
-        .hero { min-height:90vh; display:flex; align-items:center; padding:4rem 0; }
-        .hero-content { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
-        .hero-text h1 { font-size:3.5rem; font-weight:700; color:var(--white); margin-bottom:1rem; line-height:1.1; }
-        .hero-text .subtitle { font-size:1.3rem; color:var(--accent-teal); margin-bottom:2rem; font-weight:500; }
-        .hero-text p { font-size:1.1rem; color:var(--light-gray); margin-bottom:2rem; line-height:1.7; }
+    .nav-links { display:flex; list-style:none; gap:2rem; }
+    .nav-links a {
+      font-family:var(--mono); font-size:.8rem;
+      color:var(--text-muted); text-decoration:none;
+      transition:color .2s;
+      position:relative;
+    }
+    .nav-links a::before { content:'./'; color:var(--text-dim); }
+    .nav-links a:hover { color:var(--green); }
 
-        .cta-button {
-            display:inline-block;
-            background: linear-gradient(45deg, var(--accent-teal), var(--secondary-green));
-            color:var(--white); text-decoration:none;
-            padding:1rem 2rem; border-radius:50px;
-            font-weight:600; font-size:1.1rem;
-            transition:all .3s ease;
-            box-shadow:0 4px 15px rgba(0,180,166,0.3);
-        }
-        .cta-button:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,180,166,0.4); }
+    /* ── HERO ── */
+    .hero {
+      min-height:100vh;
+      display:flex; align-items:center;
+      padding:5rem 0 3rem;
+      position:relative; z-index:1;
+    }
+    .container { max-width:1100px; margin:0 auto; padding:0 2rem; }
 
-        .hero-image { display:flex; justify-content:center; }
-        .profile-image {
-            width:350px; height:350px; border-radius:50%; object-fit:cover;
-            border:4px solid var(--glass-border);
-            box-shadow:0 8px 32px rgba(0,0,0,0.3);
-            transition:transform .3s ease;
-        }
-        .profile-image:hover { transform:scale(1.05); }
+    .hero-inner {
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:5rem; align-items:center;
+    }
 
-        .section { padding:4rem 0; }
-        .section-title { text-align:center; font-size:2.5rem; font-weight:700; color:var(--white); margin-bottom:3rem; }
+    .tag {
+      display:inline-flex; align-items:center; gap:.5rem;
+      font-family:var(--mono); font-size:.75rem;
+      color:var(--green);
+      background:var(--green-dim);
+      border:1px solid var(--border2);
+      border-radius:4px; padding:.3rem .7rem;
+      margin-bottom:1.5rem;
+    }
+    .tag-dot { width:7px; height:7px; background:var(--green); border-radius:50%; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
 
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
+    .hero h1 {
+      font-size:clamp(2.5rem,5vw,4rem);
+      font-weight:700; line-height:1.1;
+      margin-bottom:1rem;
+      color:var(--text);
+    }
+    .hero h1 .hi { color:var(--text-muted); font-weight:300; }
+    .hero h1 .name { color:var(--green); }
 
-        .project-card {
-            text-align:center;
-            cursor:pointer; text-decoration:none; color:inherit; display:block;
-        }
-        .project-card h3 { font-size:1.5rem; color:var(--accent-teal); margin-bottom:1rem; }
-        .project-card p { font-size:1rem; color:var(--light-gray); margin-bottom:1.5rem; line-height:1.6; }
-        .project-icon { font-size:3.5rem; color:var(--accent-teal); margin-bottom:1rem; }
+    .hero-sub {
+      font-family:var(--mono); font-size:1rem;
+      color:var(--text-muted); margin-bottom:1.5rem;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .hero-sub .bracket { color:var(--green); }
 
-        .contact-links {
-            display:flex; justify-content:center; gap:2rem;
-            margin-top:2rem; flex-wrap:wrap;
-        }
-        .contact-link {
-            display:flex; align-items:center; gap:.5rem;
-            color:var(--white); text-decoration:none;
-            padding:1rem 1.5rem;
-            background:var(--glass-bg); border:1px solid var(--glass-border);
-            border-radius:50px; transition:all .3s ease;
-        }
-        .contact-link:hover { background:var(--accent-teal); transform:translateY(-2px); }
+    .hero p {
+      font-size:1.05rem; color:var(--text-muted);
+      max-width:520px; line-height:1.8; margin-bottom:2.5rem;
+    }
 
-        footer {
-            background:rgba(26,75,58,0.95); color:var(--light-gray);
-            text-align:center; padding:2rem 0; margin-top:4rem;
-        }
-        .footer-note { font-size:.9rem; opacity:.8; margin-top:.5rem; }
-        .footer-note a {
-            color: var(--accent-teal);
-            text-decoration: none;
-            transition: opacity .3s ease;
-        }
-        .footer-note a:hover { opacity: .75; text-decoration: underline; }
+    .btn-row { display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn {
+      padding:.75rem 1.75rem; border-radius:6px;
+      font-family:var(--mono); font-size:.85rem; font-weight:600;
+      text-decoration:none; transition:all .2s;
+      display:inline-flex; align-items:center; gap:.5rem;
+    }
+    .btn-primary {
+      background:var(--green); color:var(--bg);
+      border:1px solid var(--green);
+    }
+    .btn-primary:hover { background:var(--accent); border-color:var(--accent); transform:translateY(-1px); }
+    .btn-outline {
+      background:transparent; color:var(--green);
+      border:1px solid var(--border2);
+    }
+    .btn-outline:hover { background:var(--green-dim); border-color:var(--green); transform:translateY(-1px); }
 
-        .video-section { margin:4rem 0; }
-        .videos-grid {
-            display:grid; grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
-            gap:2rem; margin-top:2rem;
-        }
-        .video-card { text-align:center; }
-        .video-card h4 { color:var(--white); margin-bottom:1rem; font-size:1.2rem; }
-        .video-card iframe {
-            width:100%; max-width:360px; height:200px;
-            border-radius:10px; box-shadow:0 4px 15px rgba(0,0,0,0.2);
-        }
-        .video-description { color:var(--light-gray); margin-top:1rem; font-size:.9rem; }
+    /* profile photo */
+    .hero-photo-wrap {
+      position:relative;
+    }
+    .hero-photo-wrap::before {
+      content:'';
+      position:absolute; inset:-8px;
+      border:1px dashed var(--border2);
+      border-radius:50%; animation:spin 20s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .hero-photo {
+      width:220px; height:220px; border-radius:50%;
+      object-fit:cover;
+      border:3px solid var(--surface2);
+      position:relative; z-index:1;
+    }
 
-        .contact-form { margin-top:2rem; max-width:600px; margin-left:auto; margin-right:auto; }
-        .contact-form iframe {
-            width:100%; min-height:500px; border-radius:10px;
-            box-shadow:0 4px 15px rgba(0,0,0,0.2);
-        }
+    /* ── SECTION shared ── */
+    .section { padding:5rem 0; position:relative; z-index:1; }
+    .section-header {
+      display:flex; align-items:center; gap:1rem;
+      margin-bottom:3rem;
+    }
+    .section-header h2 {
+      font-family:var(--mono); font-size:1.4rem; font-weight:600; color:var(--text);
+    }
+    .section-header .num {
+      font-family:var(--mono); font-size:.85rem; color:var(--green);
+    }
+    .section-line {
+      flex:1; height:1px; background:var(--border);
+    }
 
-        @media (max-width:768px) {
-            .nav-links { display:none; }
-            .hero-content { grid-template-columns:1fr; text-align:center; gap:2rem; }
-            .hero-text h1 { font-size:2.5rem; }
-            .profile-image { width:250px; height:250px; }
-            .contact-links { flex-direction:column; align-items:center; }
-            .container { padding:0 1rem; }
-            .videos-grid { grid-template-columns:1fr; }
-            .project-grid { grid-template-columns:1fr; }
-        }
-        @media (max-width:480px) {
-            .hero-text h1 { font-size:2rem; }
-            .hero-text .subtitle { font-size:1.1rem; }
-            .section-title { font-size:2rem; }
-        }
+    /* ── GITHUB ACTIVITY ── */
+    .github-box {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px; padding:1.5rem;
+      margin-bottom:3rem;
+    }
+    .github-box-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:1rem;
+    }
+    .github-box-header h3 {
+      font-family:var(--mono); font-size:.9rem; color:var(--green);
+      display:flex; align-items:center; gap:.6rem;
+    }
+    .github-box-header a {
+      font-family:var(--mono); font-size:.75rem;
+      color:var(--text-dim); text-decoration:none;
+      transition:color .2s;
+    }
+    .github-box-header a:hover { color:var(--green); }
 
-        .fade-in { opacity:0; transform:translateY(30px); animation:fadeInUp .8s ease forwards; }
-        @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
-        .icon { width:24px; height:24px; fill:currentColor; }
-    </style>
+    .gh-contrib-img {
+      width:100%; border-radius:6px;
+      filter:invert(1) hue-rotate(90deg) saturate(1.5);
+    }
+
+    /* repo grid */
+    .repo-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
+      gap:1rem;
+    }
+    .repo-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px; padding:1.25rem;
+      display:flex; flex-direction:column; gap:.75rem;
+      transition:border-color .2s, transform .2s;
+      text-decoration:none; color:inherit;
+    }
+    .repo-card:hover { border-color:var(--green2); transform:translateY(-3px); }
+    .repo-name {
+      font-family:var(--mono); font-size:.9rem;
+      color:var(--green); display:flex; align-items:center; gap:.4rem;
+    }
+    .repo-desc {
+      font-size:.85rem; color:var(--text-muted); line-height:1.5; flex:1;
+    }
+    .repo-meta {
+      display:flex; gap:1rem; font-family:var(--mono); font-size:.75rem; color:var(--text-dim);
+    }
+    .repo-lang { display:flex; align-items:center; gap:.3rem; }
+    .lang-dot { width:10px; height:10px; border-radius:50%; }
+
+    /* ── TOOLS ── */
+    .tools-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(300px,1fr));
+      gap:1.5rem;
+    }
+    .tool-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px; padding:1.5rem;
+      text-decoration:none; color:inherit;
+      display:flex; gap:1rem; align-items:flex-start;
+      transition:border-color .2s, transform .2s;
+    }
+    .tool-card:hover { border-color:var(--green2); transform:translateY(-3px); }
+    .tool-icon {
+      font-size:1.8rem; line-height:1;
+      flex-shrink:0;
+    }
+    .tool-info h3 {
+      font-size:1rem; font-weight:600; color:var(--text);
+      margin-bottom:.4rem;
+    }
+    .tool-info p { font-size:.85rem; color:var(--text-muted); line-height:1.5; }
+    .tool-tag {
+      display:inline-block; margin-top:.6rem;
+      font-family:var(--mono); font-size:.7rem;
+      color:var(--green); background:var(--green-dim);
+      border:1px solid var(--border2); border-radius:4px; padding:.15rem .5rem;
+    }
+
+    /* ── PROJECTS ── */
+    .projects-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+      gap:1.5rem;
+    }
+    .project-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px; padding:1.5rem;
+      text-decoration:none; color:inherit;
+      transition:border-color .2s, transform .2s;
+      display:flex; flex-direction:column; gap:.75rem;
+    }
+    .project-card:hover { border-color:var(--green2); transform:translateY(-3px); }
+    .project-emoji { font-size:2.2rem; }
+    .project-card h3 { font-size:1rem; font-weight:600; color:var(--text); }
+    .project-card p { font-size:.85rem; color:var(--text-muted); line-height:1.5; flex:1; }
+    .project-arrow {
+      font-family:var(--mono); font-size:.8rem; color:var(--green);
+      margin-top:auto;
+    }
+
+    /* ── VIDEOS ── */
+    .videos-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(340px,1fr));
+      gap:2rem;
+    }
+    .video-card {
+      background:var(--surface);
+      border:1px solid var(--border); border-radius:12px; overflow:hidden;
+      transition:border-color .2s;
+    }
+    .video-card:hover { border-color:var(--green2); }
+    .video-card iframe { width:100%; height:200px; display:block; }
+    .video-card-info { padding:1rem 1.25rem; }
+    .video-card-info h4 { font-size:.95rem; color:var(--text); margin-bottom:.4rem; }
+    .video-card-info p { font-size:.82rem; color:var(--text-muted); line-height:1.5; }
+
+    /* ── CONTACT ── */
+    .contact-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:3rem; align-items:start;
+    }
+    .contact-info h3 {
+      font-size:1.5rem; font-weight:700; color:var(--text);
+      margin-bottom:1rem;
+    }
+    .contact-info p {
+      color:var(--text-muted); line-height:1.7; margin-bottom:2rem;
+    }
+    .contact-links { display:flex; flex-direction:column; gap:.75rem; }
+    .contact-link {
+      display:flex; align-items:center; gap:.75rem;
+      padding:.85rem 1.25rem;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:8px; text-decoration:none; color:var(--text);
+      font-size:.9rem; transition:all .2s;
+    }
+    .contact-link:hover { border-color:var(--green); color:var(--green); transform:translateX(4px); }
+    .contact-link-icon { font-size:1.2rem; }
+
+    .contact-form-wrap {
+      background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    }
+    .contact-form-wrap iframe { width:100%; min-height:480px; border:none; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top:1px solid var(--border);
+      padding:2rem 0;
+      position:relative; z-index:1;
+    }
+    .footer-inner {
+      max-width:1100px; margin:0 auto; padding:0 2rem;
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
+    }
+    .footer-left { font-family:var(--mono); font-size:.8rem; color:var(--text-dim); }
+    .footer-left a { color:var(--green); text-decoration:none; }
+    .footer-left a:hover { text-decoration:underline; }
+    .footer-right { font-family:var(--mono); font-size:.75rem; color:var(--text-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:900px) {
+      .hero-inner { grid-template-columns:1fr; gap:3rem; }
+      .hero-photo-wrap { display:flex; justify-content:center; order:-1; }
+      .contact-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:640px) {
+      .nav-links { display:none; }
+      .hero h1 { font-size:2.2rem; }
+      .btn-row { flex-direction:column; }
+      .videos-grid { grid-template-columns:1fr; }
+    }
+
+    /* ── ANIMATIONS ── */
+    .fade-up {
+      opacity:0; transform:translateY(24px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    .fade-up.visible { opacity:1; transform:translateY(0); }
+
+    /* terminal cursor blink */
+    .cursor::after { content:'_'; animation:blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+  </style>
 </head>
 <body>
 
-    <div class="background-animation">
-        <div class="particle" style="left:10%;top:20%;width:4px;height:4px;animation-delay:0s"></div>
-        <div class="particle" style="left:20%;top:80%;width:6px;height:6px;animation-delay:1s"></div>
-        <div class="particle" style="left:60%;top:30%;width:8px;height:8px;animation-delay:2s"></div>
-        <div class="particle" style="left:80%;top:70%;width:5px;height:5px;animation-delay:3s"></div>
-        <div class="particle" style="left:90%;top:10%;width:7px;height:7px;animation-delay:4s"></div>
+  <!-- NAV -->
+  <header>
+    <nav>
+      <a href="#" class="logo">alexanderbacca<span>.dev</span></a>
+      <ul class="nav-links">
+        <li><a href="#github">github</a></li>
+        <li><a href="#tools">tools</a></li>
+        <li><a href="#projects">projects</a></li>
+        <li><a href="#videos">videos</a></li>
+        <li><a href="#contact">contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="fade-up">
+          <div class="tag"><span class="tag-dot"></span> Available for collaboration</div>
+          <h1>
+            <span class="hi">Hi, I'm </span><br/>
+            <span class="name">Alexander Bacca</span>
+          </h1>
+          <div class="hero-sub">
+            <span class="bracket">[</span>
+            Agronomy Engineer &amp; AI Enthusiast
+            <span class="bracket">]</span>
+          </div>
+          <p>Colombian engineer bridging the gap between the field and the future. I build AI-powered tools and interactive experiments at the intersection of agriculture and technology.</p>
+          <div class="btn-row">
+            <a href="#projects" class="btn btn-primary">→ See my work</a>
+            <a href="https://github.com/alexanderbacca" target="_blank" rel="noopener" class="btn btn-outline">⌥ GitHub</a>
+          </div>
+        </div>
+        <div class="hero-photo-wrap fade-up">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggNALplGHFRfntTZLjL84sZe9pvHM_baMf_CYuMmyEzo360QGF4dwatcfUAFm8XHXJ6thqdPnrrP7eAqy737LJmKtsP3y3lY83Z3O8lgxkb-kZpZDgDqHDLVDcLIJaftOjGuT2GJ3kiME5/s320/Alex.jpg"
+               alt="Alexander Bacca" class="hero-photo" />
+        </div>
+      </div>
     </div>
+  </section>
 
-    <header>
-        <nav>
-            <a href="#" class="logo">Alexander Bacca</a>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#tools">Tools</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#videos">Videos</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+  <!-- GITHUB ACTIVITY -->
+  <section id="github" class="section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="num">01</span>
+        <h2>// GitHub Activity</h2>
+        <div class="section-line"></div>
+      </div>
 
-    <section id="home" class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text fade-in">
-                    <h1>Cultivating the Future</h1>
-                    <div class="subtitle">Where Agriculture Meets AI</div>
-                    <p>I am a Colombian Agronomy Engineer, bridging the gap between the field and the future. With a passion for technology and AI, I develop innovative solutions for a more sustainable and intelligent world.</p>
-                    <a href="#projects" class="cta-button">Explore My Work</a>
-                </div>
-                <div class="hero-image fade-in">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggNALplGHFRfntTZLjL84sZe9pvHM_baMf_CYuMmyEzo360QGF4dwatcfUAFm8XHXJ6thqdPnrrP7eAqy737LJmKtsP3y3lY83Z3O8lgxkb-kZpZDgDqHDLVDcLIJaftOjGuT2GJ3kiME5/s320/Alex.jpg" alt="Alexander Bacca" class="profile-image">
-                </div>
+      <div class="github-box fade-up">
+        <div class="github-box-header">
+          <h3>⬡ Contribution Graph</h3>
+          <a href="https://github.com/alexanderbacca" target="_blank" rel="noopener">github.com/alexanderbacca →</a>
+        </div>
+        <img
+          class="gh-contrib-img"
+          src="https://ghchart.rshah.org/4ade80/alexanderbacca"
+          alt="Alexander Bacca GitHub contribution chart"
+          onerror="this.src='https://github-readme-stats.vercel.app/api?username=alexanderbacca&show_icons=true&theme=dark&hide_border=true&bg_color=0f1a0f&title_color=4ade80&icon_color=4ade80&text_color=94a3b8'"
+        />
+      </div>
+
+      <!-- Dynamic repos via GitHub API -->
+      <div id="repo-grid" class="repo-grid fade-up"></div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section id="tools" class="section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="num">02</span>
+        <h2>// Featured Tools</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="tools-grid">
+        <a href="Messages-tool.html" class="tool-card fade-up">
+          <div class="tool-icon">✍️</div>
+          <div class="tool-info">
+            <h3>WhatsApp Corrector</h3>
+            <p>Paste a draft message and instantly open Perplexity with a ready-made prompt that rewrites it in professional, friendly, and neutral Spanish.</p>
+            <span class="tool-tag">productivity</span>
+          </div>
+        </a>
+        <a href="whatsapp-tool.html" class="tool-card fade-up">
+          <div class="tool-icon">💬</div>
+          <div class="tool-info">
+            <h3>WhatsApp Quick Message</h3>
+            <p>Send a WhatsApp message to any Colombian number instantly — no need to save the contact first.</p>
+            <span class="tool-tag">utility</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="num">03</span>
+        <h2>// Projects</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="projects-grid">
+        <a href="game.html" class="project-card fade-up">
+          <div class="project-emoji">🎮</div>
+          <h3>Make JuanJo Fatter</h3>
+          <p>A fun web game built to explore interactive development and browser APIs.</p>
+          <span class="project-arrow">→ play</span>
+        </a>
+        <a href="colors.html" class="project-card fade-up">
+          <div class="project-emoji">🎉</div>
+          <h3>Practica los colores en Inglés</h3>
+          <p>Un sencillo juego interactivo para practicar los colores en inglés.</p>
+          <span class="project-arrow">→ jugar</span>
+        </a>
+        <a href="skeleton-runner/" class="project-card fade-up">
+          <div class="project-emoji">🏃</div>
+          <h3>Corre Vairon</h3>
+          <p>Ayuda a Vairon a esquivar las caras que caen. ¡Cada vez más rápido! PC y móvil.</p>
+          <span class="project-arrow">→ jugar</span>
+        </a>
+        <a href="lunar-phases-guide/" class="project-card fade-up">
+          <div class="project-emoji">🌙</div>
+          <h3>Lunar Phases &amp; Agriculture</h3>
+          <p>Interactive study tool for lunar phases and agricultural activities. Quiz yourself!</p>
+          <span class="project-arrow">→ explore</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEOS -->
+  <section id="videos" class="section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="num">04</span>
+        <h2>// Featured Videos</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="videos-grid">
+        <div class="video-card fade-up">
+          <iframe src="https://www.youtube.com/embed/uMYO_dhAlJE" frameborder="0" allowfullscreen></iframe>
+          <div class="video-card-info">
+            <h4>La Metamorfosis</h4>
+            <p>Editado en el colegio como resumen de la obra de Franz Kafka.</p>
+          </div>
+        </div>
+        <div class="video-card fade-up">
+          <iframe src="https://www.youtube.com/embed/K6FrORUqveQ" frameborder="0" allowfullscreen></iframe>
+          <div class="video-card-info">
+            <h4>Crear archivo Shape a partir de puntos GPX</h4>
+            <p>Como crear un archivo Shape desde puntos GPS en formato GPX con software libre.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section">
+    <div class="container">
+      <div class="section-header fade-up">
+        <span class="num">05</span>
+        <h2>// Let's Connect</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="contact-grid">
+        <div class="fade-up">
+          <div class="contact-info">
+            <h3>Say hello 👋</h3>
+            <p>Whether you have a project idea, a question about agronomy & AI, or just want to connect — my inbox is open.</p>
+          </div>
+          <div class="contact-links">
+            <a href="https://www.linkedin.com/in/alexander-bacca-m/" target="_blank" rel="noopener" class="contact-link">
+              <span class="contact-link-icon">💼</span> LinkedIn
+            </a>
+            <a href="https://github.com/alexanderbacca" target="_blank" rel="noopener" class="contact-link">
+              <span class="contact-link-icon">⌥</span> GitHub
+            </a>
+            <a href="mailto:hello@alexanderbacca.com" class="contact-link">
+              <span class="contact-link-icon">✉️</span> hello@alexanderbacca.com
+            </a>
+            <a href="https://wa.me/573174833726" target="_blank" rel="noopener" class="contact-link">
+              <span class="contact-link-icon">💬</span> WhatsApp
+            </a>
+          </div>
+        </div>
+        <div class="contact-form-wrap fade-up">
+          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdMS6yWcR5CalXQMhCqZAg1kys3OtO746egNWXWNXVZwBRh0Q/viewform?embedded=true" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        © 2026 Alexander Bacca ·
+        <a href="mailto:hello@alexanderbacca.com">hello@alexanderbacca.com</a>
+      </div>
+      <div class="footer-right">built with ❤️ &amp; AI · Cali, Colombia 🌿</div>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Scroll fade-up ── */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold:.1, rootMargin:'0px 0px -40px 0px' });
+    document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+    /* ── GitHub Repos (public API) ── */
+    const LANG_COLORS = {
+      JavaScript:'#f1e05a', HTML:'#e34c26', CSS:'#563d7c',
+      Python:'#3572A5', TypeScript:'#2b7489', Shell:'#89e051',
+    };
+
+    async function loadRepos() {
+      try {
+        const res = await fetch('https://api.github.com/users/alexanderbacca/repos?sort=updated&per_page=6');
+        if (!res.ok) return;
+        const repos = await res.json();
+        const grid = document.getElementById('repo-grid');
+        grid.innerHTML = repos.map(r => `
+          <a href="${r.html_url}" target="_blank" rel="noopener" class="repo-card">
+            <div class="repo-name">⬡ ${r.name}</div>
+            <div class="repo-desc">${r.description || 'No description available.'}</div>
+            <div class="repo-meta">
+              ${r.language ? `<span class="repo-lang"><span class="lang-dot" style="background:${LANG_COLORS[r.language]||'#8b949e'}"></span>${r.language}</span>` : ''}
+              <span>⭐ ${r.stargazers_count}</span>
+              <span>🍴 ${r.forks_count}</span>
             </div>
-        </div>
-    </section>
-
-    <section id="tools" class="section">
-        <div class="container">
-            <h2 class="section-title fade-in">Featured Tools</h2>
-            <div class="project-grid">
-                <div class="glass-card fade-in">
-                    <a href="Messages-tool.html" class="project-card">
-                        <div class="project-icon">&#9997;&#65039;</div>
-                        <h3>WhatsApp Corrector</h3>
-                        <p>Paste a draft message and instantly open Perplexity with a ready-made prompt that rewrites it in professional, friendly, and neutral Spanish.</p>
-                    </a>
-                </div>
-                <div class="glass-card fade-in">
-                    <a href="whatsapp-tool.html" class="project-card">
-                        <div class="project-icon">&#128172;</div>
-                        <h3>WhatsApp Quick Message</h3>
-                        <p>Send a WhatsApp message to any Colombian number instantly &mdash; no need to save the contact first.</p>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="projects" class="section">
-        <div class="container">
-            <h2 class="section-title fade-in">Featured Projects</h2>
-            <div class="project-grid">
-                <div class="glass-card fade-in">
-                    <a href="game.html" class="project-card">
-                        <div class="project-icon">&#127918;</div>
-                        <h3>Make JuanJo Fatter</h3>
-                        <p>A fun web game built to explore interactive development. Click to play!</p>
-                    </a>
-                </div>
-                <div class="glass-card fade-in">
-                    <a href="colors.html" class="project-card">
-                        <div class="project-icon">&#127881;</div>
-                        <h3>Practica los colores en Ingles</h3>
-                        <p>Un sencillo juego para practicar los principales colores. Click to play!</p>
-                    </a>
-                </div>
-                <div class="glass-card fade-in">
-                    <a href="skeleton-runner/" class="project-card">
-                        <div class="project-icon">&#127939;</div>
-                        <h3>Corre Vairon</h3>
-                        <p>Ayuda a Vairon a esquivar las caras que caen. &#161;Cada vez m&#225;s r&#225;pido! Juega en PC o celular.</p>
-                    </a>
-                </div>
-                <div class="glass-card fade-in">
-                    <a href="lunar-phases-guide/" class="project-card">
-                        <div class="project-icon">&#127765;</div>
-                        <h3>Lunar Phases &amp; Agriculture Guide</h3>
-                        <p>Interactive study tool for learning lunar phases and agricultural activities in Spanish. Quiz yourself!</p>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="videos" class="section video-section">
-        <div class="container">
-            <h2 class="section-title fade-in">Featured Videos</h2>
-            <div class="videos-grid">
-                <div class="glass-card video-card fade-in">
-                    <h4>La Metamorfosis</h4>
-                    <iframe src="https://www.youtube.com/embed/uMYO_dhAlJE" frameborder="0" allowfullscreen></iframe>
-                    <p class="video-description">Editado en el colegio como resumen de la obra de Franz Kafka.</p>
-                </div>
-                <div class="glass-card video-card fade-in">
-                    <h4>Crear archivo Shape a partir de puntos gpx</h4>
-                    <iframe src="https://www.youtube.com/embed/K6FrORUqveQ" frameborder="0" allowfullscreen></iframe>
-                    <p class="video-description">Como crear un archivo en formato Shape comenzando de puntos GPS en formato GPX, totalmente con software libre.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="section">
-        <div class="container">
-            <h2 class="section-title fade-in">Let's Connect</h2>
-            <div class="glass-card fade-in">
-                <div class="contact-links">
-                    <a href="https://www.linkedin.com/in/alexander-bacca-m/" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>
-                    <a href="https://github.com/alexanderbacca" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>
-                    <a href="mailto:hello@alexanderbacca.com" class="contact-link">Email</a>
-                    <a href="https://wa.me/573174833726" target="_blank" rel="noopener noreferrer" class="contact-link">WhatsApp</a>
-                </div>
-                <div class="contact-form">
-                    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdMS6yWcR5CalXQMhCqZAg1kys3OtO746egNWXWNXVZwBRh0Q/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Alexander Bacca</p>
-            <p class="footer-note">Let's cultivate something great together. Reach out at <a href="mailto:hello@alexanderbacca.com">hello@alexanderbacca.com</a></p>
-        </div>
-    </footer>
-
-    <script>
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
-            });
+          </a>`).join('');
+        /* re-observe new cards */
+        grid.querySelectorAll('.repo-card').forEach(el => {
+          el.classList.add('fade-up'); io.observe(el);
         });
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationDelay = '0.2s';
-                    entry.target.classList.add('fade-in');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold:0.1, rootMargin:'0px 0px -50px 0px' });
-
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-        function createParticle() {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.style.left = Math.random()*100+'%';
-            p.style.top  = Math.random()*100+'%';
-            const s = (Math.random()*6+2)+'px';
-            p.style.width = s; p.style.height = s;
-            p.style.animationDelay = Math.random()*6+'s';
-            document.querySelector('.background-animation').appendChild(p);
-            setTimeout(() => p.remove(), 6000);
-        }
-        setInterval(createParticle, 3000);
-
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            header.style.background = window.pageYOffset > 50
-                ? 'rgba(26,75,58,0.98)' : 'rgba(26,75,58,0.95)';
-        });
-    </script>
-
+      } catch(_) {}
+    }
+    loadRepos();
+  </script>
 </body>
 </html>
