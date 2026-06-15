@@ -1,15 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lunar Phases & Agriculture Guide</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lunar Phases &amp; Agriculture Guide</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0a0f0a",
+                        "secondary": "#4de082",
+                        "primary-fixed": "#dbe1ff",
+                        "background": "#10150f",
+                        "surface-bright": "#353b34",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "deep-border": "#334155",
+                        "tertiary-fixed": "#dae2fd",
+                        "surface-container-highest": "#313630",
+                        "on-primary-container": "#eeefff",
+                        "surface-container-low": "#181d17",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "on-secondary-fixed": "#00210c",
+                        "on-secondary-container": "#003e1c",
+                        "error": "#ffb4ab",
+                        "lunar-white": "#E2E8F0",
+                        "surface-variant": "#313630",
+                        "on-surface": "#dfe4db",
+                        "on-secondary-fixed-variant": "#005227",
+                        "surface-container-high": "#262b25",
+                        "surface": "#10150f",
+                        "starlight-blue": "#93c5fd",
+                        "primary-container": "#2563eb",
+                        "surface-container": "#1c211b",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-container": "#656d84",
+                        "on-error": "#690005",
+                        "outline-variant": "#434655",
+                        "on-tertiary-container": "#eef0ff",
+                        "outline": "#8d90a0",
+                        "inverse-surface": "#dfe4db",
+                        "secondary-fixed-dim": "#4de082",
+                        "primary": "#b4c5ff",
+                        "on-secondary": "#003919",
+                        "on-background": "#dfe4db",
+                        "on-primary": "#002a78",
+                        "inverse-primary": "#0053db",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#bec6e0",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-dim": "#10150f",
+                        "on-surface-variant": "#c3c6d7",
+                        "surface-tint": "#b4c5ff",
+                        "error-container": "#93000a",
+                        "inverse-on-surface": "#2c322c",
+                        "surface-slate": "#1e293b",
+                        "on-tertiary": "#283044",
+                        "secondary-container": "#00b55d",
+                        "secondary-fixed": "#6dfe9c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "container-max": "1024px",
+                        "lg": "24px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-lg": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0b1120;
-            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
         }
 
         .tab-content {
@@ -23,293 +112,463 @@
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .match-btn { transition: all 0.3s ease; }
-
-        .match-btn.selected {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #60a5fa;
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(59,130,246,0.5);
+        /* 3D Flip Card Styles */
+        .match-card-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 100%;
+            min-height: 80px;
         }
 
-        .match-btn.matched {
-            background-color: #10b981;
-            color: white;
-            border-color: #34d399;
-            opacity: 0;
+        .match-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .match-card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .match-card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: theme('borderRadius.DEFAULT');
+            border: 1px solid theme('colors.outline-variant');
+            padding: theme('spacing.sm');
+            text-align: center;
+        }
+
+        .match-card-front {
+            background-color: theme('colors.surface-container-high');
+            background-image: radial-gradient(circle at center, theme('colors.surface-bright') 0%, theme('colors.surface-container-high') 100%);
+            color: theme('colors.primary');
+            font-size: 24px;
+        }
+        
+        .match-card-front:hover {
+            border-color: theme('colors.outline');
+        }
+
+        .match-card-back {
+            background-color: theme('colors.surface-container');
+            color: theme('colors.on-surface');
+            transform: rotateY(180deg);
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 20px;
+        }
+        
+        @media (min-width: 640px) {
+            .match-card-back {
+                font-size: 16px;
+                line-height: 24px;
+            }
+        }
+
+        .match-card-inner.selected .match-card-back {
+            background-color: theme('colors.primary-container');
+            color: theme('colors.on-primary-container');
+            border-color: theme('colors.primary');
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+        }
+
+        .match-card-inner.matched .match-card-back {
+            background-color: theme('colors.secondary-container');
+            color: theme('colors.on-secondary-container');
+            border-color: theme('colors.secondary');
+            opacity: 0.8;
             pointer-events: none;
-            transform: scale(0.95);
         }
 
-        .match-btn.incorrect {
+        .match-card-inner.incorrect {
             animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-            background-color: #ef4444;
-            color: white;
-            border-color: #f87171;
+        }
+        
+        .match-card-inner.incorrect .match-card-back {
+            background-color: theme('colors.error');
+            color: theme('colors.on-error');
+            border-color: theme('colors.error-container');
         }
 
         @keyframes shake {
-            10%, 90% { transform: translate3d(-1px,0,0); }
-            20%, 80% { transform: translate3d(2px,0,0); }
-            30%, 50%, 70% { transform: translate3d(-4px,0,0); }
-            40%, 60% { transform: translate3d(4px,0,0); }
+            10%, 90% { transform: rotateY(180deg) translate3d(-1px, 0, 0); }
+            20%, 80% { transform: rotateY(180deg) translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: rotateY(180deg) translate3d(-4px, 0, 0); }
+            40%, 60% { transform: rotateY(180deg) translate3d(4px, 0, 0); }
         }
 
         .quiz-option.correct {
-            background-color: #10b981 !important;
-            color: white !important;
-            border-color: #059669 !important;
+            background-color: theme('colors.secondary-container') !important;
+            color: theme('colors.on-secondary-container') !important;
+            border-color: theme('colors.secondary') !important;
         }
-
         .quiz-option.wrong {
-            background-color: #ef4444 !important;
-            color: white !important;
-            border-color: #dc2626 !important;
+            background-color: theme('colors.error') !important;
+            color: theme('colors.on-error') !important;
+            border-color: theme('colors.error-container') !important;
         }
 
-        /* Inline moon info bar */
-        .moon-info-bar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.25rem 1.5rem;
-            margin: 0.5rem auto 1.25rem;
-            padding: 0.6rem 1.25rem;
-            border-radius: 0.75rem;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-            max-width: 640px;
-            font-size: 0.82rem;
-            line-height: 1.6;
+        /* Lunar Animations */
+        @keyframes lunar-pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(180, 197, 255, 0.3)); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(180, 197, 255, 0.8)); }
         }
 
-        .moon-info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            white-space: nowrap;
+        @keyframes lunar-float {
+            0% { transform: translateY(-2px); }
+            100% { transform: translateY(2px); }
         }
 
-        .moon-info-label {
-            color: #94a3b8;
-            font-weight: 500;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .moon-info-value {
-            color: #e2e8f0;
-            font-weight: 600;
-        }
-
-        .moon-info-dot {
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: #475569;
-            align-self: center;
+        @media (prefers-reduced-motion: no-preference) {
+            .anim-lunar-pulse {
+                animation: lunar-pulse 2.5s ease-in-out infinite alternate;
+                display: inline-block;
+            }
+            .anim-lunar-float {
+                animation: lunar-float 3s ease-in-out infinite alternate;
+                display: inline-block;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 sm:p-8">
-
-    <!-- Header & Navigation -->
-    <header class="w-full max-w-4xl mb-8 text-center">
-        <h1 class="text-3xl sm:text-4xl font-bold text-slate-100 mb-2 tracking-wide">
-            <span class="text-blue-400">🌕</span> Lunar Cycle Guide <span class="text-blue-400">🌑</span>
-            <span class="ml-2 text-xs align-middle text-slate-400">Version 3.0</span>
-        </h1>
-
-        <p class="text-slate-400 mb-3 text-sm sm:text-base">Master the Spanish translations of moon phases and traditional agricultural activities.</p>
-
-        <!-- Inline moon info bar, placed right below the subtitle -->
-        <div class="moon-info-bar" id="moon-info-bar">
-            <div class="moon-info-item">
-                <span class="moon-info-label">Today's Moon</span>
-                <span class="moon-info-value" id="moon-today-line">—</span>
-            </div>
-            <div class="moon-info-dot"></div>
-            <div class="moon-info-item">
-                <span class="moon-info-label">Phase started</span>
-                <span class="moon-info-value" id="moon-phase-start-line">—</span>
-            </div>
-        </div>
-
-        <nav class="flex justify-center flex-wrap gap-2 sm:gap-4 bg-slate-800 p-2 rounded-xl border border-slate-700 shadow-lg">
-            <button onclick="switchTab('study')" id="btn-study" class="nav-btn flex-1 min-w-[100px] py-2 px-4 rounded-lg bg-blue-600 text-white font-medium transition-colors hover:bg-blue-500 focus:outline-none">Study Guide</button>
-            <button onclick="switchTab('quiz')"  id="btn-quiz"  class="nav-btn flex-1 min-w-[100px] py-2 px-4 rounded-lg bg-transparent text-slate-300 font-medium transition-colors hover:bg-slate-700 focus:outline-none">Quiz</button>
-            <button onclick="switchTab('match')" id="btn-match" class="nav-btn flex-1 min-w-[100px] py-2 px-4 rounded-lg bg-transparent text-slate-300 font-medium transition-colors hover:bg-slate-700 focus:outline-none">Match Game</button>
-        </nav>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="w-full max-w-4xl flex-1 relative">
-
-        <!-- 1. STUDY SECTION -->
-        <section id="study" class="tab-content active">
-            <div id="study-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-        </section>
-
-        <!-- 2. QUIZ SECTION -->
-        <section id="quiz" class="tab-content bg-slate-800 rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-blue-300">Knowledge Check</h2>
-                <div class="text-lg font-bold bg-slate-900 py-1 px-4 rounded-full border border-slate-700">
-                    Score: <span id="quiz-score" class="text-blue-400">0</span> / <span id="quiz-total">0</span>
-                </div>
-            </div>
-            <div id="quiz-container">
-                <p id="quiz-question" class="text-xl sm:text-2xl font-medium text-slate-100 mb-8 text-center min-h-[64px]"></p>
-                <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"></div>
-                <div class="text-center">
-                    <button id="next-btn" onclick="nextQuestion()" class="hidden w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all transform hover:scale-105 focus:outline-none shadow-lg">Next Question ➔</button>
-                </div>
-            </div>
-            <div id="quiz-end" class="hidden text-center py-8">
-                <h3 class="text-3xl font-bold text-white mb-4">Quiz Complete!</h3>
-                <p class="text-xl text-slate-300 mb-8">Final Score: <span id="final-score" class="text-blue-400 font-bold"></span></p>
-                <button onclick="initQuiz()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl transition-all focus:outline-none shadow-lg">Retake Quiz ↺</button>
-            </div>
-        </section>
-
-        <!-- 3. MATCHING GAME SECTION -->
-        <section id="match" class="tab-content bg-slate-800 rounded-2xl p-4 sm:p-8 border border-slate-700 shadow-xl">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                <h2 class="text-2xl font-semibold text-blue-300">Term Matcher</h2>
-                <p class="text-slate-400 text-sm">Match the English term (Left) with the Spanish term (Right)</p>
-                <button onclick="initMatchGame()" class="bg-slate-700 hover:bg-slate-600 text-white py-1 px-4 rounded-lg transition-colors border border-slate-600">Reset Game ↺</button>
-            </div>
-            <div id="match-victory" class="hidden text-center py-12 mb-4 bg-slate-900 rounded-xl border border-emerald-500/30">
-                <h3 class="text-3xl font-bold text-emerald-400 mb-4">🎉 Perfect Match! 🎉</h3>
-                <button onclick="initMatchGame()" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg transition-all focus:outline-none">Play Again</button>
-            </div>
-            <div id="match-board" class="grid grid-cols-2 gap-2 sm:gap-6 relative">
-                <div id="match-col-a" class="flex flex-col gap-3"></div>
-                <div id="match-col-b" class="flex flex-col gap-3"></div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="mt-12 text-slate-500 text-sm text-center flex justify-between items-center max-w-4xl w-full px-4">
-        <p>Created by Alexander Bacca, Gemini Pro and Perplexity Pro.</p>
-        <a href="https://alexanderbacca.github.io/index.html" class="text-blue-400 hover:text-blue-300 transition-colors">← Return to Home</a>
-    </footer>
-
-    <script>
-        // ─── DATA ────────────────────────────────────────────────────────────────
+<body class="min-h-screen flex flex-col items-center p-md sm:p-lg bg-background text-on-background">
+<header class="w-full max-w-[container-max] mb-lg text-center">
+<h1 class="text-[28px] leading-[36px] font-semibold sm:text-[32px] sm:leading-[40px] text-on-surface mb-sm tracking-tight">
+<span class="text-primary">🌕</span> Lunar Cycle Guide <span class="text-primary">🌑</span>
+</h1>
+<p class="text-on-surface-variant mb-md text-[16px] leading-[24px]">Master the Spanish translations of moon phases and traditional agricultural activities (Version 2,5).</p>
+<div class="flex justify-center items-center" id="dynamic-phase-banner">
+</div>
+<nav class="flex justify-center flex-wrap gap-sm bg-surface-container-high p-sm rounded-lg border border-outline-variant shadow-md mt-md">
+<button class="nav-btn flex-1 min-w-[100px] py-sm px-md rounded bg-primary-container text-on-primary-container font-medium text-[14px] leading-[20px] transition-colors hover:bg-primary/20 focus:outline-none" id="btn-study" onclick="switchTab('study')">📚 Study</button>
+<button class="nav-btn flex-1 min-w-[100px] py-sm px-md rounded bg-transparent text-on-surface-variant font-medium text-[14px] leading-[20px] transition-colors hover:bg-surface-container-highest focus:outline-none" id="btn-quiz" onclick="switchTab('quiz')">🧠 Quiz</button>
+<button class="nav-btn flex-1 min-w-[100px] py-sm px-md rounded bg-transparent text-on-surface-variant font-medium text-[14px] leading-[20px] transition-colors hover:bg-surface-container-highest focus:outline-none" id="btn-match" onclick="switchTab('match')">🎮 Match</button>
+</nav>
+</header>
+<main class="w-full max-w-[container-max] flex-1 relative">
+<section class="tab-content active" id="study">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg" id="study-grid">
+</div>
+</section>
+<section class="tab-content bg-surface-container rounded-xl p-lg border border-outline-variant shadow-lg" id="quiz">
+<div class="flex justify-between items-center mb-lg">
+<h2 class="text-[24px] leading-[32px] font-semibold text-primary">Knowledge Check</h2>
+<div class="text-[16px] leading-[24px] font-semibold bg-surface-container-highest py-xs px-md rounded-full border border-outline-variant">
+                    Score: <span class="text-primary" id="quiz-score">0</span> / <span id="quiz-total">0</span>
+</div>
+</div>
+<div id="quiz-container">
+<p class="text-[18px] leading-[28px] font-medium text-on-surface mb-lg text-center min-h-[64px]" id="quiz-question"></p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md mb-lg" id="quiz-options">
+</div>
+<div class="text-center">
+<button class="hidden w-full sm:w-auto bg-primary-container hover:bg-primary/80 text-on-primary-container font-semibold py-md px-lg rounded transition-all transform hover:scale-[1.02] focus:outline-none" id="next-btn" onclick="nextQuestion()">
+                        Next Question ➔
+                    </button>
+</div>
+</div>
+<div class="hidden text-center py-xl" id="quiz-end">
+<h3 class="text-[32px] leading-[40px] font-semibold text-on-surface mb-md">Quiz Complete!</h3>
+<p class="text-[18px] leading-[28px] text-on-surface-variant mb-lg">Final Score: <span class="text-primary font-semibold" id="final-score"></span></p>
+<button class="bg-primary-container hover:bg-primary/80 text-on-primary-container font-semibold py-md px-lg rounded transition-all focus:outline-none shadow-md" onclick="initQuiz()">
+                    Retake Quiz ↺
+                </button>
+</div>
+</section>
+<section class="tab-content bg-surface-container rounded-xl p-md sm:p-lg border border-outline-variant shadow-lg" id="match">
+<div class="flex flex-col sm:flex-row justify-between items-center mb-lg gap-md">
+<div>
+<h2 class="text-[24px] leading-[32px] font-semibold text-primary">Term Matcher</h2>
+<p class="text-on-surface-variant text-[14px] leading-[20px] mt-xs">Match the English term (Left) with the Spanish term (Right)</p>
+</div>
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface py-sm px-md rounded transition-colors border border-outline" onclick="initMatchGame()">
+                    Reset Game ↺
+                </button>
+</div>
+<div class="hidden text-center py-xl mb-md bg-surface-container-lowest rounded-lg border border-secondary/30" id="match-victory">
+<h3 class="text-[32px] leading-[40px] font-semibold text-secondary mb-md">🎉 Perfect Match! 🎉</h3>
+<button class="mt-sm bg-secondary-container hover:bg-secondary/80 text-on-secondary-container font-semibold py-sm px-lg rounded transition-all focus:outline-none" onclick="initMatchGame()">
+                    Play Again
+                </button>
+</div>
+<div class="grid grid-cols-2 gap-sm sm:gap-lg relative" id="match-board">
+<div class="flex flex-col gap-sm" id="match-col-a">
+</div>
+<div class="flex flex-col gap-sm" id="match-col-b">
+</div>
+</div>
+</section>
+</main>
+<footer class="mt-xl text-on-surface-variant text-[12px] leading-[16px] font-medium text-center flex justify-between items-center max-w-[container-max] w-full px-md pb-md">
+<p>Created by Alexander Bacca, Gemini Pro and Perplexity Pro. 😎.</p>
+<a class="text-primary hover:text-primary-fixed transition-colors" href="https://www.alexanderbacca.com">← Return to Home</a>
+</footer>
+<script>
+        // --- DATA DICTIONARY ---
         const lunarData = [
             {
-                id: 'waxing', icon: '🌒',
-                phaseEn: 'Waxing Moon', phaseEs: 'Luna Creciente',
+                id: 'waxing',
+                icon: '🌒',
+                phaseEn: "Waxing Moon", 
+                phaseEs: "Luna Creciente",
                 activities: [
-                    { en: 'Grafting',                       es: 'Injertar' },
-                    { en: 'Planting Above-Ground Crops',    es: 'Sembrar cultivos de superficie' },
-                    { en: 'Haircut for growth',             es: 'Corte de cabello para estimular crecimiento' }
+                    { en: "Grafting", es: "Injertar" },
+                    { en: "Planting Above-Ground Crops", es: "Sembrar cultivos de superficie" },
+                    { en: "Haircut for growth", es: "Corte de cabello para estimular crecimiento" }
                 ]
             },
             {
-                id: 'full', icon: '🌕',
-                phaseEn: 'Full Moon', phaseEs: 'Luna Llena',
+                id: 'full',
+                icon: '🌕',
+                phaseEn: "Full Moon", 
+                phaseEs: "Luna Llena",
                 activities: [
-                    { en: 'Harvesting for moisture', es: 'Cosechar' }
+                    { en: "Harvesting for moisture", es: "Cosechar" }
                 ]
             },
             {
-                id: 'waning', icon: '🌘',
-                phaseEn: 'Waning Moon', phaseEs: 'Luna Menguante',
+                id: 'waning',
+                icon: '🌘',
+                phaseEn: "Waning Moon", 
+                phaseEs: "Luna Menguante",
                 activities: [
-                    { en: 'Pruning',                   es: 'Podar' },
-                    { en: 'Harvesting Timber',         es: 'Talar madera' },
-                    { en: 'Root Work & Soil Health',   es: 'Trabajo de raíces y suelo' },
-                    { en: 'Haircut to slow growth',   es: 'Corte de cabello para mantener el estilo' }
+                    { en: "Pruning", es: "Podar" },
+                    { en: "Harvesting Timber", es: "Talar madera" },
+                    { en: "Root Work & Soil Health", es: "Trabajo de raíces y suelo" },
+                    { en: "Haircut to slow growth", es: "Corte de cabello para mantener el estilo" }
                 ]
             },
             {
-                id: 'new', icon: '🌑',
-                phaseEn: 'New Moon', phaseEs: 'Luna Nueva',
+                id: 'new',
+                icon: '🌑',
+                phaseEn: "New Moon", 
+                phaseEs: "Luna Nueva",
                 activities: [
-                    { en: 'Maintenance and Pest Control', es: 'Mantenimiento y control de plagas' }
+                    { en: "Maintenance and Pest Control", es: "Mantenimiento y control de plagas" }
                 ]
             }
         ];
 
-        // ─── NAV ─────────────────────────────────────────────────────────────────
-        function switchTab(tabId) {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-transparent', 'text-slate-300');
-            });
-            const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.classList.remove('bg-transparent', 'text-slate-300');
-            activeBtn.classList.add('bg-blue-600', 'text-white');
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            if (tabId === 'quiz'  && quizQuestions.length === 0) initQuiz();
-            if (tabId === 'match' && document.getElementById('match-col-a').innerHTML === '') initMatchGame();
+        // --- AUDIO SYNTHESIS ---
+        let audioCtx = null;
+
+        function initAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
         }
 
-        // ─── STUDY ───────────────────────────────────────────────────────────────
+        function playFlipSound() {
+            initAudioCtx();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function playSuccessSound() {
+            initAudioCtx();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function playErrorSound() {
+            initAudioCtx();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.15);
+            
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        // --- REAL-TIME MOON PHASE CALCULATOR ---
+        function getActualMoonPhaseId() {
+            const today = new Date();
+            // Using a known reliable New Moon epoch (Jan 11, 2024 at 11:57 UTC)
+            const knownNewMoon = new Date('2024-01-11T11:57:00Z').getTime(); 
+            const lunarCycle = 29.53058867 * 24 * 60 * 60 * 1000; // Average synodic month in ms
+            
+            let diff = today.getTime() - knownNewMoon;
+            let daysIntoCycle = (diff % lunarCycle) / (24 * 60 * 60 * 1000);
+            
+            // Adjust for clocks set to dates before the epoch
+            if (daysIntoCycle < 0) {
+                daysIntoCycle += 29.53058867;
+            }
+
+            const fraction = daysIntoCycle / 29.53058867;
+
+            // Map standard astronomical fractions to the 4 broad phases in lunarData
+            if (fraction >= 0.95 || fraction < 0.05) return 'new';
+            if (fraction >= 0.05 && fraction < 0.45) return 'waxing';
+            if (fraction >= 0.45 && fraction < 0.55) return 'full';
+            return 'waning';
+        }
+
+        const currentPhaseId = getActualMoonPhaseId();
+
+        function renderCurrentPhaseBanner() {
+            const phaseObj = lunarData.find(p => p.id === currentPhaseId);
+            const banner = document.getElementById('dynamic-phase-banner');
+            
+            // Format today's date for display cleanly
+            const dateStr = new Date().toLocaleDateString(undefined, { 
+                month: 'short', day: 'numeric', year: 'numeric' 
+            });
+
+            if(banner && phaseObj) {
+                banner.innerHTML = `
+                    <div class="bg-surface-container border border-primary/40 rounded-full py-sm px-md sm:px-lg flex flex-wrap justify-center items-center gap-xs sm:gap-sm shadow-[0_0_15px_rgba(37,99,235,0.2)]">
+                        <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] leading-[16px] uppercase tracking-[0.05em] font-medium">Today's Moon:</span>
+                        <span class="text-[18px] sm:text-[24px] drop-shadow-sm anim-lunar-pulse">${phaseObj.icon}</span>
+                        <span class="text-primary font-semibold tracking-tight text-[14px] sm:text-[16px]">${phaseObj.phaseEn}</span>
+                        <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] leading-[16px] border-l border-outline-variant pl-xs sm:pl-sm">${dateStr}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-primary-container', 'text-on-primary-container');
+                btn.classList.add('bg-transparent', 'text-on-surface-variant');
+            });
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('bg-transparent', 'text-on-surface-variant');
+            activeBtn.classList.add('bg-primary-container', 'text-on-primary-container');
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            if(tabId === 'quiz' && quizQuestions.length === 0) initQuiz();
+            if(tabId === 'match' && document.getElementById('match-col-a').innerHTML === '') initMatchGame();
+        }
+
+        // --- STUDY SECTION LOGIC ---
         function renderStudyGuide() {
             const grid = document.getElementById('study-grid');
             let html = '';
+
             lunarData.forEach(phase => {
+                const isCurrent = phase.id === currentPhaseId;
+                const borderClass = isCurrent ? 'border-primary shadow-[0_0_20px_rgba(37,99,235,0.15)]' : 'border-outline-variant hover:border-outline';
+                const badgeHtml = isCurrent ? `<div class="absolute top-md right-md bg-primary-container text-on-primary-container text-[12px] leading-[16px] font-['JetBrains_Mono'] font-medium px-md py-xs rounded-full">Today</div>` : '';
+                const iconAnimClass = isCurrent ? 'anim-lunar-pulse' : 'anim-lunar-float';
+
                 let activitiesHtml = '';
                 phase.activities.forEach(act => {
                     activitiesHtml += `
-                        <li class="mb-3 p-3 bg-slate-900 rounded-lg border border-slate-700/50 hover:border-slate-600 transition-colors">
-                            <span class="block text-slate-200 font-medium">${act.en}</span>
-                            <span class="block text-blue-300 text-sm italic">${act.es}</span>
-                        </li>`;
+                        <li class="mb-sm p-sm bg-surface-container-low rounded border border-outline-variant hover:border-outline transition-colors">
+                            <span class="block text-on-surface font-medium text-[16px] leading-[24px]">${act.en}</span>
+                            <span class="block text-primary text-[14px] leading-[20px] italic">${act.es}</span>
+                        </li>
+                    `;
                 });
+
                 html += `
-                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg hover:shadow-xl transition-shadow relative overflow-hidden group">
-                        <div class="absolute -right-6 -top-6 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-500">${phase.icon}</div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="text-4xl drop-shadow-md">${phase.icon}</span>
+                    <div class="bg-surface-container p-lg rounded-xl border ${borderClass} shadow-md transition-all relative overflow-hidden group">
+                        ${badgeHtml}
+                        <div class="absolute -right-6 -top-6 text-[80px] opacity-[0.05] group-hover:scale-110 transition-transform duration-500">${phase.icon}</div>
+                        <div class="flex items-center gap-sm mb-md">
+                            <span class="text-[32px] drop-shadow-sm ${iconAnimClass}">${phase.icon}</span>
                             <div>
-                                <h3 class="text-xl font-bold text-slate-100">${phase.phaseEn}</h3>
-                                <h4 class="text-md text-blue-400 font-medium">${phase.phaseEs}</h4>
+                                <h3 class="text-[24px] leading-[32px] font-semibold text-on-surface">${phase.phaseEn}</h3>
+                                <h4 class="text-[18px] leading-[28px] text-primary font-medium">${phase.phaseEs}</h4>
                             </div>
                         </div>
-                        <div class="w-full h-px bg-slate-700 mb-4"></div>
-                        <h5 class="text-xs uppercase tracking-wider text-slate-400 mb-3 font-semibold">Associated Activities:</h5>
-                        <ul class="space-y-2">${activitiesHtml}</ul>
-                    </div>`;
+                        <div class="w-full h-px bg-outline-variant mb-md"></div>
+                        <h5 class="font-['JetBrains_Mono'] text-[12px] leading-[16px] uppercase tracking-[0.05em] text-on-surface-variant mb-sm font-medium">Associated Activities:</h5>
+                        <ul class="space-y-xs">
+                            ${activitiesHtml}
+                        </ul>
+                    </div>
+                `;
             });
+
             grid.innerHTML = html;
         }
 
-        // ─── QUIZ ────────────────────────────────────────────────────────────────
-        let quizQuestions = [], currentQuestionIndex = 0, score = 0, isAnswered = false;
+        // --- QUIZ SECTION LOGIC ---
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
 
         function generateQuizPool() {
             let pool = [];
             lunarData.forEach(phase => {
                 pool.push({ q: `What is the Spanish translation for "${phase.phaseEn}"?`, a: phase.phaseEs, type: 'phase' });
-                pool.push({ q: `Which moon phase is "${phase.phaseEs}" in English?`,       a: phase.phaseEn, type: 'phaseEn' });
+                pool.push({ q: `Which moon phase is "${phase.phaseEs}" in English?`, a: phase.phaseEn, type: 'phaseEn' });
             });
             lunarData.forEach(phase => {
                 phase.activities.forEach(act => {
                     pool.push({ q: `Which moon phase is perfect for "${act.en}"?`, a: phase.phaseEn, type: 'activity' });
                 });
             });
-            return shuffleArray(pool).slice(0, 8);
+            return shuffleArray(pool).slice(0, 8); 
         }
 
         function getOptions(correctAnswer, type) {
-            let options = new Set([correctAnswer]);
-            while (options.size < 4) {
-                let r = lunarData[Math.floor(Math.random() * lunarData.length)];
-                options.add(type === 'phase' ? r.phaseEs : r.phaseEn);
+            let options = new Set();
+            options.add(correctAnswer);
+            while(options.size < 4) {
+                let randomPhase = lunarData[Math.floor(Math.random() * lunarData.length)];
+                if(type === 'phase') options.add(randomPhase.phaseEs);
+                else options.add(randomPhase.phaseEn);
             }
             return shuffleArray(Array.from(options));
         }
@@ -328,38 +587,56 @@
         function loadQuestion() {
             isAnswered = false;
             document.getElementById('next-btn').classList.add('hidden');
-            const q = quizQuestions[currentQuestionIndex];
-            document.getElementById('quiz-question').innerText = q.q;
-            const container = document.getElementById('quiz-options');
-            container.innerHTML = '';
-            getOptions(q.a, q.type).forEach(opt => {
+            const questionData = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-question').innerText = questionData.q;
+            const options = getOptions(questionData.a, questionData.type);
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = 'quiz-option bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded-xl py-4 px-6 text-lg font-medium transition-all focus:outline-none shadow-sm flex items-center justify-center text-center min-h-[80px]';
+                btn.className = "quiz-option bg-surface-container-high hover:bg-surface-bright text-on-surface border border-outline-variant rounded p-md text-[16px] leading-[24px] font-medium transition-all";
                 btn.innerText = opt;
-                btn.onclick = () => handleAnswer(btn, opt === q.a);
-                container.appendChild(btn);
+                btn.onclick = () => handleAnswer(btn, opt === questionData.a);
+                optionsContainer.appendChild(btn);
             });
         }
 
         function handleAnswer(btn, isCorrect) {
             if (isAnswered) return;
             isAnswered = true;
-            document.querySelectorAll('.quiz-option').forEach(b => {
+            const allBtns = document.querySelectorAll('.quiz-option');
+            allBtns.forEach(b => {
                 b.disabled = true;
-                b.classList.remove('hover:bg-slate-600');
-                if (b.innerText === quizQuestions[currentQuestionIndex].a) b.classList.add('correct');
+                b.classList.remove('hover:bg-surface-bright');
+                if(b.innerText === quizQuestions[currentQuestionIndex].a) {
+                    b.classList.add('correct');
+                }
             });
-            if (isCorrect) { score++; updateScoreDisplay(); } else { btn.classList.add('wrong'); }
+
+            if (isCorrect) {
+                playSuccessSound();
+                score++;
+                updateScoreDisplay();
+            } else {
+                playErrorSound();
+                btn.classList.add('wrong');
+            }
             document.getElementById('next-btn').classList.remove('hidden');
         }
 
         function nextQuestion() {
             currentQuestionIndex++;
-            if (currentQuestionIndex < quizQuestions.length) loadQuestion();
-            else endQuiz();
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
         }
 
-        function updateScoreDisplay() { document.getElementById('quiz-score').innerText = score; }
+        function updateScoreDisplay() {
+            document.getElementById('quiz-score').innerText = score;
+        }
 
         function endQuiz() {
             document.getElementById('quiz-container').classList.add('hidden');
@@ -367,66 +644,126 @@
             document.getElementById('final-score').innerText = `${score} / ${quizQuestions.length}`;
         }
 
-        // ─── MATCH ───────────────────────────────────────────────────────────────
-        let matchPairs = [], selectedA = null, selectedB = null, matchedCount = 0, isAnimating = false;
+        // --- MATCHING GAME LOGIC ---
+        let matchPairs = [];
+        let selectedA = null;
+        let selectedB = null;
+        let matchedCount = 0;
+        let isAnimating = false;
 
         function initMatchGame() {
             document.getElementById('match-victory').classList.add('hidden');
             document.getElementById('match-board').classList.remove('hidden');
             document.getElementById('match-board').classList.add('grid');
-            selectedA = null; selectedB = null; matchedCount = 0; isAnimating = false;
-
-            let pool = [];
+            selectedA = null;
+            selectedB = null;
+            matchedCount = 0;
+            isAnimating = false;
+            
+            let pairsPool = [];
             lunarData.forEach(phase => {
-                pool.push({ id: `p_${phase.id}`, en: phase.phaseEn, es: phase.phaseEs });
-                phase.activities.forEach((act, i) => pool.push({ id: `a_${phase.id}_${i}`, en: act.en, es: act.es }));
+                pairsPool.push({ id: `p_${phase.id}`, en: phase.phaseEn, es: phase.phaseEs });
+                phase.activities.forEach((act, index) => {
+                    pairsPool.push({ id: `a_${phase.id}_${index}`, en: act.en, es: act.es });
+                });
             });
-            matchPairs = shuffleArray(pool).slice(0, 6);
 
-            renderMatchColumn('match-col-a', shuffleArray(matchPairs.map(p => ({ id: p.id, text: p.en }))), 'A');
-            renderMatchColumn('match-col-b', shuffleArray(matchPairs.map(p => ({ id: p.id, text: p.es }))), 'B');
+            matchPairs = shuffleArray(pairsPool).slice(0, 6);
+            let colA = matchPairs.map(p => ({ id: p.id, text: p.en }));
+            let colB = matchPairs.map(p => ({ id: p.id, text: p.es }));
+
+            colA = shuffleArray(colA);
+            colB = shuffleArray(colB);
+
+            renderMatchColumn('match-col-a', colA, 'A');
+            renderMatchColumn('match-col-b', colB, 'B');
         }
 
         function renderMatchColumn(containerId, items, colId) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             items.forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = 'match-btn w-full bg-slate-700 text-slate-200 border border-slate-600 rounded-lg p-3 sm:p-4 text-sm sm:text-base font-medium shadow-sm focus:outline-none flex items-center justify-center min-h-[60px] text-center leading-tight';
-                btn.innerText = item.text;
-                btn.dataset.id = item.id;
-                btn.dataset.col = colId;
-                btn.onclick = () => handleMatchClick(btn, item.id, colId);
-                container.appendChild(btn);
+                const wrapper = document.createElement('div');
+                wrapper.className = 'match-card-container';
+                
+                const inner = document.createElement('div');
+                inner.className = 'match-card-inner';
+                inner.dataset.id = item.id;
+                inner.dataset.col = colId;
+                inner.onclick = () => handleMatchClick(inner, item.id, colId);
+                
+                const front = document.createElement('div');
+                front.className = 'match-card-face match-card-front';
+                front.innerHTML = '✨'; // Decorative back of card
+                
+                const back = document.createElement('div');
+                back.className = 'match-card-face match-card-back';
+                back.innerText = item.text;
+                
+                inner.appendChild(front);
+                inner.appendChild(back);
+                wrapper.appendChild(inner);
+                container.appendChild(wrapper);
             });
         }
 
-        function handleMatchClick(btn, id, colId) {
-            if (isAnimating || btn.classList.contains('matched') || btn.classList.contains('selected')) return;
-            if (colId === 'A') { if (selectedA) selectedA.btn.classList.remove('selected'); selectedA = { btn, id }; }
-            else               { if (selectedB) selectedB.btn.classList.remove('selected'); selectedB = { btn, id }; }
-            btn.classList.add('selected');
-            if (selectedA && selectedB) checkMatch();
+        function handleMatchClick(cardInner, id, colId) {
+            if (isAnimating || cardInner.classList.contains('matched') || cardInner.classList.contains('selected')) return;
+
+            playFlipSound();
+
+            cardInner.classList.add('flipped');
+            cardInner.classList.add('selected');
+
+            if (colId === 'A') {
+                if(selectedA) {
+                    selectedA.card.classList.remove('selected', 'flipped');
+                }
+                selectedA = { card: cardInner, id };
+            } else {
+                if(selectedB) {
+                    selectedB.card.classList.remove('selected', 'flipped');
+                }
+                selectedB = { card: cardInner, id };
+            }
+
+            if (selectedA && selectedB) {
+                checkMatch();
+            }
         }
 
         function checkMatch() {
             isAnimating = true;
             const isMatch = selectedA.id === selectedB.id;
-            const btnA = selectedA.btn, btnB = selectedB.btn;
+            const cardA = selectedA.card;
+            const cardB = selectedB.card;
+
             if (isMatch) {
                 setTimeout(() => {
-                    btnA.classList.remove('selected'); btnB.classList.remove('selected');
-                    btnA.classList.add('matched');   btnB.classList.add('matched');
+                    cardA.classList.remove('selected');
+                    cardB.classList.remove('selected');
+                    cardA.classList.add('matched');
+                    cardB.classList.add('matched');
                     matchedCount++;
-                    if (matchedCount === matchPairs.length) setTimeout(() => showMatchVictory(), 400);
+                    
+                    if (matchedCount === matchPairs.length) {
+                        setTimeout(() => showMatchVictory(), 600);
+                    }
                     resetSelection();
-                }, 300);
+                }, 600);
             } else {
                 setTimeout(() => {
-                    btnA.classList.remove('selected'); btnB.classList.remove('selected');
-                    btnA.classList.add('incorrect'); btnB.classList.add('incorrect');
-                    setTimeout(() => { btnA.classList.remove('incorrect'); btnB.classList.remove('incorrect'); resetSelection(); }, 500);
-                }, 500);
+                    cardA.classList.remove('selected');
+                    cardB.classList.remove('selected');
+                    cardA.classList.add('incorrect');
+                    cardB.classList.add('incorrect');
+
+                    setTimeout(() => {
+                        cardA.classList.remove('incorrect', 'flipped');
+                        cardB.classList.remove('incorrect', 'flipped');
+                        resetSelection();
+                    }, 800);
+                }, 600);
             }
         }
 
@@ -436,65 +773,28 @@
             document.getElementById('match-victory').classList.remove('hidden');
         }
 
-        function resetSelection() { selectedA = null; selectedB = null; isAnimating = false; }
+        function resetSelection() {
+            selectedA = null;
+            selectedB = null;
+            isAnimating = false;
+        }
 
-        // ─── UTILS ───────────────────────────────────────────────────────────────
+        // --- UTILS ---
         function shuffleArray(array) {
-            let ci = array.length, ri;
-            while (ci !== 0) { ri = Math.floor(Math.random() * ci); ci--; [array[ci], array[ri]] = [array[ri], array[ci]]; }
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
             return array;
         }
 
-        function formatNiceDate(date) {
-            return date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        }
-
-        // ─── MOON PHASE MATH (4-PHASE VERSION) ──────────────────────────────────
-        function computeMoonInfo() {
-            const LUNAR_CYCLE  = 29.530588853;
-            const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14, 0));
-            const now          = new Date();
-            const msPerDay     = 1000 * 60 * 60 * 24;
-
-            const daysSinceKnownNewMoon = (now.getTime() - knownNewMoon.getTime()) / msPerDay;
-            let   cyclePositionDays     = daysSinceKnownNewMoon % LUNAR_CYCLE;
-            if (cyclePositionDays < 0) cyclePositionDays += LUNAR_CYCLE;
-            const currentFraction = cyclePositionDays / LUNAR_CYCLE;
-
-            // 4 phases:
-            // 0.00–0.25  -> New Moon (🌑)
-            // 0.25–0.50  -> Waxing Moon (🌒)
-            // 0.50–0.75  -> Full Moon (🌕)
-            // 0.75–1.00  -> Waning Moon (🌘)
-            let currentPhase;
-            if (currentFraction < 0.25) {
-                currentPhase = { name: 'New Moon',   emoji: '🌑', startFrac: 0.0 };
-            } else if (currentFraction < 0.5) {
-                currentPhase = { name: 'Waxing Moon', emoji: '🌒', startFrac: 0.25 };
-            } else if (currentFraction < 0.75) {
-                currentPhase = { name: 'Full Moon',   emoji: '🌕', startFrac: 0.5 };
-            } else {
-                currentPhase = { name: 'Waning Moon', emoji: '🌘', startFrac: 0.75 };
-            }
-
-            const segmentLength = LUNAR_CYCLE / 4;
-            const segmentIndex  = Math.floor(currentFraction * 4);
-            const segmentStartDays = segmentIndex * segmentLength;
-            const daysElapsed   = cyclePositionDays - segmentStartDays;
-            const phaseStartDate = new Date(now.getTime() - daysElapsed * msPerDay);
-
-            const todayStr      = now.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-            const phaseStartStr = formatNiceDate(phaseStartDate);
-
-            document.getElementById('moon-today-line').textContent      = `Today's Moon: ${currentPhase.emoji} ${currentPhase.name} — ${todayStr}`;
-            document.getElementById('moon-phase-start-line').textContent = `Phase started: ${phaseStartStr}`;
-        }
-
-        // ─── INIT ────────────────────────────────────────────────────────────────
+        // --- INITIALIZATION ---
         window.onload = () => {
+            renderCurrentPhaseBanner();
             renderStudyGuide();
-            computeMoonInfo();
         };
+
     </script>
-</body>
-</html>
+</body></html>
