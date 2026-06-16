@@ -419,78 +419,73 @@
             osc.stop(audioCtx.currentTime + 0.2);
         }
 
-        // --- REAL-TIME MOON PHASE CALCULATOR ---
-        // Anchor: New Moon on June 15, 2026 at 02:54 UTC (verified: lunaf.com)
-        const KNOWN_NEW_MOON = new Date('2026-06-15T02:54:00Z').getTime();
-        const LUNAR_CYCLE_MS = 29.53058867 * 24 * 60 * 60 * 1000;
-
-        function getMoonFraction() {
-            const diff = Date.now() - KNOWN_NEW_MOON;
-            return ((diff % LUNAR_CYCLE_MS) + LUNAR_CYCLE_MS) % LUNAR_CYCLE_MS / LUNAR_CYCLE_MS;
-        }
-
+                // --- REAL-TIME MOON PHASE CALCULATOR ---
+        // New Moon anchor: June 15, 2026 at 02:54 UTC (source: lunaf.com)
         function getActualMoonPhaseId() {
-            const f = getMoonFraction();
-            if (f >= 0.95 || f < 0.05) return 'new';
-            if (f >= 0.05 && f < 0.45) return 'waxing';
-            if (f >= 0.45 && f < 0.55) return 'full';
+            const today = new Date();
+            const knownNewMoon = new Date('2026-06-15T02:54:00Z').getTime();
+            const lunarCycle = 29.53058867 * 24 * 60 * 60 * 1000;
+            const diff = today.getTime() - knownNewMoon;
+            const cycleRemainder = ((diff % lunarCycle) + lunarCycle) % lunarCycle;
+            const fraction = cycleRemainder / lunarCycle;
+            if (fraction >= 0.95 || fraction < 0.05) return 'new';
+            if (fraction >= 0.05 && fraction < 0.45) return 'waxing';
+            if (fraction >= 0.45 && fraction < 0.55) return 'full';
             return 'waning';
         }
 
         function getPhaseStartDate() {
-            const f = getMoonFraction();
-            const cycleRemainder = ((Date.now() - KNOWN_NEW_MOON) % LUNAR_CYCLE_MS + LUNAR_CYCLE_MS) % LUNAR_CYCLE_MS;
-            const recentNewMoon = Date.now() - cycleRemainder;
-            let startMs;
-            if (f >= 0.95 || f < 0.05) {
-                startMs = recentNewMoon - 0.05 * LUNAR_CYCLE_MS;
-            } else if (f < 0.45) {
-                startMs = recentNewMoon + 0.05 * LUNAR_CYCLE_MS;
-            } else if (f < 0.55) {
-                startMs = recentNewMoon + 0.45 * LUNAR_CYCLE_MS;
+            const today = new Date();
+            const knownNewMoon = new Date('2026-06-15T02:54:00Z').getTime();
+            const lunarCycle = 29.53058867 * 24 * 60 * 60 * 1000;
+            const diff = today.getTime() - knownNewMoon;
+            const cycleRemainder = ((diff % lunarCycle) + lunarCycle) % lunarCycle;
+            const fraction = cycleRemainder / lunarCycle;
+            const recentNewMoon = today.getTime() - cycleRemainder;
+            let phaseStartMs;
+            if (fraction >= 0.95 || fraction < 0.05) {
+                phaseStartMs = recentNewMoon - 0.05 * lunarCycle;
+            } else if (fraction >= 0.05 && fraction < 0.45) {
+                phaseStartMs = recentNewMoon + 0.05 * lunarCycle;
+            } else if (fraction >= 0.45 && fraction < 0.55) {
+                phaseStartMs = recentNewMoon + 0.45 * lunarCycle;
             } else {
-                startMs = recentNewMoon + 0.55 * LUNAR_CYCLE_MS;
+                phaseStartMs = recentNewMoon + 0.55 * lunarCycle;
             }
-            return new Date(startMs);
+            return new Date(phaseStartMs);
         }
 
         const currentPhaseId = getActualMoonPhaseId();
 
-        // --- BANNER (runs exactly once, guarded by flag) ---
-        let bannerRendered = false;
         function renderCurrentPhaseBanner() {
-            if (bannerRendered) return;
-            bannerRendered = true;
-
             const phaseObj = lunarData.find(p => p.id === currentPhaseId);
             const banner = document.getElementById('dynamic-phase-banner');
-            if (!banner || !phaseObj) return;
-
             const dateStr = new Date().toLocaleDateString('en-US', {
                 month: 'long', day: 'numeric', year: 'numeric'
             });
             const phaseStartStr = getPhaseStartDate().toLocaleDateString('en-US', {
                 weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
             });
-
-            banner.innerHTML = `
-                <div class="bg-surface-container border border-primary/40 rounded-xl py-sm px-md sm:px-lg flex flex-col items-center gap-xs shadow-[0_0_15px_rgba(37,99,235,0.2)]">
-                    <div class="flex flex-wrap justify-center items-center gap-sm">
-                        <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] leading-[16px] uppercase tracking-[0.05em] font-medium">Today's Moon</span>
-                        <span class="text-on-surface-variant text-[12px]">·</span>
-                        <span class="text-[20px] sm:text-[24px] drop-shadow-sm anim-lunar-pulse">${phaseObj.icon}</span>
-                        <span class="text-primary font-semibold tracking-tight text-[14px] sm:text-[16px]">${phaseObj.phaseEn}</span>
-                        <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] leading-[16px] border-l border-outline-variant pl-sm">${dateStr}</span>
+            if (banner && phaseObj) {
+                banner.innerHTML = `
+                    <div class="bg-surface-container border border-primary/40 rounded-xl py-sm px-md sm:px-lg flex flex-col items-center gap-xs shadow-[0_0_15px_rgba(37,99,235,0.2)]">
+                        <div class="flex flex-wrap justify-center items-center gap-sm">
+                            <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] leading-[16px] uppercase tracking-[0.05em] font-medium">Today's Moon</span>
+                            <span class="text-on-surface-variant text-[12px]">·</span>
+                            <span class="text-[20px] sm:text-[24px] drop-shadow-sm anim-lunar-pulse">${phaseObj.icon}</span>
+                            <span class="text-primary font-semibold tracking-tight text-[14px] sm:text-[16px]">${phaseObj.phaseEn}</span>
+                            <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] leading-[16px] border-l border-outline-variant pl-sm">${dateStr}</span>
+                        </div>
+                        <div class="flex flex-wrap justify-center items-center gap-xs text-on-surface-variant font-['JetBrains_Mono'] text-[11px] leading-[16px]">
+                            <span class="uppercase tracking-[0.05em]">Phase started</span>
+                            <span>·</span>
+                            <span>${phaseStartStr}</span>
+                        </div>
                     </div>
-                    <div class="flex flex-wrap justify-center items-center gap-xs text-on-surface-variant font-['JetBrains_Mono'] text-[11px] leading-[16px]">
-                        <span class="uppercase tracking-[0.05em]">Phase started</span>
-                        <span>·</span>
-                        <span>${phaseStartStr}</span>
-                    </div>
-                </div>
-            `;
+                `;
+            }
         }
-
+        
         // --- NAVIGATION LOGIC ---
         function switchTab(tabId) {
             document.querySelectorAll('.nav-btn').forEach(btn => {
