@@ -133,6 +133,66 @@
       line-height: 1.6;
     }
 
+    /* Color-coded player input rows */
+    .color-player-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .color-swatch {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      border: 3px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .color-label-wrap {
+      flex: 0 0 110px;
+    }
+
+    .color-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .color-label-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .color-input {
+      flex: 1;
+      width: 100%;
+      border: 2px solid transparent;
+      background: rgba(5, 12, 10, 0.75);
+      color: white;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .color-input::placeholder {
+      color: rgba(255,255,255,0.22);
+      font-style: italic;
+    }
+
+    .color-input:focus {
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+    }
+
+    .color-input.has-value {
+      border-color: var(--row-color);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--row-color) 20%, transparent);
+    }
+
     label {
       display: block;
       margin-bottom: 8px;
@@ -324,6 +384,32 @@
       color: var(--muted);
     }
 
+    .ready-players-list {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ready-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .ready-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
     @media (max-width: 920px) {
       .grid { grid-template-columns: 1fr; }
     }
@@ -334,6 +420,7 @@
       .stats, .action-row { grid-template-columns: 1fr; }
       .player-row, .log-row { flex-direction: column; align-items: flex-start; }
       .balance { text-align: left; }
+      .color-label-wrap { flex: 0 0 90px; }
     }
   </style>
 </head>
@@ -343,8 +430,8 @@
       <p class="eyebrow">Monopoly Bank</p>
       <h1>Simple game banker</h1>
       <p class="subtitle">
-        Choose the number of players, enter their names, start the game with $1500 each,
-        and manage every payment or deposit during the match.
+        Enter your name next to your color token — only filled slots will join the game.
+        Each player starts with $1500.
       </p>
       <div class="top-actions">
         <a class="btn btn-secondary" href="index.html">← Back to home</a>
@@ -354,21 +441,12 @@
 
     <section id="setupView" class="grid">
       <div class="card">
-        <h2 class="section-title">Players setup</h2>
-        <p class="section-text">Select how many players will participate and type their names.</p>
+        <h2 class="section-title">Choose your color</h2>
+        <p class="section-text">
+          Type your name next to your color token. Leave it blank if that color won't play.
+        </p>
 
-        <label for="numPlayers">Number of players</label>
-        <select id="numPlayers">
-          <option value="2">2 players</option>
-          <option value="3">3 players</option>
-          <option value="4" selected>4 players</option>
-          <option value="5">5 players</option>
-          <option value="6">6 players</option>
-          <option value="7">7 players</option>
-          <option value="8">8 players</option>
-        </select>
-
-        <div id="playerNameFields"></div>
+        <div id="playerColorFields"></div>
       </div>
 
       <div class="card">
@@ -378,7 +456,8 @@
         <div class="start-box">
           <div class="eyebrow" style="margin-bottom: 0;">Starting cash</div>
           <div class="cash">$1500</div>
-          <div style="color: var(--muted);" id="readyText">Ready for 4 players.</div>
+          <div style="color: var(--muted);" id="readyText">No players yet.</div>
+          <div id="readyPlayersList" class="ready-players-list"></div>
         </div>
 
         <button id="startGameBtn" class="btn btn-primary" style="width: 100%; margin-top: 18px;" type="button">
@@ -441,34 +520,45 @@
 
   <script>
     const STARTING_CASH = 1500;
-    const PLAYER_COLORS = ['#f43f5e', '#3b82f6', '#10b981', '#fbbf24', '#a855f7', '#f97316', '#14b8a6', '#ec4899'];
+
+    const PLAYER_SLOTS = [
+      { color: '#f43f5e', name: 'Red',          label: 'Player 1' },
+      { color: '#4ade80', name: 'Light Green',  label: 'Player 2' },
+      { color: '#3b82f6', name: 'Blue',         label: 'Player 3' },
+      { color: '#fbbf24', name: 'Yellow',       label: 'Player 4' },
+      { color: '#a855f7', name: 'Purple',       label: 'Player 5' },
+      { color: '#f97316', name: 'Orange',       label: 'Player 6' },
+      { color: '#14b8a6', name: 'Teal',         label: 'Player 7' },
+      { color: '#ec4899', name: 'Pink',         label: 'Player 8' },
+    ];
 
     let gameState = 'SETUP';
-    let numPlayers = 4;
-    let playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
     let players = [];
     let logs = [];
     let selectedPlayerId = null;
 
-    const setupView = document.getElementById('setupView');
-    const gameView = document.getElementById('gameView');
-    const numPlayersSelect = document.getElementById('numPlayers');
-    const playerNameFields = document.getElementById('playerNameFields');
-    const readyText = document.getElementById('readyText');
-    const startGameBtn = document.getElementById('startGameBtn');
+    // Track live input values
+    const slotValues = PLAYER_SLOTS.map(() => '');
+
+    const setupView     = document.getElementById('setupView');
+    const gameView      = document.getElementById('gameView');
+    const playerColorFields = document.getElementById('playerColorFields');
+    const readyText     = document.getElementById('readyText');
+    const readyPlayersList = document.getElementById('readyPlayersList');
+    const startGameBtn  = document.getElementById('startGameBtn');
     const newGameTopBtn = document.getElementById('newGameTopBtn');
 
-    const playersCount = document.getElementById('playersCount');
-    const totalMoney = document.getElementById('totalMoney');
-    const playersList = document.getElementById('playersList');
+    const playersCount  = document.getElementById('playersCount');
+    const totalMoney    = document.getElementById('totalMoney');
+    const playersList   = document.getElementById('playersList');
 
-    const selectedPlayerName = document.getElementById('selectedPlayerName');
+    const selectedPlayerName    = document.getElementById('selectedPlayerName');
     const selectedPlayerBalance = document.getElementById('selectedPlayerBalance');
-    const amountInput = document.getElementById('amountInput');
-    const reasonInput = document.getElementById('reasonInput');
-    const receiveBtn = document.getElementById('receiveBtn');
-    const payBtn = document.getElementById('payBtn');
-    const historyList = document.getElementById('historyList');
+    const amountInput   = document.getElementById('amountInput');
+    const reasonInput   = document.getElementById('reasonInput');
+    const receiveBtn    = document.getElementById('receiveBtn');
+    const payBtn        = document.getElementById('payBtn');
+    const historyList   = document.getElementById('historyList');
 
     function formatMoney(value) {
       return '$' + Number(value).toLocaleString('en-US');
@@ -479,53 +569,83 @@
     }
 
     function addLog(text) {
-      logs.unshift({
-        id: Date.now() + Math.random(),
-        text,
-        time: currentTime()
-      });
+      logs.unshift({ id: Date.now() + Math.random(), text, time: currentTime() });
       renderLogs();
     }
 
-    function syncPlayerNamesLength() {
-      if (playerNames.length < numPlayers) {
-        for (let i = playerNames.length; i < numPlayers; i++) {
-          playerNames.push(`Player ${i + 1}`);
-        }
-      } else if (playerNames.length > numPlayers) {
-        playerNames = playerNames.slice(0, numPlayers);
-      }
+    function getActivePlayers() {
+      return PLAYER_SLOTS
+        .map((slot, i) => ({ slot, name: slotValues[i].trim(), index: i }))
+        .filter(p => p.name.length > 0);
     }
 
-    function renderSetupFields() {
-      syncPlayerNamesLength();
-      readyText.textContent = `Ready for ${numPlayers} players.`;
+    function updateReadyPanel() {
+      const active = getActivePlayers();
+      readyText.textContent = active.length === 0
+        ? 'No players yet.'
+        : `Ready: ${active.length} player${active.length > 1 ? 's' : ''}.`;
 
-      playerNameFields.innerHTML = '';
-      for (let i = 0; i < numPlayers; i++) {
-        const wrap = document.createElement('div');
-        wrap.innerHTML = `
-          <label for="player-name-${i}">Player ${i + 1} name</label>
-          <input id="player-name-${i}" type="text" value="${playerNames[i].replace(/"/g, '&quot;')}" placeholder="Player ${i + 1}" />
+      readyPlayersList.innerHTML = '';
+      active.forEach(p => {
+        const pill = document.createElement('div');
+        pill.className = 'ready-pill';
+        pill.innerHTML = `
+          <span class="ready-dot" style="background:${p.slot.color};"></span>
+          <span style="color:${p.slot.color};">${p.slot.name}</span>
+          <span style="color:var(--muted);">—</span>
+          <span>${p.name}</span>
         `;
-        playerNameFields.appendChild(wrap);
+        readyPlayersList.appendChild(pill);
+      });
+    }
 
-        const input = wrap.querySelector('input');
+    function buildSetupFields() {
+      playerColorFields.innerHTML = '';
+      PLAYER_SLOTS.forEach((slot, i) => {
+        const row = document.createElement('div');
+        row.className = 'color-player-row';
+        row.style.setProperty('--row-color', slot.color);
+
+        row.innerHTML = `
+          <span class="color-swatch" style="background:${slot.color};"></span>
+          <div class="color-label-wrap">
+            <div class="color-label" style="color:${slot.color};">${slot.name}</div>
+            <div class="color-label-sub">${slot.label}</div>
+          </div>
+          <input
+            class="color-input"
+            id="slot-input-${i}"
+            type="text"
+            placeholder="Enter name to join..."
+            autocomplete="off"
+          />
+        `;
+
+        const input = row.querySelector('input');
+        input.style.setProperty('--row-color', slot.color);
+
         input.addEventListener('input', (e) => {
-          playerNames[i] = e.target.value;
+          slotValues[i] = e.target.value;
+          if (e.target.value.trim().length > 0) {
+            input.classList.add('has-value');
+          } else {
+            input.classList.remove('has-value');
+          }
+          updateReadyPanel();
         });
-      }
+
+        playerColorFields.appendChild(row);
+      });
     }
 
     function renderStats() {
       playersCount.textContent = players.length;
-      const total = players.reduce((sum, player) => sum + player.balance, 0);
+      const total = players.reduce((sum, p) => sum + p.balance, 0);
       totalMoney.textContent = formatMoney(total);
     }
 
     function renderPlayers() {
       playersList.innerHTML = '';
-
       players.forEach((player) => {
         const selected = player.id === selectedPlayerId;
         const card = document.createElement('button');
@@ -562,7 +682,6 @@
         selectedPlayerBalance.textContent = 'Current balance: --';
         return;
       }
-
       selectedPlayerName.textContent = player.name;
       selectedPlayerBalance.textContent = `Current balance: ${formatMoney(player.balance)}`;
     }
@@ -573,7 +692,6 @@
         historyList.innerHTML = `<div class="empty">No transactions yet.</div>`;
         return;
       }
-
       logs.forEach((log) => {
         const item = document.createElement('div');
         item.className = 'log-item';
@@ -595,22 +713,27 @@
     }
 
     function startGame() {
-      syncPlayerNamesLength();
+      const active = getActivePlayers();
+      if (active.length < 1) {
+        alert('Please enter at least one player name to start the game.');
+        return;
+      }
 
-      players = Array.from({ length: numPlayers }).map((_, index) => ({
-        id: index,
-        name: (playerNames[index] || `Player ${index + 1}`).trim() || `Player ${index + 1}`,
+      players = active.map((p, idx) => ({
+        id: idx,
+        name: p.name,
         balance: STARTING_CASH,
-        color: PLAYER_COLORS[index % PLAYER_COLORS.length]
+        color: p.slot.color,
+        colorName: p.slot.name
       }));
 
       logs = [{
         id: Date.now(),
-        text: `Game started. ${players.length} players received ${formatMoney(STARTING_CASH)} each.`,
+        text: `Game started. ${players.length} player${players.length > 1 ? 's' : ''} received ${formatMoney(STARTING_CASH)} each.`,
         time: currentTime()
       }];
 
-      selectedPlayerId = players[0] ? players[0].id : null;
+      selectedPlayerId = players[0].id;
       gameState = 'GAME';
 
       setupView.classList.add('hidden');
@@ -632,19 +755,24 @@
       logs = [];
       selectedPlayerId = null;
 
+      // Clear slot values and inputs
+      PLAYER_SLOTS.forEach((_, i) => {
+        slotValues[i] = '';
+        const inp = document.getElementById(`slot-input-${i}`);
+        if (inp) { inp.value = ''; inp.classList.remove('has-value'); }
+      });
+
       gameView.classList.add('hidden');
       setupView.classList.remove('hidden');
       newGameTopBtn.classList.add('hidden');
 
-      renderSetupFields();
+      updateReadyPanel();
     }
 
     function applyTransaction(type) {
       if (selectedPlayerId === null) return;
-
       const amount = Number(amountInput.value);
       if (!Number.isFinite(amount) || amount <= 0) return;
-
       const player = players.find((p) => p.id === selectedPlayerId);
       if (!player) return;
 
@@ -661,17 +789,13 @@
       renderGame();
     }
 
-    numPlayersSelect.addEventListener('change', (e) => {
-      numPlayers = Number(e.target.value);
-      renderSetupFields();
-    });
-
     startGameBtn.addEventListener('click', startGame);
     newGameTopBtn.addEventListener('click', resetGame);
     receiveBtn.addEventListener('click', () => applyTransaction('receive'));
     payBtn.addEventListener('click', () => applyTransaction('pay'));
 
-    renderSetupFields();
+    buildSetupFields();
+    updateReadyPanel();
   </script>
 </body>
 </html>
