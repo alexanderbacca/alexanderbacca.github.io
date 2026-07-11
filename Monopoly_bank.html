@@ -29,8 +29,7 @@
     * { box-sizing: border-box; }
 
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: 'Inter', sans-serif;
       background:
         radial-gradient(circle at top, rgba(34,197,94,0.15), transparent 30%),
@@ -55,10 +54,7 @@
       box-shadow: var(--shadow);
     }
 
-    .hero {
-      padding: 28px;
-      margin-bottom: 24px;
-    }
+    .hero { padding: 28px; margin-bottom: 24px; }
 
     .eyebrow {
       color: var(--accent);
@@ -69,333 +65,151 @@
       font-weight: 700;
     }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      line-height: 1.05;
-    }
+    h1 { margin: 0; font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.05; }
 
-    .subtitle {
-      margin-top: 12px;
-      max-width: 700px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
+    .subtitle { margin-top: 12px; max-width: 700px; color: var(--muted); line-height: 1.65; }
 
-    .top-actions {
-      margin-top: 22px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+    .top-actions { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; }
 
     .btn {
-      border: 0;
-      cursor: pointer;
-      border-radius: 18px;
-      padding: 14px 18px;
-      font-weight: 700;
-      font-size: 0.95rem;
+      border: 0; cursor: pointer; border-radius: 18px; padding: 14px 18px;
+      font-weight: 700; font-size: 0.95rem;
       transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
     }
-
     .btn:hover { transform: translateY(-1px); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #07110d;
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #07110d; }
+    .btn-secondary { background: rgba(255,255,255,0.06); color: white; border: 1px solid var(--border); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-transfer {
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      color: #1a0a00;
+      width: 100%;
+      margin-top: 4px;
     }
 
-    .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: white;
-      border: 1px solid var(--border);
-    }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+    .card { padding: 24px; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 24px;
-    }
-
-    .card {
-      padding: 24px;
-    }
-
-    .section-title {
-      margin: 0 0 8px;
-      font-size: 1.3rem;
-    }
-
-    .section-text {
-      margin: 0 0 18px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .section-title { margin: 0 0 8px; font-size: 1.3rem; }
+    .section-text { margin: 0 0 18px; color: var(--muted); line-height: 1.6; }
 
     /* Color-coded player input rows */
-    .color-player-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
+    .color-player-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
     .color-swatch {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      flex: 0 0 auto;
-      border: 3px solid rgba(255,255,255,0.18);
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto;
+      border: 3px solid rgba(255,255,255,0.18); box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
-
-    .color-label-wrap {
-      flex: 0 0 110px;
-    }
-
-    .color-label {
-      font-size: 0.88rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .color-label-sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 1px;
-    }
-
+    .color-label-wrap { flex: 0 0 110px; }
+    .color-label { font-size: 0.88rem; font-weight: 700; letter-spacing: 0.04em; }
+    .color-label-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
     .color-input {
-      flex: 1;
-      width: 100%;
-      border: 2px solid transparent;
-      background: rgba(5, 12, 10, 0.75);
-      color: white;
-      border-radius: 14px;
-      padding: 11px 14px;
-      font-size: 0.95rem;
-      outline: none;
+      flex: 1; width: 100%; border: 2px solid transparent;
+      background: rgba(5, 12, 10, 0.75); color: white; border-radius: 14px;
+      padding: 11px 14px; font-size: 0.95rem; outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .color-input::placeholder {
-      color: rgba(255,255,255,0.22);
-      font-style: italic;
-    }
-
-    .color-input:focus {
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
-    }
-
+    .color-input::placeholder { color: rgba(255,255,255,0.22); font-style: italic; }
+    .color-input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,0.08); }
     .color-input.has-value {
       border-color: var(--row-color);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--row-color) 20%, transparent);
     }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #d6efe3;
-    }
+    label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: 600; color: #d6efe3; }
 
     input, select {
       width: 100%;
       border: 1px solid var(--border);
       background: rgba(5, 12, 10, 0.75);
-      color: white;
-      border-radius: 18px;
-      padding: 14px 16px;
-      font-size: 1rem;
-      outline: none;
-      margin-bottom: 16px;
+      color: white; border-radius: 18px; padding: 14px 16px;
+      font-size: 1rem; outline: none; margin-bottom: 16px;
     }
-
     input:focus, select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
     }
+    select option { background: #0b1612; color: white; }
 
-    select option {
-      background: #0b1612;
-      color: white;
+    /* Divider between bank section and transfer section */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 22px 0 20px;
     }
+
+    .transfer-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #f97316;
+      margin: 0 0 14px;
+    }
+
+    /* Fine to player row: amount input + player dropdown side by side */
+    .fine-row {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .fine-row input, .fine-row select { margin-bottom: 0; }
 
     .start-box {
       border: 1px solid rgba(74,222,128,0.25);
       background: rgba(74,222,128,0.08);
-      border-radius: 24px;
-      padding: 24px;
-      margin-top: 18px;
+      border-radius: 24px; padding: 24px; margin-top: 18px;
     }
-
-    .cash {
-      color: var(--accent);
-      font-size: 3.2rem;
-      font-weight: 800;
-      margin: 8px 0;
-    }
-
+    .cash { color: var(--accent); font-size: 3.2rem; font-weight: 800; margin: 8px 0; }
     .hidden { display: none !important; }
 
-    .players-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 16px;
-    }
+    .players-list { display: grid; gap: 14px; margin-top: 16px; }
 
     .player-card {
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      padding: 18px;
-      cursor: pointer;
+      border-radius: 24px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04); padding: 18px; cursor: pointer;
       transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
     }
-
     .player-card:hover { transform: translateY(-1px); }
-
     .player-card.selected {
       border-color: var(--player-color, var(--accent));
       background: color-mix(in srgb, var(--player-color, #4ade80) 10%, rgba(255,255,255,0.04));
     }
 
-    .player-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .player-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      background: var(--player-color, var(--accent));
-      flex: 0 0 auto;
-    }
-
-    .player-name {
-      font-size: 1.05rem;
-      font-weight: 700;
-    }
-
-    .player-note, .balance-label {
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .balance {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: var(--player-color, var(--accent));
-      text-align: right;
-    }
+    .player-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .player-meta { display: flex; align-items: center; gap: 12px; }
+    .dot { width: 14px; height: 14px; border-radius: 999px; background: var(--player-color, var(--accent)); flex: 0 0 auto; }
+    .player-name { font-size: 1.05rem; font-weight: 700; }
+    .player-note, .balance-label { color: var(--muted); font-size: 0.85rem; }
+    .balance { font-size: 1.7rem; font-weight: 800; color: var(--player-color, var(--accent)); text-align: right; }
 
     .selected-box {
-      border: 1px solid var(--border);
-      background: rgba(5, 12, 10, 0.55);
-      border-radius: 20px;
-      padding: 16px;
-      margin-bottom: 16px;
+      border: 1px solid var(--border); background: rgba(5, 12, 10, 0.55);
+      border-radius: 20px; padding: 16px; margin-bottom: 16px;
     }
+    .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
 
-    .action-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 8px;
-    }
+    .history { margin-top: 18px; max-height: 420px; overflow: auto; display: grid; gap: 12px; }
+    .log-item { border: 1px solid var(--border); background: rgba(255,255,255,0.04); border-radius: 18px; padding: 14px 16px; }
+    .log-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .log-text { color: #e7fff3; line-height: 1.5; font-size: 0.95rem; }
+    .log-time { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
 
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
+    .empty { border: 1px dashed var(--border); background: rgba(255,255,255,0.03); border-radius: 18px; padding: 18px; color: var(--muted); }
 
-    .history {
-      margin-top: 18px;
-      max-height: 420px;
-      overflow: auto;
-      display: grid;
-      gap: 12px;
-    }
-
-    .log-item {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.04);
-      border-radius: 18px;
-      padding: 14px 16px;
-    }
-
-    .log-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .log-text {
-      color: #e7fff3;
-      line-height: 1.5;
-      font-size: 0.95rem;
-    }
-
-    .log-time {
-      color: var(--muted);
-      font-size: 0.78rem;
-      white-space: nowrap;
-    }
-
-    .empty {
-      border: 1px dashed var(--border);
-      background: rgba(255,255,255,0.03);
-      border-radius: 18px;
-      padding: 18px;
-      color: var(--muted);
-    }
-
-    .ready-players-list {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
+    .ready-players-list { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
     .ready-pill {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      font-size: 0.88rem;
-      font-weight: 600;
+      display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+      border-radius: 999px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1); font-size: 0.88rem; font-weight: 600;
     }
+    .ready-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
 
-    .ready-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex: 0 0 auto;
-    }
-
-    @media (max-width: 920px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-
+    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
     @media (max-width: 640px) {
       .container { width: min(100% - 20px, 1120px); }
       .hero, .card { padding: 18px; }
-      .action-row { grid-template-columns: 1fr; }
+      .action-row, .fine-row { grid-template-columns: 1fr; }
       .player-row, .log-row { flex-direction: column; align-items: flex-start; }
       .balance { text-align: left; }
       .color-label-wrap { flex: 0 0 90px; }
@@ -417,50 +231,46 @@
       </div>
     </section>
 
+    <!-- SETUP -->
     <section id="setupView" class="grid">
       <div class="card">
         <h2 class="section-title">Choose your color</h2>
-        <p class="section-text">
-          Type your name next to your color token. Leave it blank if that color won't play.
-        </p>
+        <p class="section-text">Type your name next to your color token. Leave it blank if that color won’t play.</p>
         <div id="playerColorFields"></div>
       </div>
-
       <div class="card">
         <h2 class="section-title">Game start</h2>
         <p class="section-text">Each player begins with the official Monopoly starting cash.</p>
-
         <div class="start-box">
-          <div class="eyebrow" style="margin-bottom: 0;">Starting cash</div>
+          <div class="eyebrow" style="margin-bottom:0;">Starting cash</div>
           <div class="cash">$1500</div>
-          <div style="color: var(--muted);" id="readyText">No players yet.</div>
+          <div style="color:var(--muted);" id="readyText">No players yet.</div>
           <div id="readyPlayersList" class="ready-players-list"></div>
         </div>
-
-        <button id="startGameBtn" class="btn btn-primary" style="width: 100%; margin-top: 18px;" type="button">
-          Start game
-        </button>
+        <button id="startGameBtn" class="btn btn-primary" style="width:100%;margin-top:18px;" type="button">Start game</button>
       </div>
     </section>
 
+    <!-- GAME -->
     <section id="gameView" class="grid hidden">
-      <!-- Left: players list only, no stats bar -->
+
+      <!-- Left: players list -->
       <div class="card">
         <h2 class="section-title">Players</h2>
         <p class="section-text">Select a player to manage their balance.</p>
         <div id="playersList" class="players-list"></div>
       </div>
 
-      <!-- Right: bank actions + history -->
+      <!-- Right: bank actions + player transfer + history -->
       <div>
         <div class="card">
           <h2 class="section-title">Bank actions</h2>
-          <p class="section-text">Use the bank to add or subtract money from the selected player.</p>
+          <p class="section-text">Add or subtract money from the selected player via the bank.</p>
 
           <div class="selected-box">
             <div class="balance-label">Selected player</div>
-            <div id="selectedPlayerName" style="font-size: 1.5rem; font-weight: 800; margin-top: 8px;">No player selected</div>
-            <div id="selectedPlayerBalance" class="player-note" style="margin-top: 6px;">Current balance: --</div>
+            <div id="selectedPlayerName" style="font-size:1.5rem;font-weight:800;margin-top:8px;">No player selected</div>
+            <div id="selectedPlayerBalance" class="player-note" style="margin-top:6px;">Current balance: --</div>
           </div>
 
           <label for="amountInput">Amount</label>
@@ -479,9 +289,28 @@
             <button id="receiveBtn" class="btn btn-primary" type="button">Receive money</button>
             <button id="payBtn" class="btn btn-danger" type="button">Spend money</button>
           </div>
+
+          <!-- Player-to-player transfer -->
+          <hr class="section-divider" />
+          <div class="transfer-title">🏠 Fine to step on properties or services</div>
+
+          <div class="fine-row">
+            <div>
+              <label for="fineAmount">Amount to pay</label>
+              <input id="fineAmount" type="number" min="1" placeholder="e.g. 200" />
+            </div>
+            <div>
+              <label for="fineTarget">Pay to player</label>
+              <select id="fineTarget">
+                <option value="">— Choose player —</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="finePayBtn" class="btn btn-transfer" type="button">💸 Pay</button>
         </div>
 
-        <div class="card" style="margin-top: 18px;">
+        <div class="card" style="margin-top:18px;">
           <h2 class="section-title">History</h2>
           <p class="section-text">Every transaction is recorded here.</p>
           <div id="historyList" class="history"></div>
@@ -527,13 +356,13 @@
     const payBtn                = document.getElementById('payBtn');
     const historyList           = document.getElementById('historyList');
 
-    function formatMoney(value) {
-      return '$' + Number(value).toLocaleString('en-US');
-    }
+    const fineAmount  = document.getElementById('fineAmount');
+    const fineTarget  = document.getElementById('fineTarget');
+    const finePayBtn  = document.getElementById('finePayBtn');
 
-    function currentTime() {
-      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+    /* ── Helpers ────────────────────────────────── */
+    function formatMoney(v) { return '$' + Number(v).toLocaleString('en-US'); }
+    function currentTime() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
 
     function addLog(text) {
       logs.unshift({ id: Date.now() + Math.random(), text, time: currentTime() });
@@ -546,12 +375,12 @@
         .filter(p => p.name.length > 0);
     }
 
+    /* ── Setup panel ────────────────────────────── */
     function updateReadyPanel() {
       const active = getActivePlayers();
       readyText.textContent = active.length === 0
         ? 'No players yet.'
         : `Ready: ${active.length} player${active.length > 1 ? 's' : ''}.`;
-
       readyPlayersList.innerHTML = '';
       active.forEach(p => {
         const pill = document.createElement('div');
@@ -560,8 +389,7 @@
           <span class="ready-dot" style="background:${p.slot.color};"></span>
           <span style="color:${p.slot.color};">${p.slot.name}</span>
           <span style="color:var(--muted);">—</span>
-          <span>${p.name}</span>
-        `;
+          <span>${p.name}</span>`;
         readyPlayersList.appendChild(pill);
       });
     }
@@ -572,38 +400,41 @@
         const row = document.createElement('div');
         row.className = 'color-player-row';
         row.style.setProperty('--row-color', slot.color);
-
         row.innerHTML = `
           <span class="color-swatch" style="background:${slot.color};"></span>
           <div class="color-label-wrap">
             <div class="color-label" style="color:${slot.color};">${slot.name}</div>
             <div class="color-label-sub">${slot.label}</div>
           </div>
-          <input
-            class="color-input"
-            id="slot-input-${i}"
-            type="text"
-            placeholder="Enter name to join..."
-            autocomplete="off"
-          />
-        `;
-
+          <input class="color-input" id="slot-input-${i}" type="text"
+            placeholder="Enter name to join..." autocomplete="off" />`;
         const input = row.querySelector('input');
         input.style.setProperty('--row-color', slot.color);
-
         input.addEventListener('input', (e) => {
           slotValues[i] = e.target.value;
           input.classList.toggle('has-value', e.target.value.trim().length > 0);
           updateReadyPanel();
         });
-
         playerColorFields.appendChild(row);
       });
     }
 
+    /* ── Fine-target dropdown ───────────────────── */
+    function refreshFineTargetDropdown() {
+      fineTarget.innerHTML = '<option value="">— Choose player —</option>';
+      players.forEach(p => {
+        if (p.id === selectedPlayerId) return; // exclude the payer
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        fineTarget.appendChild(opt);
+      });
+    }
+
+    /* ── Game render ────────────────────────────── */
     function renderPlayers() {
       playersList.innerHTML = '';
-      players.forEach((player) => {
+      players.forEach(player => {
         const selected = player.id === selectedPlayerId;
         const card = document.createElement('button');
         card.type = 'button';
@@ -622,8 +453,7 @@
               <div class="balance-label">Balance</div>
               <div class="balance">${formatMoney(player.balance)}</div>
             </div>
-          </div>
-        `;
+          </div>`;
         card.addEventListener('click', () => {
           selectedPlayerId = player.id;
           renderGame();
@@ -633,7 +463,7 @@
     }
 
     function renderSelectedPlayer() {
-      const player = players.find((p) => p.id === selectedPlayerId);
+      const player = players.find(p => p.id === selectedPlayerId);
       if (!player) {
         selectedPlayerName.textContent = 'No player selected';
         selectedPlayerBalance.textContent = 'Current balance: --';
@@ -649,15 +479,14 @@
         historyList.innerHTML = `<div class="empty">No transactions yet.</div>`;
         return;
       }
-      logs.forEach((log) => {
+      logs.forEach(log => {
         const item = document.createElement('div');
         item.className = 'log-item';
         item.innerHTML = `
           <div class="log-row">
             <div class="log-text">${log.text}</div>
             <div class="log-time">${log.time}</div>
-          </div>
-        `;
+          </div>`;
         historyList.appendChild(item);
       });
     }
@@ -666,28 +495,20 @@
       renderPlayers();
       renderSelectedPlayer();
       renderLogs();
+      refreshFineTargetDropdown();
     }
 
+    /* ── Start / Reset ──────────────────────────── */
     function startGame() {
       const active = getActivePlayers();
-      if (active.length < 1) {
-        alert('Please enter at least one player name to start the game.');
-        return;
-      }
+      if (active.length < 1) { alert('Please enter at least one player name to start the game.'); return; }
 
       players = active.map((p, idx) => ({
-        id: idx,
-        name: p.name,
-        balance: STARTING_CASH,
-        color: p.slot.color,
-        colorName: p.slot.name
+        id: idx, name: p.name, balance: STARTING_CASH,
+        color: p.slot.color, colorName: p.slot.name
       }));
 
-      logs = [{
-        id: Date.now(),
-        text: `Game started. ${players.length} player${players.length > 1 ? 's' : ''} received ${formatMoney(STARTING_CASH)} each.`,
-        time: currentTime()
-      }];
+      logs = [{ id: Date.now(), text: `Game started. ${players.length} player${players.length > 1 ? 's' : ''} received ${formatMoney(STARTING_CASH)} each.`, time: currentTime() }];
 
       selectedPlayerId = players[0].id;
       gameState = 'GAME';
@@ -698,58 +519,79 @@
 
       amountInput.value = '';
       reasonSelect.value = '';
+      fineAmount.value = '';
+      fineTarget.value = '';
 
       renderGame();
     }
 
     function resetGame() {
-      const confirmed = window.confirm('Reset the current game and go back to setup?');
-      if (!confirmed) return;
-
-      gameState = 'SETUP';
-      players = [];
-      logs = [];
-      selectedPlayerId = null;
-
+      if (!window.confirm('Reset the current game and go back to setup?')) return;
+      gameState = 'SETUP'; players = []; logs = []; selectedPlayerId = null;
       PLAYER_SLOTS.forEach((_, i) => {
         slotValues[i] = '';
         const inp = document.getElementById(`slot-input-${i}`);
         if (inp) { inp.value = ''; inp.classList.remove('has-value'); }
       });
-
       gameView.classList.add('hidden');
       setupView.classList.remove('hidden');
       newGameTopBtn.classList.add('hidden');
-
       updateReadyPanel();
     }
 
+    /* ── Bank transaction ───────────────────────── */
     function applyTransaction(type) {
       if (selectedPlayerId === null) return;
       const amount = Number(amountInput.value);
       if (!Number.isFinite(amount) || amount <= 0) return;
-      const player = players.find((p) => p.id === selectedPlayerId);
+      const player = players.find(p => p.id === selectedPlayerId);
       if (!player) return;
-
       const reason = reasonSelect.value.trim();
-
       if (type === 'receive') {
         player.balance += amount;
-        addLog(`${player.name} received ${formatMoney(amount)}${reason ? ` for ${reason}` : ''}.`);
+        addLog(`${player.name} received ${formatMoney(amount)} from the bank${reason ? ` (${reason})` : ''}.`);
       } else {
         player.balance -= amount;
-        addLog(`${player.name} paid ${formatMoney(amount)}${reason ? ` for ${reason}` : ''}.`);
+        addLog(`${player.name} paid ${formatMoney(amount)} to the bank${reason ? ` (${reason})` : ''}.`);
       }
-
       amountInput.value = '';
       reasonSelect.value = '';
       renderGame();
     }
 
+    /* ── Player-to-player fine ──────────────────── */
+    function applyFinePay() {
+      if (selectedPlayerId === null) { alert('Select a player first.'); return; }
+      const amount = Number(fineAmount.value);
+      if (!Number.isFinite(amount) || amount <= 0) { alert('Enter a valid amount.'); return; }
+      const targetId = Number(fineTarget.value);
+      if (fineTarget.value === '' || isNaN(targetId)) { alert('Choose a player to pay.'); return; }
+
+      const payer    = players.find(p => p.id === selectedPlayerId);
+      const receiver = players.find(p => p.id === targetId);
+      if (!payer || !receiver) return;
+
+      const t = currentTime();
+      payer.balance    -= amount;
+      receiver.balance += amount;
+
+      // Two log entries, inserted so the payer entry appears first (on top)
+      logs.unshift(
+        { id: Date.now() + 0.2, text: `🟥 ${receiver.name} received ${formatMoney(amount)} from ${payer.name} (property / service fine).`, time: t },
+        { id: Date.now() + 0.1, text: `🟥 ${payer.name} paid ${formatMoney(amount)} to ${receiver.name} (property / service fine).`, time: t }
+      );
+
+      fineAmount.value = '';
+      fineTarget.value = '';
+      renderGame();
+    }
+
+    /* ── Event listeners ────────────────────────── */
     startGameBtn.addEventListener('click', startGame);
     newGameTopBtn.addEventListener('click', resetGame);
     receiveBtn.addEventListener('click', () => applyTransaction('receive'));
     payBtn.addEventListener('click', () => applyTransaction('pay'));
+    finePayBtn.addEventListener('click', applyFinePay);
 
     buildSetupFields();
     updateReadyPanel();
