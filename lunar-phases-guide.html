@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lunar Phases &amp; Agriculture Guide</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "background":               "#10150f",
+                    "surface":                  "#10150f",
+                    "surface-dim":              "#10150f",
+                    "surface-container-lowest": "#0a0f0a",
+                    "surface-container-low":    "#181d17",
+                    "surface-container":        "#1c211b",
+                    "surface-container-high":   "#262b25",
+                    "surface-container-highest":"#313630",
+                    "surface-bright":           "#353b34",
+                    "surface-variant":          "#313630",
+                    "surface-slate":            "#1e293b",
+                    "on-background":            "#dfe4db",
+                    "on-surface":               "#dfe4db",
+                    "on-surface-variant":       "#c3c6d7",
+                    "inverse-surface":          "#dfe4db",
+                    "inverse-on-surface":       "#2c322c",
+                    "primary":                  "#b4c5ff",
+                    "primary-fixed":            "#dbe1ff",
+                    "primary-fixed-dim":        "#b4c5ff",
+                    "primary-container":        "#2563eb",
+                    "on-primary":               "#002a78",
+                    "on-primary-container":     "#eeefff",
+                    "on-primary-fixed":         "#00174b",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "inverse-primary":          "#0053db",
+                    "secondary":                "#4de082",
+                    "secondary-fixed":          "#6dfe9c",
+                    "secondary-fixed-dim":      "#4de082",
+                    "secondary-container":      "#00b55d",
+                    "on-secondary":             "#003919",
+                    "on-secondary-container":   "#003e1c",
+                    "on-secondary-fixed":       "#00210c",
+                    "on-secondary-fixed-variant":"#005227",
+                    "tertiary":                 "#bec6e0",
+                    "tertiary-fixed":           "#dae2fd",
+                    "tertiary-fixed-dim":       "#bec6e0",
+                    "tertiary-container":       "#656d84",
+                    "on-tertiary":              "#283044",
+                    "on-tertiary-container":    "#eef0ff",
+                    "on-tertiary-fixed":        "#131b2e",
+                    "on-tertiary-fixed-variant":"#3f465c",
+                    "error":                    "#ffb4ab",
+                    "error-container":          "#93000a",
+                    "on-error":                 "#690005",
+                    "on-error-container":       "#ffdad6",
+                    "outline":                  "#8d90a0",
+                    "outline-variant":          "#434655",
+                    "deep-border":              "#334155",
+                    "surface-tint":             "#b4c5ff",
+                    "lunar-white":              "#E2E8F0",
+                    "starlight-blue":           "#93c5fd"
+                },
+                borderRadius: {
+                    DEFAULT: "0.5rem",
+                    lg:      "0.5rem",
+                    xl:      "0.75rem",
+                    full:    "9999px"
+                },
+                spacing: {
+                    xs:              "4px",
+                    sm:              "8px",
+                    md:              "16px",
+                    lg:              "24px",
+                    xl:              "48px",
+                    gutter:          "24px",
+                    "container-max": "1024px"
+                },
+                fontFamily: {
+                    "headline-xl":        ["Inter"],
+                    "headline-lg":        ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-md":        ["Inter"],
+                    "body-lg":            ["Inter"],
+                    "body-md":            ["Inter"],
+                    "label-md":           ["JetBrains Mono"],
+                    "label-sm":           ["JetBrains Mono"]
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #10150f;
+        color: #dfe4db;
+    }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── 3-D Flip Card ─────────────────────────────────── */
+    .match-card-container {
+        perspective: 1000px;
+        width: 100%;
+        min-height: 80px;
+    }
+    .match-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 80px;
+        transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+        transform-style: preserve-3d;
+        cursor: pointer;
+    }
+    .match-card-inner.flipped { transform: rotateY(180deg); }
+    .match-card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        border: 1px solid #434655;
+        padding: 8px;
+        text-align: center;
+    }
+    .match-card-front {
+        background: radial-gradient(circle at center, #353b34 0%, #262b25 100%);
+        color: #b4c5ff;
+        font-size: 24px;
+    }
+    .match-card-front:hover { border-color: #8d90a0; }
+    .match-card-back {
+        background-color: #1c211b;
+        color: #dfe4db;
+        transform: rotateY(180deg);
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 20px;
+    }
+    @media (min-width: 640px) {
+        .match-card-back { font-size: 16px; line-height: 24px; }
+    }
+    .match-card-inner.selected .match-card-back {
+        background-color: #2563eb;
+        color: #eeefff;
+        border-color: #b4c5ff;
+        box-shadow: 0 0 15px rgba(37,99,235,0.5);
+    }
+    .match-card-inner.matched .match-card-back {
+        background-color: #00b55d;
+        color: #003e1c;
+        border-color: #4de082;
+        opacity: 0.8;
+        pointer-events: none;
+    }
+    .match-card-inner.incorrect { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+    .match-card-inner.incorrect .match-card-back {
+        background-color: #ffb4ab;
+        color: #690005;
+        border-color: #93000a;
+    }
+
+    /* ── Quiz options ───────────────────────────────────── */
+    .quiz-option.correct {
+        background-color: #00b55d !important;
+        color: #003e1c !important;
+        border-color: #4de082 !important;
+    }
+    .quiz-option.wrong {
+        background-color: #ffb4ab !important;
+        color: #690005 !important;
+        border-color: #93000a !important;
+    }
+
+    /* ── Lunar animations ───────────────────────────────── */
+    @keyframes lunar-pulse {
+        0%   { transform: scale(1);    filter: drop-shadow(0 0 5px rgba(180,197,255,0.3)); }
+        100% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(180,197,255,0.8)); }
+    }
+    @keyframes lunar-float {
+        0%   { transform: translateY(-2px); }
+        100% { transform: translateY(2px); }
+    }
+    @keyframes shake {
+        10%,90% { transform: rotateY(180deg) translate3d(-1px,0,0); }
+        20%,80% { transform: rotateY(180deg) translate3d(2px,0,0); }
+        30%,50%,70% { transform: rotateY(180deg) translate3d(-4px,0,0); }
+        40%,60% { transform: rotateY(180deg) translate3d(4px,0,0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .anim-lunar-pulse {
+            animation: lunar-pulse 2.5s ease-in-out infinite alternate;
+            display: inline-block;
+        }
+        .anim-lunar-float {
+            animation: lunar-float 3s ease-in-out infinite alternate;
+            display: inline-block;
+        }
+    }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 sm:p-6 bg-background text-on-background">
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header class="w-full max-w-[1024px] mb-6 text-center">
+    <h1 class="text-[28px] leading-[36px] font-semibold sm:text-[32px] sm:leading-[40px] text-on-surface mb-2 tracking-tight">
+        <span class="text-primary anim-lunar-pulse">🌕</span>
+        Lunar Cycle Guide
+        <span class="text-primary anim-lunar-float">🌑</span>
+        <span class="ml-2 text-xs align-middle text-on-surface-variant font-['JetBrains_Mono']">v4.0</span>
+    </h1>
+
+    <p class="text-on-surface-variant mb-4 text-[15px] leading-[22px]">
+        Master the Spanish translations of moon phases and traditional agricultural activities.
+    </p>
+
+    <!-- Dynamic Phase Banner -->
+    <div class="flex justify-center items-center mb-4" id="dynamic-phase-banner"></div>
+
+    <!-- Navigation -->
+    <nav class="flex justify-center flex-wrap gap-2 bg-surface-container-high p-2 rounded-lg border border-outline-variant shadow-md">
+        <button class="nav-btn flex-1 min-w-[100px] py-2 px-4 rounded bg-primary-container text-on-primary-container font-medium text-[14px] leading-[20px] transition-colors hover:bg-primary/20 focus:outline-none" id="btn-study" onclick="switchTab('study')">📚 Study</button>
+        <button class="nav-btn flex-1 min-w-[100px] py-2 px-4 rounded bg-transparent text-on-surface-variant font-medium text-[14px] leading-[20px] transition-colors hover:bg-surface-container-highest focus:outline-none" id="btn-quiz"  onclick="switchTab('quiz')">🧠 Quiz</button>
+        <button class="nav-btn flex-1 min-w-[100px] py-2 px-4 rounded bg-transparent text-on-surface-variant font-medium text-[14px] leading-[20px] transition-colors hover:bg-surface-container-highest focus:outline-none" id="btn-match" onclick="switchTab('match')">🎮 Match</button>
+    </nav>
+</header>
+
+<!-- ══════════════════════ MAIN ══════════════════════ -->
+<main class="w-full max-w-[1024px] flex-1 relative">
+
+    <!-- 1 · STUDY -->
+    <section class="tab-content active" id="study">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="study-grid"></div>
+    </section>
+
+    <!-- 2 · QUIZ -->
+    <section class="tab-content bg-surface-container rounded-xl p-6 sm:p-8 border border-outline-variant shadow-lg" id="quiz">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-[24px] leading-[32px] font-semibold text-primary">Knowledge Check</h2>
+            <div class="text-[15px] font-semibold bg-surface-container-highest py-1 px-4 rounded-full border border-outline-variant">
+                Score: <span class="text-primary" id="quiz-score">0</span> / <span id="quiz-total">0</span>
+            </div>
+        </div>
+        <div id="quiz-container">
+            <p class="text-[18px] leading-[28px] font-medium text-on-surface mb-6 text-center min-h-[64px]" id="quiz-question"></p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6" id="quiz-options"></div>
+            <div class="text-center">
+                <button class="hidden w-full sm:w-auto bg-primary-container hover:bg-primary/80 text-on-primary-container font-semibold py-3 px-8 rounded transition-all transform hover:scale-[1.02] focus:outline-none" id="next-btn" onclick="nextQuestion()">
+                    Next Question ➔
+                </button>
+            </div>
+        </div>
+        <div class="hidden text-center py-12" id="quiz-end">
+            <h3 class="text-[32px] leading-[40px] font-semibold text-on-surface mb-4">Quiz Complete!</h3>
+            <p class="text-[18px] leading-[28px] text-on-surface-variant mb-8">
+                Final Score: <span class="text-primary font-semibold" id="final-score"></span>
+            </p>
+            <button class="bg-primary-container hover:bg-primary/80 text-on-primary-container font-semibold py-3 px-8 rounded transition-all focus:outline-none shadow-md" onclick="initQuiz()">
+                Retake Quiz ↺
+            </button>
+        </div>
+    </section>
+
+    <!-- 3 · MATCH -->
+    <section class="tab-content bg-surface-container rounded-xl p-4 sm:p-8 border border-outline-variant shadow-lg" id="match">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <div>
+                <h2 class="text-[24px] leading-[32px] font-semibold text-primary">Term Matcher</h2>
+                <p class="text-on-surface-variant text-[13px] leading-[20px] mt-1">Match the English term (Left) with the Spanish term (Right)</p>
+            </div>
+            <button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface py-2 px-4 rounded transition-colors border border-outline" onclick="initMatchGame()">
+                Reset Game ↺
+            </button>
+        </div>
+        <div class="hidden text-center py-12 mb-4 bg-surface-container-lowest rounded-lg border border-secondary/30" id="match-victory">
+            <h3 class="text-[32px] leading-[40px] font-semibold text-secondary mb-4">🎉 Perfect Match! 🎉</h3>
+            <button class="mt-2 bg-secondary-container hover:bg-secondary/80 text-on-secondary-container font-semibold py-2 px-6 rounded transition-all focus:outline-none" onclick="initMatchGame()">
+                Play Again
+            </button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 sm:gap-6 relative" id="match-board">
+            <div class="flex flex-col gap-3" id="match-col-a"></div>
+            <div class="flex flex-col gap-3" id="match-col-b"></div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer class="mt-12 text-on-surface-variant text-[12px] leading-[16px] font-medium text-center flex justify-between items-center max-w-[1024px] w-full px-4 pb-4">
+    <p>Created by Alexander Bacca, Gemini Pro and Perplexity Pro. 😎</p>
+    <a class="text-primary hover:text-primary-fixed transition-colors" href="https://www.alexanderbacca.com">← Return to Home</a>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════════
+const lunarData = [
+    {
+        id: 'waxing', icon: '🌒',
+        phaseEn: 'Waxing Moon', phaseEs: 'Luna Creciente',
+        activities: [
+            { en: 'Grafting',                    es: 'Injertar' },
+            { en: 'Planting Above-Ground Crops', es: 'Sembrar cultivos de superficie' },
+            { en: 'Haircut for growth',           es: 'Corte de cabello para estimular crecimiento' }
+        ]
+    },
+    {
+        id: 'full', icon: '🌕',
+        phaseEn: 'Full Moon', phaseEs: 'Luna Llena',
+        activities: [
+            { en: 'Harvesting for moisture', es: 'Cosechar' }
+        ]
+    },
+    {
+        id: 'waning', icon: '🌘',
+        phaseEn: 'Waning Moon', phaseEs: 'Luna Menguante',
+        activities: [
+            { en: 'Pruning',                 es: 'Podar' },
+            { en: 'Harvesting Timber',       es: 'Talar madera' },
+            { en: 'Root Work & Soil Health', es: 'Trabajo de raíces y suelo' },
+            { en: 'Haircut to slow growth',  es: 'Corte de cabello para mantener el estilo' }
+        ]
+    },
+    {
+        id: 'new', icon: '🌑',
+        phaseEn: 'New Moon', phaseEs: 'Luna Nueva',
+        activities: [
+            { en: 'Maintenance and Pest Control', es: 'Mantenimiento y control de plagas' }
+        ]
+    }
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  MOON PHASE CALCULATOR  (v4.0 — accurate algorithm)
+//  Anchor: June 15, 2026 at 02:54 UTC  (verified new moon)
+//  Phase windows match real astronomical proportions:
+//    New    0.95–0.05  (~2.95 days)
+//    Waxing 0.05–0.45  (~11.8 days)
+//    Full   0.45–0.55  (~2.95 days)
+//    Waning 0.55–0.95  (~11.8 days)
+// ═══════════════════════════════════════════════════════════════
+const KNOWN_NEW_MOON  = new Date('2026-06-15T02:54:00Z').getTime();
+const LUNAR_CYCLE_MS  = 29.53058867 * 24 * 60 * 60 * 1000;
+
+function getCycleFraction(dateMs) {
+    const diff = dateMs - KNOWN_NEW_MOON;
+    return ((diff % LUNAR_CYCLE_MS) + LUNAR_CYCLE_MS) % LUNAR_CYCLE_MS / LUNAR_CYCLE_MS;
+}
+
+function getPhaseId(fraction) {
+    if (fraction >= 0.95 || fraction < 0.05) return 'new';
+    if (fraction >= 0.05 && fraction < 0.45)  return 'waxing';
+    if (fraction >= 0.45 && fraction < 0.55)  return 'full';
+    return 'waning';
+}
+
+function getPhaseStartDate() {
+    const now      = Date.now();
+    const fraction = getCycleFraction(now);
+    const cycleRemainder = ((now - KNOWN_NEW_MOON) % LUNAR_CYCLE_MS + LUNAR_CYCLE_MS) % LUNAR_CYCLE_MS;
+    const recentNewMoon  = now - cycleRemainder;
+    let startFrac;
+    if (fraction >= 0.95 || fraction < 0.05)  startFrac = 0.95;
+    else if (fraction >= 0.05 && fraction < 0.45) startFrac = 0.05;
+    else if (fraction >= 0.45 && fraction < 0.55) startFrac = 0.45;
+    else startFrac = 0.55;
+    const phaseStartMs = recentNewMoon + startFrac * LUNAR_CYCLE_MS;
+    return new Date(phaseStartMs);
+}
+
+const currentPhaseId = getPhaseId(getCycleFraction(Date.now()));
+
+// ═══════════════════════════════════════════════════════════════
+//  AUDIO (Web Audio API — no external files needed)
+// ═══════════════════════════════════════════════════════════════
+let audioCtx = null;
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function playTone(freq, endFreq, type, duration, volume) {
+    initAudio();
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + duration);
+    gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+const playFlipSound    = () => playTone(600, 100,  'sine',     0.05, 0.2);
+const playSuccessSound = () => playTone(800, 1200, 'sine',     0.3,  0.3);
+const playErrorSound   = () => playTone(200, 100,  'triangle', 0.2,  0.3);
+
+// ═══════════════════════════════════════════════════════════════
+//  PHASE BANNER
+// ═══════════════════════════════════════════════════════════════
+function renderPhaseBanner() {
+    const phaseObj     = lunarData.find(p => p.id === currentPhaseId);
+    const banner       = document.getElementById('dynamic-phase-banner');
+    const dateStr      = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const phaseStartStr = getPhaseStartDate().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    if (!banner || !phaseObj) return;
+    banner.innerHTML = `
+        <div class="bg-surface-container border border-primary/40 rounded-xl py-2 px-4 sm:px-6 flex flex-col items-center gap-1 shadow-[0_0_15px_rgba(37,99,235,0.2)]">
+            <div class="flex flex-wrap justify-center items-center gap-2">
+                <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] uppercase tracking-[0.05em] font-medium">Today's Moon</span>
+                <span class="text-on-surface-variant text-[12px]">·</span>
+                <span class="text-[22px] sm:text-[26px] drop-shadow-sm anim-lunar-pulse">${phaseObj.icon}</span>
+                <span class="text-primary font-semibold tracking-tight text-[15px] sm:text-[17px]">${phaseObj.phaseEn}</span>
+                <span class="text-on-surface-variant font-['JetBrains_Mono'] text-[12px] border-l border-outline-variant pl-2">${dateStr}</span>
+            </div>
+            <div class="flex flex-wrap justify-center items-center gap-1 text-on-surface-variant font-['JetBrains_Mono'] text-[11px]">
+                <span class="uppercase tracking-[0.05em]">Phase started</span>
+                <span>·</span>
+                <span>${phaseStartStr}</span>
+            </div>
+        </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tabId) {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-primary-container', 'text-on-primary-container');
+        btn.classList.add('bg-transparent', 'text-on-surface-variant');
+    });
+    document.getElementById(`btn-${tabId}`).classList.remove('bg-transparent', 'text-on-surface-variant');
+    document.getElementById(`btn-${tabId}`).classList.add('bg-primary-container', 'text-on-primary-container');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (tabId === 'quiz'  && quizQuestions.length === 0) initQuiz();
+    if (tabId === 'match' && document.getElementById('match-col-a').innerHTML === '') initMatchGame();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STUDY GUIDE
+// ═══════════════════════════════════════════════════════════════
+function renderStudyGuide() {
+    const grid = document.getElementById('study-grid');
+    let html = '';
+    lunarData.forEach(phase => {
+        const isCurrent   = phase.id === currentPhaseId;
+        const borderClass = isCurrent
+            ? 'border-primary shadow-[0_0_20px_rgba(37,99,235,0.18)]'
+            : 'border-outline-variant hover:border-outline';
+        const badgeHtml   = isCurrent
+            ? `<div class="absolute top-4 right-4 bg-primary-container text-on-primary-container text-[11px] font-['JetBrains_Mono'] font-medium px-3 py-1 rounded-full">Today</div>`
+            : '';
+        const iconAnim    = isCurrent ? 'anim-lunar-pulse' : 'anim-lunar-float';
+        let acts = '';
+        phase.activities.forEach(a => {
+            acts += `
+            <li class="mb-2 p-3 bg-surface-container-low rounded border border-outline-variant hover:border-outline transition-colors">
+                <span class="block text-on-surface font-medium text-[15px] leading-[22px]">${a.en}</span>
+                <span class="block text-primary text-[13px] leading-[20px] italic">${a.es}</span>
+            </li>`;
+        });
+        html += `
+        <div class="bg-surface-container p-6 rounded-xl border ${borderClass} shadow-md transition-all relative overflow-hidden group">
+            ${badgeHtml}
+            <div class="absolute -right-6 -top-6 text-[80px] opacity-[0.05] group-hover:scale-110 transition-transform duration-500">${phase.icon}</div>
+            <div class="flex items-center gap-3 mb-4">
+                <span class="text-[32px] drop-shadow-sm ${iconAnim}">${phase.icon}</span>
+                <div>
+                    <h3 class="text-[22px] leading-[30px] font-semibold text-on-surface">${phase.phaseEn}</h3>
+                    <h4 class="text-[17px] leading-[26px] text-primary font-medium">${phase.phaseEs}</h4>
+                </div>
+            </div>
+            <div class="w-full h-px bg-outline-variant mb-3"></div>
+            <h5 class="font-['JetBrains_Mono'] text-[11px] uppercase tracking-[0.05em] text-on-surface-variant mb-2 font-medium">Associated Activities:</h5>
+            <ul class="space-y-1">${acts}</ul>
+        </div>`;
+    });
+    grid.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════════════════════
+let quizQuestions = [], currentQuestionIndex = 0, score = 0, isAnswered = false;
+
+function generateQuizPool() {
+    let pool = [];
+    lunarData.forEach(phase => {
+        pool.push({ q: `What is the Spanish translation for "${phase.phaseEn}"?`, a: phase.phaseEs, type: 'phase' });
+        pool.push({ q: `Which moon phase is "${phase.phaseEs}" in English?`,       a: phase.phaseEn, type: 'phaseEn' });
+    });
+    lunarData.forEach(phase => {
+        phase.activities.forEach(act => {
+            pool.push({ q: `Which moon phase is perfect for "${act.en}"?`, a: phase.phaseEn, type: 'activity' });
+        });
+    });
+    return shuffleArray(pool).slice(0, 8);
+}
+
+function getOptions(correctAnswer, type) {
+    let opts = new Set([correctAnswer]);
+    while (opts.size < 4) {
+        const r = lunarData[Math.floor(Math.random() * lunarData.length)];
+        opts.add(type === 'phase' ? r.phaseEs : r.phaseEn);
+    }
+    return shuffleArray(Array.from(opts));
+}
+
+function initQuiz() {
+    quizQuestions = generateQuizPool();
+    currentQuestionIndex = 0;
+    score = 0;
+    document.getElementById('quiz-end').classList.add('hidden');
+    document.getElementById('quiz-container').classList.remove('hidden');
+    document.getElementById('quiz-total').innerText = quizQuestions.length;
+    updateScoreDisplay();
+    loadQuestion();
+}
+
+function loadQuestion() {
+    isAnswered = false;
+    document.getElementById('next-btn').classList.add('hidden');
+    const q = quizQuestions[currentQuestionIndex];
+    document.getElementById('quiz-question').innerText = q.q;
+    const container = document.getElementById('quiz-options');
+    container.innerHTML = '';
+    getOptions(q.a, q.type).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option bg-surface-container-high hover:bg-surface-bright text-on-surface border border-outline-variant rounded p-4 text-[15px] leading-[22px] font-medium transition-all focus:outline-none min-h-[70px] flex items-center justify-center text-center';
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(btn, opt === q.a);
+        container.appendChild(btn);
+    });
+}
+
+function handleAnswer(btn, isCorrect) {
+    if (isAnswered) return;
+    isAnswered = true;
+    document.querySelectorAll('.quiz-option').forEach(b => {
+        b.disabled = true;
+        b.classList.remove('hover:bg-surface-bright');
+        if (b.innerText === quizQuestions[currentQuestionIndex].a) b.classList.add('correct');
+    });
+    if (isCorrect) { playSuccessSound(); score++; updateScoreDisplay(); }
+    else           { playErrorSound();   btn.classList.add('wrong'); }
+    document.getElementById('next-btn').classList.remove('hidden');
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizQuestions.length) loadQuestion();
+    else endQuiz();
+}
+
+function updateScoreDisplay() { document.getElementById('quiz-score').innerText = score; }
+
+function endQuiz() {
+    document.getElementById('quiz-container').classList.add('hidden');
+    document.getElementById('quiz-end').classList.remove('hidden');
+    document.getElementById('final-score').innerText = `${score} / ${quizQuestions.length}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MATCH GAME  (3-D flip cards + audio — from v2.5)
+// ═══════════════════════════════════════════════════════════════
+let matchPairs = [], selectedA = null, selectedB = null, matchedCount = 0, isAnimating = false;
+
+function initMatchGame() {
+    document.getElementById('match-victory').classList.add('hidden');
+    document.getElementById('match-board').classList.remove('hidden');
+    document.getElementById('match-board').classList.add('grid');
+    selectedA = null; selectedB = null; matchedCount = 0; isAnimating = false;
+
+    let pool = [];
+    lunarData.forEach(phase => {
+        pool.push({ id: `p_${phase.id}`, en: phase.phaseEn, es: phase.phaseEs });
+        phase.activities.forEach((act, i) => pool.push({ id: `a_${phase.id}_${i}`, en: act.en, es: act.es }));
+    });
+    matchPairs = shuffleArray(pool).slice(0, 6);
+
+    renderMatchColumn('match-col-a', shuffleArray(matchPairs.map(p => ({ id: p.id, text: p.en }))), 'A');
+    renderMatchColumn('match-col-b', shuffleArray(matchPairs.map(p => ({ id: p.id, text: p.es }))), 'B');
+}
+
+function renderMatchColumn(containerId, items, colId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    items.forEach(item => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'match-card-container';
+
+        const inner = document.createElement('div');
+        inner.className = 'match-card-inner';
+        inner.dataset.id  = item.id;
+        inner.dataset.col = colId;
+        inner.onclick = () => handleMatchClick(inner, item.id, colId);
+
+        const front = document.createElement('div');
+        front.className = 'match-card-face match-card-front';
+        front.innerHTML = '✨';
+
+        const back = document.createElement('div');
+        back.className = 'match-card-face match-card-back';
+        back.innerText = item.text;
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        wrapper.appendChild(inner);
+        container.appendChild(wrapper);
+    });
+}
+
+function handleMatchClick(cardInner, id, colId) {
+    if (isAnimating || cardInner.classList.contains('matched') || cardInner.classList.contains('selected')) return;
+    playFlipSound();
+    cardInner.classList.add('flipped', 'selected');
+
+    if (colId === 'A') {
+        if (selectedA) selectedA.card.classList.remove('selected', 'flipped');
+        selectedA = { card: cardInner, id };
+    } else {
+        if (selectedB) selectedB.card.classList.remove('selected', 'flipped');
+        selectedB = { card: cardInner, id };
+    }
+    if (selectedA && selectedB) checkMatch();
+}
+
+function checkMatch() {
+    isAnimating = true;
+    const isMatch = selectedA.id === selectedB.id;
+    const cardA = selectedA.card, cardB = selectedB.card;
+
+    if (isMatch) {
+        playSuccessSound();
+        setTimeout(() => {
+            cardA.classList.remove('selected'); cardB.classList.remove('selected');
+            cardA.classList.add('matched');     cardB.classList.add('matched');
+            matchedCount++;
+            if (matchedCount === matchPairs.length) setTimeout(showMatchVictory, 600);
+            resetSelection();
+        }, 600);
+    } else {
+        playErrorSound();
+        setTimeout(() => {
+            cardA.classList.remove('selected'); cardB.classList.remove('selected');
+            cardA.classList.add('incorrect');   cardB.classList.add('incorrect');
+            setTimeout(() => {
+                cardA.classList.remove('incorrect', 'flipped');
+                cardB.classList.remove('incorrect', 'flipped');
+                resetSelection();
+            }, 800);
+        }, 600);
+    }
+}
+
+function showMatchVictory() {
+    document.getElementById('match-board').classList.add('hidden');
+    document.getElementById('match-board').classList.remove('grid');
+    document.getElementById('match-victory').classList.remove('hidden');
+}
+
+function resetSelection() { selectedA = null; selectedB = null; isAnimating = false; }
+
+// ═══════════════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════════════
+function shuffleArray(array) {
+    let ci = array.length, ri;
+    while (ci !== 0) { ri = Math.floor(Math.random() * ci); ci--; [array[ci], array[ri]] = [array[ri], array[ci]]; }
+    return array;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    renderPhaseBanner();
+    renderStudyGuide();
+});
+</script>
+</body>
+</html>
