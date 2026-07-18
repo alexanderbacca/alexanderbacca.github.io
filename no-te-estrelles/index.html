@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>No te estrelles</title>
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three":         "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+      }
+    }
+    </script>
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --teal:  #00b4a6;
+            --dark:  #1a1a2e;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark);
+            height: 100dvh; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .game-header {
+            position: relative; z-index: 100;
+            background: rgba(26,26,46,0.97);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 1.5rem; height: 52px; flex-shrink: 0;
+        }
+        .back-link {
+            color: var(--white); text-decoration: none; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.4rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--teal); }
+        .game-title-hdr { color: var(--teal); font-weight: 700; font-size: 1rem; }
+        .score-box {
+            color: var(--white); font-weight: 600; font-size: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.25rem 0.9rem; border-radius: 50px; min-width: 64px;
+            text-align: center;
+        }
+        #game-wrap {
+            position: relative; flex: 1; overflow: hidden;
+        }
+        #gameCanvas { display: block; width: 100%; height: 100%; }
+        .overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: rgba(10,10,30,0.88); backdrop-filter: blur(6px);
+            z-index: 10; gap: 1rem; padding: 1.5rem;
+        }
+        .overlay h2 {
+            color: var(--teal);
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-weight: 700; text-align: center;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.5);
+        }
+        .overlay p {
+            color: var(--white); font-size: clamp(0.82rem, 2.4vw, 1.02rem);
+            text-align: center; max-width: 420px; line-height: 1.65;
+        }
+        .big-score { color: var(--teal); font-size: clamp(1.1rem,3vw,1.5rem); font-weight:700; }
+        .btn-play {
+            background: var(--teal); color: var(--white);
+            border: none; border-radius: 50px;
+            padding: 0.85rem 2.6rem; font-size: 1rem; font-weight: 600;
+            cursor: pointer; font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 18px rgba(0,180,166,0.45);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-play:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,180,166,0.55); }
+        .btn-play:active { transform: translateY(0); }
+        .hidden { display: none !important; }
+        .load-label { color: var(--white); font-size: 0.88rem; letter-spacing: 0.04em; }
+        .bar-wrap {
+            width: min(320px,80vw); height: 10px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 99px; overflow: hidden;
+        }
+        #loadBar {
+            height: 100%; width: 0%;
+            background: var(--teal); border-radius: 99px;
+            transition: width 0.25s ease;
+        }
+        #mobile-controls {
+            display: none;
+            position: absolute; bottom: 0; left: 0; right: 0;
+            justify-content: space-between; align-items: flex-end;
+            padding: 0 1.2rem 1.4rem;
+            pointer-events: none; z-index: 20;
+        }
+        .dir-btn {
+            pointer-events: all;
+            width: clamp(68px,17vw,96px); height: clamp(68px,17vw,96px);
+            background: rgba(0,180,166,0.22);
+            border: 2.5px solid var(--teal); border-radius: 50%;
+            color: var(--white); font-size: clamp(1.8rem,5vw,2.6rem);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.12s;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+        }
+        .dir-btn:active, .dir-btn.pressed { background: rgba(0,180,166,0.52); }
+        .wave-label {
+            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+            color: var(--teal); font-size: 0.78rem; font-weight: 600;
+            background: rgba(0,0,0,0.4); border-radius: 50px;
+            padding: 2px 14px; z-index: 15; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<header class="game-header">
+    <a href="../" class="back-link">&#8592; Inicio</a>
+    <span class="game-title-hdr">&#128680; No te estrelles</span>
+    <span class="score-box" id="scoreDisplay">0</span>
+</header>
+
+<div id="game-wrap">
+    <canvas id="gameCanvas"></canvas>
+    <div class="wave-label hidden" id="waveLbl">Nivel 1</div>
+
+    <!-- LOAD SCREEN -->
+    <div class="overlay" id="loadScreen">
+        <h2>&#128680; No te estrelles</h2>
+        <p class="load-label">Cargando recursos&hellip;</p>
+        <div class="bar-wrap"><div id="loadBar"></div></div>
+        <p id="loadPct" style="color:var(--teal);font-size:0.82rem;">0%</p>
+    </div>
+
+    <!-- START SCREEN -->
+    <div class="overlay hidden" id="startScreen">
+        <h2>&#128680; No te estrelles</h2>
+        <p>&#161;Vairon viene hacia ti! Mueve a Vairon izquierda y derecha para esquivar las caras que vienen de frente.<br>Las caras se vuelven m&#225;s r&#225;pidas con el tiempo. &#191;Cu&#225;nto aguantas?</p>
+        <p style="color:var(--teal);font-size:0.82rem;">
+            PC: flechas &#8592; &#8594; &nbsp;|&nbsp; M&#243;vil: botones de abajo
+        </p>
+        <button class="btn-play" id="startBtn">&#161;Comenzar!</button>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div class="overlay hidden" id="gameOverScreen">
+        <h2>&#128128; &#161;Crash!</h2>
+        <p class="big-score" id="finalScore">Puntaje: 0</p>
+        <p>Vairon se estrell&#243;. &#161;Intentalo de nuevo!</p>
+        <button class="btn-play" id="restartBtn">&#128260; Jugar de nuevo</button>
+    </div>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobile-controls">
+        <button class="dir-btn" id="btnLeft"  aria-label="Mover izquierda">&#8592;</button>
+        <button class="dir-btn" id="btnRight" aria-label="Mover derecha">&#8594;</button>
+    </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+const BASE = 'https://alexanderbacca.github.io';
+const isCloudflare = window.location.hostname.endsWith('.pages.dev')
+                  || window.location.hostname === 'alexanderbacca.com'
+                  || window.location.hostname === 'www.alexanderbacca.com';
+const MODEL_URL = isCloudflare
+    ? 'https://pub-fb98b1df577e4cf4a14e11e16ada4f35.r2.dev/Vairon.glb'
+    : BASE + '/skeleton-runner/Vairon.glb';
+
+const FACE_URLS = [
+    BASE + '/Right.png',
+    BASE + '/Down.png',
+    BASE + '/Down_open.png'
+];
+
+// Virtual game dimensions (perspective projection this time)
+const GAME_W = 800, GAME_H = 500;
+
+// Player lanes: 5 horizontal positions
+const LANES      = [-320, -160, 0, 160, 320];
+const START_LANE = 2; // center
+const PLR_Z      = -2;   // player Z in world
+const ROAD_LEN   = 40;   // depth of road plane
+
+// Obstacle spawn Z (far) and death Z (player hit)
+const OBS_SPAWN_Z = -ROAD_LEN;
+const OBS_HIT_Z   = PLR_Z + 1.5;
+
+// Obstacle sizes (world units)
+const OBS_SIZE = 1.8;
+const PLR_HITBOX = 1.4;
+
+// Model scale
+const MODEL_SCALE = 1.2;
+
+// Wave definitions: speed = units/s approaching the camera
+const WAVES = [
+    { minScore:    0, label: 'Nivel 1', speedMin: 7,  speedMax: 10, interval: 2.2,  faceIdx: 0 },
+    { minScore:  400, label: 'Nivel 2', speedMin: 12, speedMax: 17, interval: 1.5,  faceIdx: 1 },
+    { minScore: 1000, label: 'Nivel 3', speedMin: 20, speedMax: 28, interval: 0.9,  faceIdx: 2 },
+];
+
+// ─── Three.js setup ──────────────────────────────────────────────────────────
+const canvas   = document.getElementById('gameCanvas');
+const wrap     = document.getElementById('game-wrap');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+
+const scene  = new THREE.Scene();
+scene.fog = new THREE.Fog(0x0a0a1e, 20, 55);
+scene.background = new THREE.Color(0x0a0a1e);
+
+// Camera: looking down the -Z axis (into the screen = toward player)
+const camera = new THREE.PerspectiveCamera(55, GAME_W / GAME_H, 0.1, 200);
+camera.position.set(0, 5, 12);
+camera.lookAt(0, 1, -5);
+
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+sun.position.set(5, 15, 10);
+sun.castShadow = true;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0x88aaff, 0.6);
+fill.position.set(-5, 5, 5);
+scene.add(fill);
+
+function resize() {
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ─── Road ────────────────────────────────────────────────────────────────────
+const roadGeo  = new THREE.PlaneGeometry(12, ROAD_LEN);
+const roadMat  = new THREE.MeshLambertMaterial({ color: 0x1a1a3a });
+const road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI / 2;
+road.position.set(0, -0.02, -ROAD_LEN / 2 + 6);
+road.receiveShadow = true;
+scene.add(road);
+
+// Road lane lines
+for (let i = -1; i <= 1; i++) {
+    const lineGeo = new THREE.PlaneGeometry(0.06, ROAD_LEN);
+    const lineMat = new THREE.MeshBasicMaterial({ color: 0x00b4a6, transparent: true, opacity: 0.35 });
+    const line = new THREE.Mesh(lineGeo, lineMat);
+    line.rotation.x = -Math.PI / 2;
+    line.position.set(i * 3.2, 0.01, -ROAD_LEN / 2 + 6);
+    scene.add(line);
+}
+
+// Ground plane (wider)
+const groundMat = new THREE.MeshLambertMaterial({ color: 0x111128 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.set(0, -0.03, -10);
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ─── Loading ─────────────────────────────────────────────────────────────────
+const loadBar    = document.getElementById('loadBar');
+const loadPct    = document.getElementById('loadPct');
+const loadScreen = document.getElementById('loadScreen');
+const startScreen = document.getElementById('startScreen');
+
+const TOTAL_ASSETS = 4; // model + 3 face textures
+let loadedAssets = 0;
+
+function assetLoaded() {
+    loadedAssets = Math.min(loadedAssets + 1, TOTAL_ASSETS);
+    const pct = Math.round((loadedAssets / TOTAL_ASSETS) * 100);
+    loadBar.style.width = pct + '%';
+    loadPct.textContent = pct + '%';
+    if (loadedAssets >= TOTAL_ASSETS) {
+        setTimeout(() => {
+            state = 'start';
+            loadScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }, 300);
+    }
+}
+
+// ─── Player model ─────────────────────────────────────────────────────────────
+let mixer = null;
+let playerMesh = null;
+let walkAction = null, runAction = null;
+let currentLane = START_LANE;
+let laneX = LANES[START_LANE] / 100; // convert px lanes to world units (≈ -3.2 to 3.2)
+const LANE_WORLD = LANES.map(l => l / 100);
+let playerWorldX = LANE_WORLD[START_LANE];
+const MOVE_SPEED = 10; // world units/s for smooth lane transition
+
+function buildFallback() {
+    playerMesh = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.4, 1.2, 4, 8),
+        new THREE.MeshLambertMaterial({ color: 0x00b4a6 })
+    );
+    playerMesh.position.set(LANE_WORLD[START_LANE], 0.8, PLR_Z);
+    scene.add(playerMesh);
+    assetLoaded();
+}
+
+new GLTFLoader().load(MODEL_URL, gltf => {
+    playerMesh = gltf.scene;
+    // Face camera: rotate 180° so Vairon looks toward us
+    playerMesh.rotation.y = Math.PI;
+    playerMesh.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+    playerMesh.position.set(LANE_WORLD[START_LANE], 0, PLR_Z);
+    playerMesh.castShadow = true;
+    scene.add(playerMesh);
+
+    mixer = new THREE.AnimationMixer(playerMesh);
+    const anims = gltf.animations;
+    // animation 0 = ciclo correr (walk), animation 1 = rigAction (run)
+    if (anims.length > 0) walkAction = mixer.clipAction(anims[0]);
+    if (anims.length > 1) runAction  = mixer.clipAction(anims[1]);
+    if (walkAction) walkAction.play();
+
+    assetLoaded();
+}, undefined, () => buildFallback());
+
+// ─── Face obstacles ───────────────────────────────────────────────────────────
+const faceTextures = FACE_URLS.map((url, i) => {
+    const t = new THREE.TextureLoader().load(url, () => assetLoaded(), undefined, () => assetLoaded());
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+});
+
+const obstacles = [];
+
+function spawnFace(wIdx) {
+    const w = WAVES[wIdx];
+    const lane = Math.floor(Math.random() * LANE_WORLD.length);
+    const geo  = new THREE.PlaneGeometry(OBS_SIZE, OBS_SIZE);
+    const mat  = new THREE.MeshBasicMaterial({
+        map: faceTextures[w.faceIdx],
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(LANE_WORLD[lane], OBS_SIZE / 2 + 0.5, OBS_SPAWN_Z);
+    // Billboard: always face camera
+    scene.add(mesh);
+    const speed = w.speedMin + Math.random() * (w.speedMax - w.speedMin);
+    obstacles.push({ mesh, speed, lane });
+}
+
+// ─── Input ────────────────────────────────────────────────────────────────────
+const keys = { left: false, right: false };
+let moveDir = 0; // -1, 0, 1
+let lastMoveDir = 0;
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { keys.left  = true; tryStart(); }
+    if (e.key === 'ArrowRight') { keys.right = true; tryStart(); }
+});
+document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft')  keys.left  = false;
+    if (e.key === 'ArrowRight') keys.right = false;
+});
+
+function addHold(btn, which) {
+    const press   = e => { e.preventDefault(); keys[which] = true;  btn.classList.add('pressed');    tryStart(); };
+    const release = e => { e.preventDefault(); keys[which] = false; btn.classList.remove('pressed'); };
+    btn.addEventListener('touchstart',  press,   { passive: false });
+    btn.addEventListener('touchend',    release, { passive: false });
+    btn.addEventListener('touchcancel', release, { passive: false });
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('mouseup',   release);
+    btn.addEventListener('mouseleave',release);
+}
+addHold(document.getElementById('btnLeft'),  'left');
+addHold(document.getElementById('btnRight'), 'right');
+
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    document.getElementById('mobile-controls').style.display = 'flex';
+}
+
+// ─── Game state ───────────────────────────────────────────────────────────────
+let state = 'load';
+let score = 0, spawnTimer = 0, currentWave = 0;
+let lastWave = -1;
+
+const scoreDisplay = document.getElementById('scoreDisplay');
+const overScreen   = document.getElementById('gameOverScreen');
+const finalScoreEl = document.getElementById('finalScore');
+const waveLbl      = document.getElementById('waveLbl');
+const clock        = new THREE.Clock();
+
+document.getElementById('startBtn').addEventListener('click',   doStart);
+document.getElementById('restartBtn').addEventListener('click', doStart);
+
+function tryStart() {
+    if (state === 'start' || state === 'over') doStart();
+}
+
+function doStart() {
+    if (state === 'load') return;
+    obstacles.forEach(o => scene.remove(o.mesh));
+    obstacles.length = 0;
+    score = 0; spawnTimer = 0; currentWave = 0; lastWave = -1;
+    currentLane = START_LANE;
+    playerWorldX = LANE_WORLD[START_LANE];
+    if (playerMesh) playerMesh.position.x = playerWorldX;
+    scoreDisplay.textContent = '0';
+    state = 'playing';
+    startScreen.classList.add('hidden');
+    overScreen.classList.add('hidden');
+    waveLbl.classList.remove('hidden');
+    waveLbl.textContent = WAVES[0].label;
+    // Start walk animation
+    switchAnim(false);
+    clock.getDelta();
+}
+
+function switchAnim(running) {
+    if (!walkAction && !runAction) return;
+    if (running && runAction) {
+        if (walkAction) walkAction.stop();
+        runAction.play();
+    } else if (walkAction) {
+        if (runAction) runAction.stop();
+        walkAction.play();
+    }
+}
+
+function gameOver() {
+    state = 'over';
+    finalScoreEl.textContent = 'Puntaje: ' + Math.floor(score);
+    overScreen.classList.remove('hidden');
+    waveLbl.classList.add('hidden');
+    // Back to walk
+    switchAnim(false);
+}
+
+// ─── Collision ───────────────────────────────────────────────────────────────
+function checkHit(o) {
+    if (!playerMesh) return false;
+    const px = playerMesh.position.x;
+    const pz = PLR_Z;
+    const oz = o.mesh.position.z;
+    const ox = o.mesh.position.x;
+    const xOk = Math.abs(px - ox) < (PLR_HITBOX * 0.7);
+    const zOk = oz >= OBS_HIT_Z - 0.5;
+    return xOk && zOk;
+}
+
+// ─── Animate loop ─────────────────────────────────────────────────────────────
+function animate() {
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    if (mixer) mixer.update(dt);
+
+    // Billboard: all face sprites face camera
+    obstacles.forEach(o => o.mesh.lookAt(camera.position));
+
+    if (state === 'playing') {
+        score += dt * 60;
+        scoreDisplay.textContent = Math.floor(score);
+
+        // Update wave
+        for (let i = WAVES.length - 1; i >= 0; i--) {
+            if (score >= WAVES[i].minScore) { currentWave = i; break; }
+        }
+        if (currentWave !== lastWave) {
+            lastWave = currentWave;
+            waveLbl.textContent = WAVES[currentWave].label;
+            // switch to run on level 2+
+            switchAnim(currentWave >= 1);
+        }
+
+        // Move player horizontally (smooth)
+        moveDir = keys.left ? -1 : keys.right ? 1 : 0;
+        if (moveDir !== 0) {
+            playerWorldX += moveDir * MOVE_SPEED * dt;
+            const minX = LANE_WORLD[0];
+            const maxX = LANE_WORLD[LANE_WORLD.length - 1];
+            playerWorldX = Math.max(minX, Math.min(maxX, playerWorldX));
+        }
+        if (playerMesh) playerMesh.position.x = playerWorldX;
+
+        // Spawn obstacles
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) {
+            spawnFace(currentWave);
+            spawnTimer = WAVES[currentWave].interval * (0.7 + Math.random() * 0.6);
+        }
+
+        // Move obstacles
+        let hit = false;
+        for (let j = obstacles.length - 1; j >= 0; j--) {
+            const o = obstacles[j];
+            o.mesh.position.z += o.speed * dt;
+            // Grow scale as they approach for perspective effect
+            const progress = (o.mesh.position.z - OBS_SPAWN_Z) / (OBS_HIT_Z - OBS_SPAWN_Z);
+            const s = 0.3 + progress * 1.4;
+            o.mesh.scale.set(s, s, s);
+
+            if (o.mesh.position.z > OBS_HIT_Z + 2) {
+                scene.remove(o.mesh);
+                obstacles.splice(j, 1);
+                continue;
+            }
+            if (!hit && checkHit(o)) hit = true;
+        }
+        if (hit) gameOver();
+    }
+
+    renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
