@@ -224,7 +224,7 @@
         <span class="text-primary anim-lunar-pulse">🌕</span>
         Lunar Cycle Guide
         <span class="text-primary anim-lunar-float">🌑</span>
-        <span class="ml-2 text-xs align-middle text-on-surface-variant font-['JetBrains_Mono']">v4.0</span>
+        <span class="ml-2 text-xs align-middle text-on-surface-variant font-['JetBrains_Mono']">v4.1</span>
     </h1>
 
     <p class="text-on-surface-variant mb-4 text-[15px] leading-[22px]">
@@ -242,8 +242,7 @@
     </nav>
 </header>
 
-<!-- ══════════════════════ MAIN ══════════════════════ -->
-<main class="w-full max-w-[1024px] flex-1 relative">
+<!-- ══════════════════════ MAIN ══════════════════════ -->\n<main class="w-full max-w-[1024px] flex-1 relative">
 
     <!-- 1 · STUDY -->
     <section class="tab-content active" id="study">
@@ -350,15 +349,22 @@ const lunarData = [
 ];
 
 // ═══════════════════════════════════════════════════════════════
-//  MOON PHASE CALCULATOR  (v4.0 — accurate algorithm)
-//  Anchor: June 15, 2026 at 02:54 UTC  (verified new moon)
-//  Phase windows match real astronomical proportions:
-//    New    0.95–0.05  (~2.95 days)
-//    Waxing 0.05–0.45  (~11.8 days)
-//    Full   0.45–0.55  (~2.95 days)
-//    Waning 0.55–0.95  (~11.8 days)
+//  MOON PHASE CALCULATOR  (v4.1 — corrected phase boundaries)
+//
+//  Anchor: July 14, 2026 at 09:43 UTC  (verified new moon)
+//
+//  Phase boundaries now align with true astronomical quarters
+//  so that "Phase started" always matches the real quarter date:
+//    New    0.00 – 0.25   (New Moon  → First Quarter)
+//    Waxing 0.25 – 0.50   (First Quarter → Full Moon)
+//    Full   0.50 – 0.75   (Full Moon → Last Quarter)
+//    Waning 0.75 – 1.00   (Last Quarter → New Moon)
+//
+//  With the July 14 anchor:
+//    Waxing start = July 14 + 0.25 × 29.53 days ≈ July 21  ✓
+//    Full   start = July 14 + 0.50 × 29.53 days ≈ July 29  ✓
 // ═══════════════════════════════════════════════════════════════
-const KNOWN_NEW_MOON  = new Date('2026-06-15T02:54:00Z').getTime();
+const KNOWN_NEW_MOON  = new Date('2026-07-14T09:43:00Z').getTime();
 const LUNAR_CYCLE_MS  = 29.53058867 * 24 * 60 * 60 * 1000;
 
 function getCycleFraction(dateMs) {
@@ -367,24 +373,25 @@ function getCycleFraction(dateMs) {
 }
 
 function getPhaseId(fraction) {
-    if (fraction >= 0.95 || fraction < 0.05) return 'new';
-    if (fraction >= 0.05 && fraction < 0.45)  return 'waxing';
-    if (fraction >= 0.45 && fraction < 0.55)  return 'full';
+    if (fraction < 0.25) return 'new';
+    if (fraction < 0.50) return 'waxing';
+    if (fraction < 0.75) return 'full';
     return 'waning';
 }
 
 function getPhaseStartDate() {
-    const now      = Date.now();
-    const fraction = getCycleFraction(now);
-    const cycleRemainder = ((now - KNOWN_NEW_MOON) % LUNAR_CYCLE_MS + LUNAR_CYCLE_MS) % LUNAR_CYCLE_MS;
-    const recentNewMoon  = now - cycleRemainder;
+    const now             = Date.now();
+    const cycleRemainder  = ((now - KNOWN_NEW_MOON) % LUNAR_CYCLE_MS + LUNAR_CYCLE_MS) % LUNAR_CYCLE_MS;
+    const recentNewMoon   = now - cycleRemainder;
+    const fraction        = cycleRemainder / LUNAR_CYCLE_MS;
+
     let startFrac;
-    if (fraction >= 0.95 || fraction < 0.05)  startFrac = 0.95;
-    else if (fraction >= 0.05 && fraction < 0.45) startFrac = 0.05;
-    else if (fraction >= 0.45 && fraction < 0.55) startFrac = 0.45;
-    else startFrac = 0.55;
-    const phaseStartMs = recentNewMoon + startFrac * LUNAR_CYCLE_MS;
-    return new Date(phaseStartMs);
+    if      (fraction < 0.25) startFrac = 0.00;
+    else if (fraction < 0.50) startFrac = 0.25;
+    else if (fraction < 0.75) startFrac = 0.50;
+    else                      startFrac = 0.75;
+
+    return new Date(recentNewMoon + startFrac * LUNAR_CYCLE_MS);
 }
 
 const currentPhaseId = getPhaseId(getCycleFraction(Date.now()));
@@ -420,9 +427,9 @@ const playErrorSound   = () => playTone(200, 100,  'triangle', 0.2,  0.3);
 //  PHASE BANNER
 // ═══════════════════════════════════════════════════════════════
 function renderPhaseBanner() {
-    const phaseObj     = lunarData.find(p => p.id === currentPhaseId);
-    const banner       = document.getElementById('dynamic-phase-banner');
-    const dateStr      = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const phaseObj      = lunarData.find(p => p.id === currentPhaseId);
+    const banner        = document.getElementById('dynamic-phase-banner');
+    const dateStr       = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     const phaseStartStr = getPhaseStartDate().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     if (!banner || !phaseObj) return;
     banner.innerHTML = `
