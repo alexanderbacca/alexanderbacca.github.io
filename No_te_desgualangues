@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>No te desgualangues Vairon</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    touch-action: none;
+  }
+  canvas {
+    display: block;
+    background: #000;
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+  #ui {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 18px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .score-box {
+    color: #00ff88;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00ff88;
+    letter-spacing: 1px;
+  }
+  /* Mobile arrow buttons */
+  #btn-left, #btn-right {
+    position: fixed;
+    bottom: 30px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: rgba(255,255,255,0.7);
+    user-select: none;
+    cursor: pointer;
+    z-index: 20;
+    transition: background 0.1s;
+  }
+  #btn-left { left: 24px; }
+  #btn-right { right: 24px; }
+  #btn-left:active, #btn-right:active {
+    background: rgba(255,255,255,0.28);
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div class="score-box">DIST: <span id="score">0</span>m</div>
+  <div class="score-box">BEST: <span id="hi">0</span>m</div>
+</div>
+
+<canvas id="c"></canvas>
+
+<div id="btn-left">&#8592;</div>
+<div id="btn-right">&#8594;</div>
+
+<script>
+// ─── Canvas Setup ───────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const hiEl    = document.getElementById('hi');
+
+function resize() {
+  canvas.width  = Math.min(window.innerWidth,  480);
+  canvas.height = Math.min(window.innerHeight, 780);
+}
+resize();
+window.addEventListener('resize', () => { resize(); if(!gameRunning) drawStart(); });
+
+// ─── Character Parameters (Extracted / Vairon skeleton) ─────────────────────
+const CHAR = {
+  headRadius : 10,
+  bodyLen    : 22,
+  armLen     : 16,
+  legLen     : 22,
+  lineW      : 2.5,
+  color      : '#ffffff',
+  runFrames  : 8,
+  legSwing   : 35 * Math.PI / 180,
+  armSwing   : 25 * Math.PI / 180
+};
+
+// ─── Game State ──────────────────────────────────────────────────────────────
+let gameRunning = false;
+let score = 0;
+let hi    = parseInt(localStorage.getItem('vairon_hi') || '0');
+hiEl.textContent = hi;
+
+// Track / Road state
+let speed       = 1.8;   // pixels per frame at road level
+let curvature   = 0;     // current lateral curve bias  (-1 left, +1 right)
+let targetCurve = 0;
+let cameraX     = 0;     // current road centre X at horizon
+
+// Segments: each has a centre-x at horizon
+const SEG_COUNT  = 80;
+const SEG_STRIDE = 12;   // px per segment step (road depth step)
+let segments     = [];   // [{cx, width}]  from horizon(0) to fore(SEG_COUNT-1)
+
+// Player
+let playerX      = 0;    // x position (relative to road)
+let playerVX     = 0;
+const MOVE_SPEED = 5.5;
+
+// Animframe
+let animFrame    = 0;
+let frameTimer   = 0;
+const ANIM_SPEED = 5;
+
+// Fall state (game over animation)
+let falling      = false;
+let fallTimer    = 0;
+let fallVY       = 0;
+let fallVX       = 0;
+let fallCharX    = 0;
+let fallCharY    = 0;
+
+// Input
+const keys = { left: false, right: false };
+
+// ─── Input Listeners ─────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  keys.left  = true;
+  if (e.key === 'ArrowRight') keys.right = true;
+  if (!gameRunning && !falling) startGame();
+});
+document.addEventListener('keyup', e => {
+  if (e.key === 'ArrowLeft')  keys.left  = false;
+  if (e.key === 'ArrowRight') keys.right = false;
+});
+
+// Touch buttons
+const btnL = document.getElementById('btn-left');
+const btnR = document.getElementById('btn-right');
+function addTouchHold(btn, key) {
+  btn.addEventListener('touchstart', e => { e.preventDefault(); keys[key]=true;  if(!gameRunning&&!falling) startGame(); }, {passive:false});
+  btn.addEventListener('touchend',   e => { e.preventDefault(); keys[key]=false; }, {passive:false});
+  btn.addEventListener('touchcancel',e => { e.preventDefault(); keys[key]=false; }, {passive:false});
+  btn.addEventListener('mousedown',  ()=> { keys[key]=true;  if(!gameRunning&&!falling) startGame(); });
+  btn.addEventListener('mouseup',    ()=> { keys[key]=false; });
+  btn.addEventListener('mouseleave', ()=> { keys[key]=false; });
+}
+addTouchHold(btnL, 'left');
+addTouchHold(btnR, 'right');
+
+canvas.addEventListener('click', () => { if(!gameRunning && !falling) startGame(); });
+
+// ─── Road Segments Init ───────────────────────────────────────────────────────
+function initSegments() {
+  segments = [];
+  const baseW = canvas.width * 0.82; // width at foreground
+  for (let i = 0; i < SEG_COUNT; i++) {
+    // i=0 is horizon, i=SEG_COUNT-1 is foreground
+    const t = i / (SEG_COUNT - 1);
+    const w = lerp(18, baseW, Math.pow(t, 1.6));
+    segments.push({ cx: canvas.width / 2, width: w });
+  }
+  cameraX = canvas.width / 2;
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+// ─── Start Game ───────────────────────────────────────────────────────────────
+function startGame() {
+  gameRunning = true;
+  falling     = false;
+  score       = 0;
+  speed       = 1.8;
+  curvature   = 0;
+  targetCurve = 0;
+  playerX     = 0;
+  playerVX    = 0;
+  animFrame   = 0;
+  frameTimer  = 0;
+  initSegments();
+  scoreEl.textContent = 0;
+}
+
+// ─── Game Over ────────────────────────────────────────────────────────────────
+function triggerFall() {
+  gameRunning = false;
+  falling     = true;
+  fallTimer   = 0;
+  fallCharX   = segments[SEG_COUNT-1].cx + playerX;
+  fallCharY   = canvas.height - 80;
+  fallVY      = -9;
+  fallVX      = (playerX > 0 ? 4 : -4);
+  if (score > hi) {
+    hi = score;
+    localStorage.setItem('vairon_hi', hi);
+    hiEl.textContent = hi;
+  }
+}
+
+// ─── Update Road ──────────────────────────────────────────────────────────────
+let curveTimer = 0;
+let curveHold  = 0;
+function updateRoad() {
+  // Randomly shift curvature target
+  curveTimer--;
+  if (curveTimer <= 0) {
+    targetCurve = (Math.random() * 2 - 1) * Math.min(1, speed / 4);
+    curveHold   = 60 + Math.random() * 90;
+    curveTimer  = curveHold;
+  }
+  curvature += (targetCurve - curvature) * 0.018;
+
+  // Scroll segments: push a new horizon segment, shift rest toward foreground
+  const shift = curvature * speed * 2.2;
+  cameraX = clamp(cameraX + shift, canvas.width * 0.1, canvas.width * 0.9);
+
+  // Each frame: advance road (scroll toward player)
+  for (let i = 0; i < SEG_COUNT - 1; i++) {
+    segments[i].cx = lerp(segments[i].cx, segments[i+1].cx, speed * 0.04);
+  }
+  // New horizon segment
+  segments[0].cx = cameraX;
+
+  // Gradually widen segments toward foreground (perspective)
+  const baseW = canvas.width * 0.82;
+  for (let i = 0; i < SEG_COUNT; i++) {
+    const t = i / (SEG_COUNT - 1);
+    const targetW = lerp(18, baseW, Math.pow(t, 1.6));
+    segments[i].width = lerp(segments[i].width, targetW, 0.1);
+  }
+}
+
+// ─── Draw Road ────────────────────────────────────────────────────────────────
+function drawRoad() {
+  // Build path from horizon to foreground
+  ctx.beginPath();
+  // Left edge
+  ctx.moveTo(segments[0].cx - segments[0].width/2, getSegY(0));
+  for (let i = 1; i < SEG_COUNT; i++) {
+    ctx.lineTo(segments[i].cx - segments[i].width/2, getSegY(i));
+  }
+  // Right edge (reverse)
+  for (let i = SEG_COUNT-1; i >= 0; i--) {
+    ctx.lineTo(segments[i].cx + segments[i].width/2, getSegY(i));
+  }
+  ctx.closePath();
+
+  // Deep dark road fill
+  const gradient = ctx.createLinearGradient(0, getSegY(0), 0, getSegY(SEG_COUNT-1));
+  gradient.addColorStop(0,   '#0a0a0a');
+  gradient.addColorStop(0.5, '#141414');
+  gradient.addColorStop(1,   '#1e1e1e');
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Edge lines
+  ctx.strokeStyle = '#ff4400';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(segments[0].cx - segments[0].width/2, getSegY(0));
+  for (let i = 1; i < SEG_COUNT; i++) {
+    ctx.lineTo(segments[i].cx - segments[i].width/2, getSegY(i));
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(segments[0].cx + segments[0].width/2, getSegY(0));
+  for (let i = 1; i < SEG_COUNT; i++) {
+    ctx.lineTo(segments[i].cx + segments[i].width/2, getSegY(i));
+  }
+  ctx.stroke();
+
+  // Centre dashed line
+  ctx.setLineDash([6, 12]);
+  ctx.strokeStyle = '#ffffff22';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(segments[0].cx, getSegY(0));
+  for (let i = 1; i < SEG_COUNT; i++) {
+    ctx.lineTo(segments[i].cx, getSegY(i));
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function getSegY(i) {
+  // Map segment index to canvas Y: 0=horizon top, SEG_COUNT-1=bottom
+  const horizonY = canvas.height * 0.30;
+  const foreY    = canvas.height - 20;
+  return lerp(horizonY, foreY, Math.pow(i / (SEG_COUNT - 1), 1.2));
+}
+
+// ─── Draw Vairon (Skeleton Character) ────────────────────────────────────────
+function drawVairon(x, y, frame, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha !== undefined ? alpha : 1;
+  ctx.strokeStyle = CHAR.color;
+  ctx.lineWidth   = CHAR.lineW;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+
+  const f  = frame % (CHAR.runFrames * 2);
+  const t  = (f / (CHAR.runFrames * 2)) * Math.PI * 2;
+  const ls = Math.sin(t)   * CHAR.legSwing;   // left leg angle
+  const rs = Math.sin(t + Math.PI) * CHAR.legSwing; // right leg
+  const la = Math.sin(t + Math.PI) * CHAR.armSwing; // left arm (opposite leg)
+  const ra = Math.sin(t)   * CHAR.armSwing;
+
+  // Head
+  ctx.beginPath();
+  ctx.arc(x, y - CHAR.bodyLen - CHAR.headRadius, CHAR.headRadius, 0, Math.PI*2);
+  ctx.stroke();
+
+  // Spine
+  const neck = { x, y: y - CHAR.bodyLen };
+  ctx.beginPath();
+  ctx.moveTo(x, y - CHAR.bodyLen - CHAR.headRadius);
+  ctx.lineTo(neck.x, neck.y + CHAR.bodyLen);
+  ctx.stroke();
+
+  // Pelvis x-bar
+  const pelvis = { x, y: y };
+  const hipW = 10;
+  ctx.beginPath();
+  ctx.moveTo(pelvis.x - hipW, pelvis.y);
+  ctx.lineTo(pelvis.x + hipW, pelvis.y);
+  ctx.stroke();
+
+  // Left Leg
+  const lKnee = {
+    x: pelvis.x - hipW + Math.sin(ls) * CHAR.legLen,
+    y: pelvis.y + Math.cos(ls) * CHAR.legLen
+  };
+  const lFoot = {
+    x: lKnee.x + Math.sin(ls * 0.5) * CHAR.legLen,
+    y: lKnee.y + Math.cos(ls * 0.5) * CHAR.legLen
+  };
+  ctx.beginPath();
+  ctx.moveTo(pelvis.x - hipW, pelvis.y);
+  ctx.lineTo(lKnee.x, lKnee.y);
+  ctx.lineTo(lFoot.x, lFoot.y);
+  ctx.stroke();
+
+  // Right Leg
+  const rKnee = {
+    x: pelvis.x + hipW + Math.sin(rs) * CHAR.legLen,
+    y: pelvis.y + Math.cos(rs) * CHAR.legLen
+  };
+  const rFoot = {
+    x: rKnee.x + Math.sin(rs * 0.5) * CHAR.legLen,
+    y: rKnee.y + Math.cos(rs * 0.5) * CHAR.legLen
+  };
+  ctx.beginPath();
+  ctx.moveTo(pelvis.x + hipW, pelvis.y);
+  ctx.lineTo(rKnee.x, rKnee.y);
+  ctx.lineTo(rFoot.x, rFoot.y);
+  ctx.stroke();
+
+  // Shoulders x-bar
+  const shoulderY = y - CHAR.bodyLen + 6;
+  const sW = 12;
+  ctx.beginPath();
+  ctx.moveTo(x - sW, shoulderY);
+  ctx.lineTo(x + sW, shoulderY);
+  ctx.stroke();
+
+  // Left Arm
+  const lElbow = {
+    x: x - sW + Math.sin(la) * CHAR.armLen,
+    y: shoulderY + Math.cos(la) * CHAR.armLen
+  };
+  const lHand = {
+    x: lElbow.x + Math.sin(la*0.6) * CHAR.armLen,
+    y: lElbow.y + Math.cos(la*0.6) * CHAR.armLen * 0.5
+  };
+  ctx.beginPath();
+  ctx.moveTo(x - sW, shoulderY);
+  ctx.lineTo(lElbow.x, lElbow.y);
+  ctx.lineTo(lHand.x, lHand.y);
+  ctx.stroke();
+
+  // Right Arm
+  const rElbow = {
+    x: x + sW + Math.sin(ra) * CHAR.armLen,
+    y: shoulderY + Math.cos(ra) * CHAR.armLen
+  };
+  const rHand = {
+    x: rElbow.x + Math.sin(ra*0.6) * CHAR.armLen,
+    y: rElbow.y + Math.cos(ra*0.6) * CHAR.armLen * 0.5
+  };
+  ctx.beginPath();
+  ctx.moveTo(x + sW, shoulderY);
+  ctx.lineTo(rElbow.x, rElbow.y);
+  ctx.lineTo(rHand.x, rHand.y);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// ─── Draw Start Screen ────────────────────────────────────────────────────────
+function drawStart() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  initSegments();
+  drawRoad();
+
+  // Static Vairon preview
+  drawVairon(canvas.width/2, canvas.height - 80, 0);
+
+  // Title
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 22px "Courier New"';
+  ctx.fillStyle = '#ff4400';
+  ctx.shadowColor = '#ff4400';
+  ctx.shadowBlur = 16;
+  ctx.fillText('NO TE DESGUALANGUES', canvas.width/2, canvas.height*0.18);
+  ctx.font = 'bold 30px "Courier New"';
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = '#ffffff';
+  ctx.shadowBlur = 20;
+  ctx.fillText('VAIRON', canvas.width/2, canvas.height*0.18 + 38);
+
+  ctx.shadowBlur = 0;
+  ctx.font = '14px "Courier New"';
+  ctx.fillStyle = '#aaaaaa';
+  ctx.fillText('← → para moverte', canvas.width/2, canvas.height*0.18 + 75);
+  ctx.fillText('¡No te salgas del camino!', canvas.width/2, canvas.height*0.18 + 95);
+
+  ctx.font = 'bold 16px "Courier New"';
+  ctx.fillStyle = '#00ff88';
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 10;
+  ctx.fillText('[ TOCA O PRESIONA TECLA ]', canvas.width/2, canvas.height * 0.72);
+
+  if (hi > 0) {
+    ctx.font = '13px "Courier New"';
+    ctx.fillStyle = '#ffcc00';
+    ctx.shadowColor = '#ffcc00';
+    ctx.shadowBlur = 8;
+    ctx.fillText('MEJOR: ' + hi + 'm', canvas.width/2, canvas.height * 0.78);
+  }
+  ctx.restore();
+}
+
+// ─── Draw Game Over ───────────────────────────────────────────────────────────
+function drawGameOver() {
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 26px "Courier New"';
+  ctx.fillStyle = '#ff2200';
+  ctx.shadowColor = '#ff2200';
+  ctx.shadowBlur = 20;
+  ctx.fillText('¡TE DESGUALANGASTE!', canvas.width/2, canvas.height*0.38);
+
+  ctx.font = '16px "Courier New"';
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowBlur = 0;
+  ctx.fillText('Distancia: ' + score + 'm', canvas.width/2, canvas.height*0.47);
+  ctx.fillStyle = '#ffcc00';
+  ctx.fillText('Mejor: ' + hi + 'm', canvas.width/2, canvas.height*0.53);
+
+  ctx.font = 'bold 15px "Courier New"';
+  ctx.fillStyle = '#00ff88';
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 10;
+  ctx.fillText('[ REINTENTAR ]', canvas.width/2, canvas.height*0.63);
+  ctx.restore();
+}
+
+// ─── Main Game Loop ───────────────────────────────────────────────────────────
+let lastTime = 0;
+function loop(ts) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(ts - lastTime, 50);
+  lastTime = ts;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!gameRunning && !falling) {
+    drawStart();
+    return;
+  }
+
+  // ── Update ──────────────────────────────────────────────────────────────────
+  if (gameRunning) {
+    // Speed ramp
+    speed = Math.min(8, speed + 0.0004);
+
+    // Road update
+    updateRoad();
+
+    // Player movement
+    if (keys.left)  playerVX -= 0.8;
+    if (keys.right) playerVX += 0.8;
+    playerVX *= 0.78;  // friction
+    playerX  += playerVX;
+
+    // Advance score
+    score = Math.floor(score + speed * 0.5);
+    scoreEl.textContent = score;
+
+    // Animate legs
+    frameTimer++;
+    if (frameTimer >= ANIM_SPEED) { frameTimer = 0; animFrame++; }
+
+    // ── Collision / boundary check ─────────────────────────────────────────
+    const seg   = segments[SEG_COUNT - 1];
+    const charX = seg.cx + playerX;
+    const halfW = seg.width / 2;
+    const margin = 14; // feet-width margin
+    if (charX < seg.cx - halfW + margin || charX > seg.cx + halfW - margin) {
+      triggerFall();
+    }
+  }
+
+  // ── Fall animation ──────────────────────────────────────────────────────────
+  if (falling) {
+    fallTimer++;
+    fallCharX += fallVX;
+    fallCharY += fallVY;
+    fallVY    += 0.6; // gravity
+    fallVX    *= 0.97;
+    const alpha = Math.max(0, 1 - fallTimer / 55);
+    drawRoad();
+    drawVairon(fallCharX, fallCharY, animFrame, alpha);
+
+    if (fallTimer > 70) {
+      falling = false;
+      drawGameOver();
+    }
+    return;
+  }
+
+  // ── Draw ────────────────────────────────────────────────────────────────────
+  if (gameRunning) {
+    drawRoad();
+    const seg   = segments[SEG_COUNT - 1];
+    const charX = seg.cx + playerX;
+    drawVairon(charX, canvas.height - 80, animFrame);
+
+    // Speed indicator (subtle)
+    ctx.save();
+    ctx.font = '11px "Courier New"';
+    ctx.fillStyle = '#ffffff33';
+    ctx.textAlign = 'right';
+    ctx.fillText('VEL ' + speed.toFixed(1), canvas.width - 10, canvas.height - 10);
+    ctx.restore();
+  }
+
+  if (!gameRunning && !falling) {
+    drawGameOver();
+  }
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+initSegments();
+drawStart();
+requestAnimationFrame(loop);
+
+// Canvas click restart after game over
+canvas.addEventListener('click', () => {
+  if (!gameRunning && !falling) startGame();
+});
+</script>
+</body>
+</html>
