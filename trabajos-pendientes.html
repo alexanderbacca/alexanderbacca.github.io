@@ -49,7 +49,6 @@
       padding: 1.5rem 1rem 3rem;
     }
 
-    /* ── Floating background decoration ── */
     body::before {
       content: '';
       position: fixed;
@@ -233,7 +232,7 @@
       cursor: pointer;
       margin-top: 1.75rem;
       box-shadow: 0 4px 20px rgba(235,47,150,0.30);
-      transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+      transition: transform var(--transition), box-shadow var(--transition), filter var(--transition), opacity var(--transition);
       letter-spacing: 0.01em;
     }
     .btn-primary:hover {
@@ -244,6 +243,11 @@
     .btn-primary:active {
       transform: translateY(0px) scale(0.98);
       box-shadow: 0 2px 12px rgba(235,47,150,0.22);
+    }
+    .btn-primary:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
     }
 
     /* ── History button ── */
@@ -301,6 +305,37 @@
       body { padding: 1rem 0.75rem 2.5rem; }
       .card { padding: 1.4rem 1.1rem 1.6rem; }
     }
+
+    /* ══════════════════════════════════
+       TOAST
+    ══════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.4rem;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 320ms ease;
+      opacity: 0;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    .toast.success { background: linear-gradient(135deg, #52c41a, #389e0d); }
+    .toast.error   { background: linear-gradient(135deg, #f759ab, #9254de); }
 
     /* ══════════════════════════════════
        MODAL STYLES
@@ -599,8 +634,8 @@
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn-primary">
-          🌸 Generar y Abrir Formulario ✨
+        <button type="submit" class="btn-primary" id="btnSubmit">
+          💾 Enviar y guardar copia ✨
         </button>
 
       </form>
@@ -613,6 +648,9 @@
 
     <p class="footer">💕 Con cariño para tu taller de costura 🧵</p>
   </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ══════════════ HISTORY MODAL ══════════════ -->
   <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -636,8 +674,23 @@
     // ─────────────────────────────────────────────
     //  CONSTANTS
     // ─────────────────────────────────────────────
-    const LS_KEY   = 'trabajosPendientesHistory';
-    const MAX_HIST = 10;
+    const LS_KEY        = 'trabajosPendientesHistory';
+    const MAX_HIST      = 10;
+    const FORM_ACTION   = 'https://docs.google.com/forms/d/e/1FAIpQLScelNzAaWcZt4zTmyje8_afAyaqlj6tPZOKUa-GB2gzwVVlxw/formResponse';
+
+    // ─────────────────────────────────────────────
+    //  Toast helper
+    // ─────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg, type = 'success') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = `toast ${type} show`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+      }, 3500);
+    }
 
     // ─────────────────────────────────────────────
     //  LocalStorage helpers
@@ -649,7 +702,6 @@
 
     function saveSnapshot(data) {
       const hist = getHistory();
-      // Insert newest first, keep max 10
       hist.unshift(data);
       if (hist.length > MAX_HIST) hist.length = MAX_HIST;
       localStorage.setItem(LS_KEY, JSON.stringify(hist));
@@ -667,9 +719,25 @@
     })();
 
     // ─────────────────────────────────────────────
-    //  Form submission, save snapshot, open form
+    //  Silent POST to Google Form
     // ─────────────────────────────────────────────
-    document.getElementById('mainForm').addEventListener('submit', function(e) {
+    async function postToGoogleForm(fields) {
+      const body = new URLSearchParams();
+      Object.entries(fields).forEach(([k, v]) => { if (v) body.set(k, v); });
+      // Google Forms ignores CORS preflight on formResponse — use no-cors
+      await fetch(FORM_ACTION, {
+        method:  'POST',
+        mode:    'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    body.toString()
+      });
+      // no-cors always returns opaque response; we treat reaching here as sent
+    }
+
+    // ─────────────────────────────────────────────
+    //  Form submission
+    // ─────────────────────────────────────────────
+    document.getElementById('mainForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       let valid = true;
@@ -703,31 +771,44 @@
       const abono         = document.getElementById('abono').value.trim();
       const especifique   = document.getElementById('especifique').value.trim();
 
-      // ── 1. Save snapshot to localStorage BEFORE opening the form ──
+      // ── 1. Save to localStorage ──
       const snapshot = {
-        savedAt:       new Date().toISOString(),
-        nombre,
-        fechaRecibido,
-        fechaEntrega,
-        celular:       celularDigits,
-        comentarios,
-        abono,
-        especifique
+        savedAt: new Date().toISOString(),
+        nombre, fechaRecibido, fechaEntrega,
+        celular: celularDigits,
+        comentarios, abono, especifique
       };
       saveSnapshot(snapshot);
 
-      // ── 2. Build pre-filled Google Form URL ──
-      const base   = 'https://docs.google.com/forms/d/e/1FAIpQLScelNzAaWcZt4zTmyje8_afAyaqlj6tPZOKUa-GB2gzwVVlxw/viewform?usp=pp_url';
-      const params = new URLSearchParams();
-      params.set('entry.2005620554', nombre);
-      params.set('entry.983633463',  fechaRecibido);
-      params.set('entry.900452356',  fechaEntrega);
-      params.set('entry.1166974658', celularDigits);
-      params.set('entry.839337160',  comentarios);
-      if (abono)       params.set('entry.19079608',  abono);
-      if (especifique) params.set('entry.285133247', especifique);
+      // ── 2. Silent POST to Google Form ──
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = '⏳ Enviando...';
 
-      window.open(base + '&' + params.toString(), '_blank', 'noopener,noreferrer');
+      try {
+        await postToGoogleForm({
+          'entry.2005620554': nombre,
+          'entry.983633463':  fechaRecibido,
+          'entry.900452356':  fechaEntrega,
+          'entry.1166974658': celularDigits,
+          'entry.839337160':  comentarios,
+          'entry.19079608':   abono,
+          'entry.285133247':  especifique
+        });
+        showToast('✅ ¡Guardado y enviado con éxito!', 'success');
+        document.getElementById('mainForm').reset();
+        // Re-set today's date after reset
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('fechaRecibido').value = `${yyyy}-${mm}-${dd}`;
+      } catch (err) {
+        showToast('⚠️ Copia guardada, pero el envío falló.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💾 Enviar y guardar copia ✨';
+      }
     });
 
     // ─────────────────────────────────────────────
@@ -740,7 +821,6 @@
       document.getElementById('comentarios').value  = snap.comentarios  || '';
       document.getElementById('abono').value        = snap.abono        || '';
       document.getElementById('especifique').value  = snap.especifique  || '';
-      // Note: fechaRecibido is readonly (auto-set to today), left as-is
       closeModal();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -750,7 +830,6 @@
     // ─────────────────────────────────────────────
     function formatDate(isoDate) {
       if (!isoDate) return '—';
-      // isoDate can be YYYY-MM-DD or full ISO string
       const d = new Date(isoDate.length === 10 ? isoDate + 'T00:00:00' : isoDate);
       if (isNaN(d)) return isoDate;
       return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -797,7 +876,6 @@
         </div>
       `).join('');
 
-      // Attach restore listeners
       body.querySelectorAll('.btn-restore').forEach(btn => {
         btn.addEventListener('click', function() {
           const idx = parseInt(this.dataset.index, 10);
@@ -832,12 +910,10 @@
     document.getElementById('modalCloseX').addEventListener('click', closeModal);
     document.getElementById('modalCloseBottom').addEventListener('click', closeModal);
 
-    // Close on backdrop click (outside modal box)
     document.getElementById('modalBackdrop').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
 
-    // Close on Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeModal();
     });
